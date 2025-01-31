@@ -1,0 +1,1 @@
+../02_SYN/Netlist/CORE_SYN.v

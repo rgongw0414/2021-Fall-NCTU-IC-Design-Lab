@@ -1,0 +1,2 @@
+dc_shell-t -f SYN.tcl | tee syn.log
+

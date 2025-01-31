@@ -1,0 +1,52 @@
+Information: Updating design information... (UID-85)
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : CORE
+Version: R-2020.09
+Date   : Sun Mar 12 01:52:12 2023
+****************************************
+
+Operating Conditions: freepdk45_v1.1_t25   Library: freepdk45_v1.1_t25
+Wire Load Model Mode: top
+
+  Startpoint: opt (input port)
+  Endpoint: out_n[3] (output port)
+  Path Group: default
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  CORE               5K_hvratio_1_1        freepdk45_v1.1_t25
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  input external delay                     0.00       0.00 f
+  opt (in)                                 0.00       0.00 f
+  U34/Y (XNOR2VTG_X1)                      0.04       0.04 f
+  U37/Y (XNOR2VTG_X1)                      0.04       0.09 f
+  U38/Y (NAND2VTG_X1)                      0.02       0.11 r
+  U39/Y (INVVTG_X1)                        0.02       0.13 f
+  U40/Y (NOR2VTG_X1)                       0.03       0.16 r
+  U42/Y (NOR2VTG_X1)                       0.03       0.19 f
+  U43/Y (NOR2VTG_X1)                       0.03       0.21 r
+  U47/Y (NOR2VTG_X1)                       0.03       0.24 f
+  U49/Y (NOR2VTG_X1)                       0.03       0.27 r
+  U50/Y (XNOR2VTG_X1)                      0.03       0.30 r
+  out_n[3] (out)                           0.00       0.30 r
+  data arrival time                                   0.30
+
+  max_delay                               30.00      30.00
+  output external delay                    0.00      30.00
+  data required time                                 30.00
+  -----------------------------------------------------------
+  data required time                                 30.00
+  data arrival time                                  -0.30
+  -----------------------------------------------------------
+  slack (MET)                                        29.70
+
+
+1

@@ -1,0 +1,30 @@
+ 
+****************************************
+Report : area
+Design : SMC
+Version: R-2020.09
+Date   : Mon Mar 13 22:10:01 2023
+****************************************
+
+Library(s) Used:
+
+    slow (File: /home/eda/CBDK018_TSMC_Artisan/CIC/SynopsysDC/slow.db)
+
+Number of ports:                           66
+Number of nets:                          3806
+Number of cells:                         3405
+Number of combinational cells:           3405
+Number of sequential cells:                 0
+Number of macros/black boxes:               0
+Number of buf/inv:                        815
+Number of references:                      72
+
+Combinational area:              64841.516077
+Buf/Inv area:                     5774.630467
+Noncombinational area:               0.000000
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (No wire load specified)
+
+Total cell area:                 64841.516077
+Total area:                 undefined
+1

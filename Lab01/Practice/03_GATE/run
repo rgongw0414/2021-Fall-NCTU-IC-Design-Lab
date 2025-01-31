@@ -1,0 +1,1 @@
+irun TESTBED.v -define GATE -debug -v "/home/eda/CBDK45_FreePDK_TSRI_v1.1/verilog/FreePDK45_cic.v" -nontcglitch
