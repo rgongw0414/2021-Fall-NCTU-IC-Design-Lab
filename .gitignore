@@ -1,3 +1,5 @@
+default.svf
+*.svf
 *.repC
 output.txt
 test.cpp
