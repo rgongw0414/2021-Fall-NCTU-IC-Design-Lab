@@ -1,1 +1,2 @@
-irun TESTBED.v -define GATE -debug -v ~iclabta01/umc018/Verilog/umc18_neg.v -nontcglitch
+#irun TESTBED.v -define GATE -debug -v ~iclabta01/umc018/Verilog/umc18_neg.v -nontcglitch
+xrun TESTBED.v -define GATE -debug -v "~/CBDK018_TSMC_Artisan/CIC/Verilog/tsmc18_neg.v" -nontcglitch

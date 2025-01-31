@@ -7,17 +7,20 @@
 #======================================================
 #  Set Libraries
 #======================================================
-set search_path {./../01_RTL \
-                /home/eric/CBDK018_TSMC_Artisan/CIC/SynopsysDC}
+# for DC 2021.06-sp2, use "", not {}
+set search_path "./../01_RTL \
+                   /usr/cad/synopsys/synthesis/cur/libraries/syn \
+                   /home/eric/CBDK018_TSMC_Artisan/CIC/SynopsysDC"
                 #    ~iclabta01/umc018/Synthesis \
                 #    /home/eda/SAED32_EDK/lib/stdcell_lvt/db_nldm/ }
 #                   "/home/eda/CBDK45_FreePDK_TSRI_v1.1/lib" }
                    #/usr/syn/libraries/syn/ \
                    #/usr/syn/dw/ }
 
-set synthetic_library {dw_foundation.sldb}
-set link_library {* dw_foundation.sldb standard.sldb saed32lvt_tt1p05v25c.db }
-set target_library {saed32lvt_tt1p05v25c.db }
+set synthetic_library "dw_foundation.sldb"
+set link_library "* dw_foundation.sldb standard.sldb slow.db"
+set target_library "slow.db"
+
 
 #======================================================
 #  Global Parameters
@@ -28,7 +31,7 @@ set MAX_Delay 30
 #======================================================
 #  Read RTL Code
 #======================================================
-read_sverilog {$DESIGN\.v}
+read_sverilog "$DESIGN\.v"
 current_design $DESIGN
 
 #======================================================

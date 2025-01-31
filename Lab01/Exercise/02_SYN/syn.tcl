@@ -8,9 +8,10 @@
 #  Set Libraries
 #======================================================
 set search_path {./../01_RTL \
-                   ~iclabta01/umc018/Synthesis}
-                   #/usr/syn/libraries/syn/ \
-                   #/usr/syn/dw/ }
+                   /usr/cad/synopsys/synthesis/cur/libraries/syn \
+                   /home/eric/CBDK018_TSMC_Artisan/CIC/SynopsysDC}
+
+#                    ~iclabta01/umc018/Synthesis \
 
 set synthetic_library {dw_foundation.sldb}
 set link_library {* dw_foundation.sldb standard.sldb slow.db}

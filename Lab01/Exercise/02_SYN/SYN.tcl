@@ -8,8 +8,10 @@
 #  Set Libraries
 #======================================================
 set search_path {./../01_RTL \
-                   ~iclabta01/umc018/Synthesis \
-                   /home/eda/CBDK018_TSMC_Artisan/CIC/SynopsysDC}
+
+#                    ~iclabta01/umc018/Synthesis \
+                   /usr/cad/synopsys/synthesis/cur/libraries/syn/ \
+                   ~/CBDK018_TSMC_Artisan/CIC/SynopsysDC/}
                    #/usr/syn/libraries/syn/ \
                    #/usr/syn/dw/ }
 
