@@ -76,11 +76,11 @@ always@(*) begin
   if (mode[1] == 1) begin
     if (mode[0] == 0) begin
       // Calculate max gm
-      out_n = n_0_fill * 3 + n_1_fill * 4 + n_2_fill * 5;
+      out_n = n_0_fill + n_1_fill + n_2_fill;
     end
     else begin
       // Calculate max I
-      out_n = n_0_fill + n_1_fill + n_2_fill;
+      out_n = n_0_fill * 3 + n_1_fill * 4 + n_2_fill * 5;
     end
 
   end
