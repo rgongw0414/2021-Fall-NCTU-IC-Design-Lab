@@ -11,7 +11,7 @@ module Sort(
     in0, in1, in2, in3, in4, in5,
     mode,
     // Output signals
-    out0, out1, out2, out3, out4, out5
+    out0, out1, out2
 );
 input [6:0] in0, in1, in2, in3, in4, in5;
 input mode; // 0: Ascending, 1: Descending
