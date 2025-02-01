@@ -37,6 +37,7 @@ wire [2:0] W_4, V_GS_4, V_DS_4;
 wire [2:0] W_5, V_GS_5, V_DS_5;
 wire [1:0] mode;
 wire [9:0] out_n;
+wire overflow_ID, overflow_Gm;
 initial begin
   `ifdef RTL
     $fsdbDumpfile("SMC.fsdb");
@@ -59,7 +60,8 @@ SMC DUT_SMC(
 .W_4(W_4), .V_GS_4(V_GS_4), .V_DS_4(V_DS_4),
 .W_5(W_5), .V_GS_5(V_GS_5), .V_DS_5(V_DS_5),
 .mode(mode),
-.out_n(out_n)
+.out_n(out_n), 
+.overflow_ID(overflow_ID), .overflow_Gm(overflow_Gm)
 );
 
 PATTERN My_PATTERN(
