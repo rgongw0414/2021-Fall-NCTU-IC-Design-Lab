@@ -14,15 +14,15 @@ module Sort(
     out0, out1, out2
 );
 input [6:0] in0, in1, in2, in3, in4, in5;
-input mode; // 0: Ascending, 1: Descending
+input mode; // 0: return top-3 max, 1: return top-3 min
 output [6:0] out0, out1, out2;
 
 reg [6:0] max1, max2, max3; // The top-3 ID/Gm, where max1 > max2 > max3
 reg [6:0] min1, min2, min3; // The top-3 ID/Gm, where min1 < min2 < min3
 
-assign out0 = (mode == 0) ? max1 : min3;
-assign out1 = (mode == 0) ? max2 : min2;
-assign out2 = (mode == 0) ? max3 : min1;
+assign out0 = (mode == 1) ? max1 : min3;
+assign out1 = (mode == 1) ? max2 : min2;
+assign out2 = (mode == 1) ? max3 : min1;
 
 always@(*) begin
     // Default assignment for avoiding X value
@@ -32,7 +32,7 @@ always@(*) begin
     min1 = min1;
     min2 = min2;
     min3 = min3;
-    if (mode == 0) begin  // Sort the input signals in ascending order
+    if (mode == 1) begin  // Sort the input signals in ascending order
         if (in0 > in1) begin
             max1 = in0;
             max2 = in1;
