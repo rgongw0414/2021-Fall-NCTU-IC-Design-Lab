@@ -6,6 +6,7 @@
 //   File Name   : SMC.v
 //   Module Name : SMC
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+`include "sort.v"
 
 module SMC(
   // Input signals
@@ -41,8 +42,8 @@ output[9:0] out_n;
 // reg for proc. assignment
 
 reg [5:0] n; // The resulting ID/Gm, used for sorting in the next stage
-reg max1, max2, max3; // The top-3 ID/Gm, where max1 > max2 > max3
-reg min1, min2, min3; // The top-3 ID/Gm, where min1 < min2 < min3
+reg [6:0] max1, max2, max3; // The top-3 ID/Gm, where max1 > max2 > max3
+reg [6:0] min1, min2, min3; // The top-3 ID/Gm, where min1 < min2 < min3
 
 
 
@@ -64,8 +65,6 @@ ID_Gm_calculator ID_Gm_calculator5(.W(W_5), .V_GS(V_GS_5), .V_DS(V_DS_5), .ID(ID
 // --------------------------------------------------
 // 2. Determine output ID/gm ann then sorting
 // --------------------------------------------------
-
-
 
 // Calculate final output: out_n
 always@(*) begin
