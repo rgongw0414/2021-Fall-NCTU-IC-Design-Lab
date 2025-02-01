@@ -18,7 +18,8 @@ module SMC(
     W_4, V_GS_4, V_DS_4,
     W_5, V_GS_5, V_DS_5,   
   // Output signals
-    out_n
+    out_n, 
+    overflow_ID, overflow_Gm
 );
 
 //================================================================
@@ -31,7 +32,8 @@ input [2:0] W_3, V_GS_3, V_DS_3;
 input [2:0] W_4, V_GS_4, V_DS_4;
 input [2:0] W_5, V_GS_5, V_DS_5;
 input [1:0] mode;
-output[9:0] out_n; 								
+output reg [9:0] out_n;
+output overflow_ID, overflow_Gm;  // flags for overflow and underflow
 
 //================================================================
 //    Wire & Registers 
@@ -41,11 +43,8 @@ output[9:0] out_n;
 // wire for port connection and cont. assignment
 // reg for proc. assignment
 
-reg [5:0] n; // The resulting ID/Gm, used for sorting in the next stage
-reg [6:0] max1, max2, max3; // The top-3 ID/Gm, where max1 > max2 > max3
-reg [6:0] min1, min2, min3; // The top-3 ID/Gm, where min1 < min2 < min3
-
-
+wire [6:0] n_0, n_1, n_2; // The top-3 max/min ID/Gm, where max1 > max2 > max3, min1 < min2 < min3
+wire [9:0] n_0_fill, n_1_fill, n_2_fill;
 
 //================================================================
 //    DESIGN
@@ -55,7 +54,6 @@ reg [6:0] min1, min2, min3; // The top-3 ID/Gm, where min1 < min2 < min3
 // --------------------------------------------------
 wire [6:0] ID_0, ID_1, ID_2, ID_3, ID_4, ID_5; // 7 bits, prevent overflow
 wire [6:0] Gm_0, Gm_1, Gm_2, Gm_3, Gm_4, Gm_5;
-wire overflow_ID, overflow_Gm;  // flags for overflow and underflow
 ID_Gm_calculator ID_Gm_calculator0(.W(W_0), .V_GS(V_GS_0), .V_DS(V_DS_0), .ID(ID_0), .Gm(Gm_0), .overflow_ID(overflow_ID), .overflow_Gm(overflow_Gm));
 ID_Gm_calculator ID_Gm_calculator1(.W(W_1), .V_GS(V_GS_1), .V_DS(V_DS_1), .ID(ID_1), .Gm(Gm_1), .overflow_ID(overflow_ID), .overflow_Gm(overflow_Gm));
 ID_Gm_calculator ID_Gm_calculator2(.W(W_2), .V_GS(V_GS_2), .V_DS(V_DS_2), .ID(ID_2), .Gm(Gm_2), .overflow_ID(overflow_ID), .overflow_Gm(overflow_Gm));
@@ -63,33 +61,37 @@ ID_Gm_calculator ID_Gm_calculator3(.W(W_3), .V_GS(V_GS_3), .V_DS(V_DS_3), .ID(ID
 ID_Gm_calculator ID_Gm_calculator4(.W(W_4), .V_GS(V_GS_4), .V_DS(V_DS_4), .ID(ID_4), .Gm(Gm_4), .overflow_ID(overflow_ID), .overflow_Gm(overflow_Gm));
 ID_Gm_calculator ID_Gm_calculator5(.W(W_5), .V_GS(V_GS_5), .V_DS(V_DS_5), .ID(ID_5), .Gm(Gm_5), .overflow_ID(overflow_ID), .overflow_Gm(overflow_Gm));
 // --------------------------------------------------
-// 2. Determine output ID/gm ann then sorting
+// 2. Determine output ID/gm and then sorting
 // --------------------------------------------------
+
+// Sort the ID/Gm 
+Sort sort0(.in0(ID_0), .in1(ID_1), .in2(ID_2), .in3(ID_3), .in4(ID_4), .in5(ID_5), .mode(mode[1]), .out0(n_0), .out1(n_1), .out2(n_2));
+assign n_0_fill = {3'b0, n_0};
+assign n_1_fill = {3'b0, n_1};
+assign n_2_fill = {3'b0, n_2};
 
 // Calculate final output: out_n
 always@(*) begin
-  // max1 > max2 > max3
+  // n_0 > n_1 > n_2
   if (mode[1] == 1) begin
     if (mode[0] == 0) begin
       // Calculate max gm
-      out_n = max1 * 3 + max2 * 4 + max3 * 5;
+      out_n = n_0_fill * 3 + n_1_fill * 4 + n_2_fill * 5;
     end
     else begin
       // Calculate max I
-      out_n = max1 + max2 + max3;
+      out_n = n_0_fill + n_1_fill + n_2_fill;
     end
 
   end
   else begin
-    // min3 > min2 > min1
     if (mode[0] == 0) begin
       // Calculate min gm
-      out_n = n[0] + n[1] + n[2] + n[3] + n[4] + n[5] - max1 - max2 - max3;
-      // out_n = min1 + min2 + min3;
+      out_n = n_0_fill + n_1_fill + n_2_fill;
     end
     else begin
       // Calculate min I
-      out_n = 3 * min3 + 4 * min2 + 5 * min1;
+      out_n = n_0_fill * 3 + n_1_fill * 4 + n_2_fill * 5;
     end
   end
 end
@@ -108,7 +110,7 @@ module mode_selector(
   // Output signals
     selected_mode
 );
-input reg [2:0] V_GS, V_DS;
+input [2:0] V_GS, V_DS;
 output reg selected_mode;  // 0: Triode, 1: Saturation
 
 always@(*) begin
@@ -131,7 +133,6 @@ endmodule
   * V_DS: Drain-source voltage, 1 ~ 7
   * ID: Drain current, 0 ~ 81 (Triode), 0 ~ 84 (Saturation)
   * Gm: Transconductance, 0 ~ 32 (Triode), 0 ~ 28 (Saturation)
-  */
 */
 module ID_Gm_calculator(
   // Input signals
@@ -142,6 +143,7 @@ module ID_Gm_calculator(
 input [2:0] W, V_GS, V_DS;
 output reg overflow_ID, overflow_Gm;  // flags for overflow and underflow
 output reg [6:0] ID, Gm;  // 7 bits, prevent overflow
+
 wire selected_mode;
 mode_selector mode_selector0(.V_GS(V_GS), .V_DS(V_DS), .selected_mode(selected_mode));
 
@@ -210,27 +212,3 @@ end
 // end
 
 endmodule
-
-// --------------------------------------------------
-// Example for using submodule 
-// BBQ bbq0(.meat(meat_0), .vagetable(vagetable_0), .water(water_0),.cost(cost[0]));
-// --------------------------------------------------
-// Example for continuous assignment
-// assign out_n = XXX;
-// --------------------------------------------------
-// Example for procedure assignment
-// always@(*) begin 
-// 	out_n = XXX; 
-// end
-// --------------------------------------------------
-// Example for case statement
-// always @(*) begin
-// 	case(op)
-// 		2'b00: output_reg = a + b;
-// 		2'b10: output_reg = a - b;
-// 		2'b01: output_reg = a * b;
-// 		2'b11: output_reg = a / b;
-// 		default: output_reg = 0;
-// 	endcase
-// end
-// --------------------------------------------------
