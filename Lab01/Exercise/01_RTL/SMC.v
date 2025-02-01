@@ -43,8 +43,10 @@ output overflow_ID, overflow_Gm;  // flags for overflow and underflow
 // wire for port connection and cont. assignment
 // reg for proc. assignment
 
-wire [6:0] n_0, n_1, n_2; // The top-3 max/min ID/Gm, where max1 > max2 > max3, min1 < min2 < min3
-wire [9:0] n_0_fill, n_1_fill, n_2_fill;
+wire [6:0] n_0_ID, n_1_ID, n_2_ID; // The top-3 max/min ID/Gm, where max1 > max2 > max3, min1 < min2 < min3
+wire [9:0] n_0_ID_fill, n_1_ID_fill, n_2_ID_fill;
+wire [6:0] n_0_Gm, n_1_Gm, n_2_Gm; // The top-3 max/min ID/Gm, where max1 > max2 > max3, min1 < min2 < min3
+wire [9:0] n_0_Gm_fill, n_1_Gm_fill, n_2_Gm_fill;
 
 //================================================================
 //    DESIGN
@@ -65,10 +67,15 @@ ID_Gm_calculator ID_Gm_calculator5(.W(W_5), .V_GS(V_GS_5), .V_DS(V_DS_5), .ID(ID
 // --------------------------------------------------
 
 // Sort the ID/Gm 
-Sort sort0(.in0(ID_0), .in1(ID_1), .in2(ID_2), .in3(ID_3), .in4(ID_4), .in5(ID_5), .mode(mode[1]), .out0(n_0), .out1(n_1), .out2(n_2));
-assign n_0_fill = {3'b0, n_0};
-assign n_1_fill = {3'b0, n_1};
-assign n_2_fill = {3'b0, n_2};
+Sort sort_ID(.in0(ID_0), .in1(ID_1), .in2(ID_2), .in3(ID_3), .in4(ID_4), .in5(ID_5), .mode(mode[1]), .out0(n_0_ID), .out1(n_1_ID), .out2(n_2_ID));
+assign n_0_ID_fill = {3'b0, n_0_ID};
+assign n_1_ID_fill = {3'b0, n_1_ID};
+assign n_2_ID_fill = {3'b0, n_2_ID};
+
+Sort sort_Gm(.in0(Gm_0), .in1(Gm_1), .in2(Gm_2), .in3(Gm_3), .in4(Gm_4), .in5(Gm_5), .mode(mode[1]), .out0(n_0_Gm), .out1(n_1_Gm), .out2(n_2_Gm));
+assign n_0_Gm_fill = {3'b0, n_0_Gm};
+assign n_1_Gm_fill = {3'b0, n_1_Gm};
+assign n_2_Gm_fill = {3'b0, n_2_Gm};
 
 // Calculate final output: out_n
 always@(*) begin
@@ -76,28 +83,25 @@ always@(*) begin
   if (mode[1] == 1) begin
     if (mode[0] == 0) begin
       // Calculate max gm
-      out_n = n_0_fill + n_1_fill + n_2_fill;
+      out_n = n_0_Gm_fill + n_1_Gm_fill + n_2_Gm_fill;
     end
     else begin
       // Calculate max I
-      out_n = n_0_fill * 3 + n_1_fill * 4 + n_2_fill * 5;
+      out_n = n_0_ID_fill * 3 + n_1_ID_fill * 4 + n_2_ID_fill * 5;
     end
-
   end
   else begin
     if (mode[0] == 0) begin
       // Calculate min gm
-      out_n = n_0_fill + n_1_fill + n_2_fill;
+      out_n = n_0_Gm_fill + n_1_Gm_fill + n_2_Gm_fill;
     end
     else begin
       // Calculate min I
-      out_n = n_0_fill * 3 + n_1_fill * 4 + n_2_fill * 5;
+      out_n = n_0_ID_fill * 3 + n_1_ID_fill * 4 + n_2_ID_fill * 5;
     end
   end
 end
 endmodule
-
-
 
 //================================================================
 //   SUB MODULE
@@ -157,7 +161,7 @@ always@(*) begin
     if (selected_mode == 0) begin
       // Triode
       ID = (W * V_DS * (2 * (V_GS - 1) - V_DS)) / 3;
-      Gm = W * V_GS * 2 / 3;
+      Gm = (W * V_GS * 2) / 3;
     end
     else begin
       // Saturation
