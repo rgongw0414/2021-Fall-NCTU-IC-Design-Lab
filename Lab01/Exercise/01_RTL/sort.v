@@ -25,7 +25,7 @@ assign out1 = (mode == 1) ? max2 : min2;
 assign out2 = (mode == 1) ? max3 : min1;
 
 always@(*) begin
-    // Default assignment for avoiding X value
+    // Default assignment for avoiding X value or latches
     max1 = 0;
     max2 = 0;
     max3 = 0;

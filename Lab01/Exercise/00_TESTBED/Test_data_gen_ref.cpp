@@ -12,7 +12,7 @@ using namespace std;
 #define NONE "\033[m"
 #define CYAN "\033[0;36m"
 
-#define PATTERN_NUM 100000  //可調整PATTERN_NUM來決定PATTERN數目
+#define PATTERN_NUM 10000  //可調整PATTERN_NUM來決定PATTERN數目
 
 
 /* dram.dat format
@@ -96,7 +96,7 @@ int main(){
 
 
         // Show on terminal
-		printf(RED "PATTERN %d\n" NONE,num_pattern);
+		printf(RED "PATTERN %d\n" NONE, PATTERN_NUM - num_pattern);
 		for(int i = 0; i < 6; i++)
 			printf("NO: %d | w: %d vgs: %d vds: %d\n",i,w[i],vgs[i],vds[i]);
 		for(int i = 0; i < 6; i++)
