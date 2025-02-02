@@ -1,5 +1,5 @@
 * Cell library: CBDK018_TSMC_Artisan
-* 10,000 test patterns passed (Lab01/Exercise/00_TESTBED\Test_data_gen_ref.cpp)
+* 10,000 test patterns passed (Lab01/Exercise/00_TESTBED/Test_data_gen_ref.cpp)
 
 Area:
 ```
