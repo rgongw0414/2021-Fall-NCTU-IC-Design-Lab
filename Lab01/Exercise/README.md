@@ -1,5 +1,12 @@
+# Exercise 1 - Design: Supper MOSFET Calculator(SMC)
+## Description
+* Design a Supper MOSFET Calculator to calculate the drain current I<sub>D</sub> and transconductance g<sub>m</sub> in a short time.
+* Given numerous combinations of width, V<sub>GS</sub> and V<sub>DS</sub>, find which one could get the maximum value?
+
+##
 * Cell library: CBDK018_TSMC_Artisan
-* 10,000 test patterns passed (Lab01/Exercise/00_TESTBED/Test_data_gen_ref.cpp)
+* 10,000 test patterns passed in post-sim (Lab01/Exercise/00_TESTBED/Test_data_gen_ref.cpp)
+* Only combinational cells are introduced!
 
 Area:
 ```
