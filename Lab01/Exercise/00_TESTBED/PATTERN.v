@@ -5,7 +5,7 @@
 	`define PATTERN_NUM 10000
 `endif
 `ifdef GATE
-	`define PATTERN_NUM 20
+	`define PATTERN_NUM 10000
 `endif
 
 module PATTERN(

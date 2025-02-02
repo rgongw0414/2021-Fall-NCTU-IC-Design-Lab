@@ -17,7 +17,7 @@ set synthetic_library "dw_foundation.sldb"
 set link_library "* dw_foundation.sldb standard.sldb slow.db"
 set target_library "slow.db"
 
-set_host_options -max_cores 16
+# set_host_options -max_cores 16
 
 #======================================================
 #  Global Parameters
