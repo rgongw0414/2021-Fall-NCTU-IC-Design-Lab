@@ -1,1 +1,0 @@
-irun -timescale 1ns/1fs -override_precision -sdf_precision 1fs TESTBED.v -define GATE -debug -v /home/eda/CBDK018_TSMC_Artisan/CIC/Verilog/tsmc18_neg.v
