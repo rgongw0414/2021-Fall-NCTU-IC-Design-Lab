@@ -1,0 +1,1 @@
+../02_SYN/Netlist/KT_SYN.v

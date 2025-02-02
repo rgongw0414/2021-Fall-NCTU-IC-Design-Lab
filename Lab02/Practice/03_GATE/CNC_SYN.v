@@ -1,0 +1,1 @@
+../02_SYN/Netlist/CNC_SYN.v
