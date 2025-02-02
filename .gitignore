@@ -1,5 +1,5 @@
 Netlist/
-
+input.txt
 default.svf
 *.svf
 *.repC
