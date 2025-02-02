@@ -161,7 +161,7 @@ always@(*) begin
     if (selected_mode == 0) begin
       // Triode
       ID = (W * V_DS * (2 * (V_GS - 1) - V_DS)) / 3;
-      Gm = (W * V_GS * 2) / 3;
+      Gm = (W * V_DS * 2) / 3;
     end
     else begin
       // Saturation
