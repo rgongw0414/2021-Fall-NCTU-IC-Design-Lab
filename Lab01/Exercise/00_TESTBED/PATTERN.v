@@ -2,7 +2,7 @@
 `define CYCLE_TIME 20.0
 
 `ifdef RTL
-	`define PATTERN_NUM 100
+	`define PATTERN_NUM 10000
 `endif
 `ifdef GATE
 	`define PATTERN_NUM 20

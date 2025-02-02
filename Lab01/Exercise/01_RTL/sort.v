@@ -26,12 +26,12 @@ assign out2 = (mode == 1) ? max3 : min1;
 
 always@(*) begin
     // Default assignment for avoiding X value
-    max1 = max1;
-    max2 = max2;
-    max3 = max3;
-    min1 = min1;
-    min2 = min2;
-    min3 = min3;
+    max1 = 0;
+    max2 = 0;
+    max3 = 0;
+    min1 = 127;
+    min2 = 127;
+    min3 = 127;
     if (mode == 1) begin  // Sort the input signals in ascending order
         if (in0 > in1) begin
             max1 = in0;
