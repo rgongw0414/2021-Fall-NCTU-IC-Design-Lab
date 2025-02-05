@@ -210,11 +210,7 @@ assign curr_cell_i = 5 * x[3*i_th_step +: 3] + y[3*i_th_step +: 3];
 always@(*) begin
 	case (current_state)
 	S_WALK: begin
-		if (backtracking) begin
-			// TODO: backtracking
-			next_dir = (cell_dir[3*(i_th_step-1) +: 3] + 1) % 8;
-		end
-		else if (out_of_bound || cell_walked[curr_cell_i]) begin
+		if (out_of_bound || cell_walked[curr_cell_i]) begin
 			next_dir = (curr_dir + 1) % 8;
 		end
 		else begin
@@ -223,33 +219,6 @@ always@(*) begin
 	end
 
 	endcase
-	if (step_x == -1 && step_y == 2) begin
-		next_dir = 0;
-	end
-	else if (step_x == 1 && step_y == 2) begin
-		next_dir = 1;
-	end
-	else if (step_x == 2 && step_y == 1) begin
-		next_dir = 2;
-	end
-	else if (step_x == 2 && step_y == -1) begin
-		next_dir = 3;
-	end
-	else if (step_x == 1 && step_y == -2) begin
-		next_dir = 4;
-	end
-	else if (step_x == -1 && step_y == -2) begin
-		next_dir = 5;
-	end
-	else if (step_x == -2 && step_y == -1) begin
-		next_dir = 6;
-	end
-	else if (step_x == -2 && step_y == 1) begin
-		next_dir = 7;
-	end
-	else begin
-		next_dir = 0;
-	end
 end
 
 // i-th-step: 0~24, indicating currently taking the i-th step
