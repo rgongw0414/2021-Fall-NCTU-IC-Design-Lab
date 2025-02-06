@@ -38,6 +38,7 @@ parameter S_OUTPUT = 2'd3;
 //****************************************************************//
 // Regs
 //****************************************************************//
+reg [1:0] current_state, next_state;
 /* To minimize the memory usage, we can store the direction of the 25 cells in 75 bits,
 the walk direction of the 25 cells (3-bit each, i.e., 0~7), except for the last cell,
 each cell has one of the 8 directions to walk to the next cell.
@@ -46,6 +47,7 @@ reg [74:0] cell_dir; */
 reg [2:0] priority_num_r; // the priority number of the current cell
 reg [4:0] move_num_r;  // how many cells have been visited
 reg [74:0] x, y; // the x and y of the cells which walked from beginning to the end (0-th to 24-th)
+reg signed [2:0] offset_x, offset_y;
 
 // Regs for walking (S_WALK)
 reg [24:0] cell_walked; // the flag to indicate whether the cell has been walked
@@ -58,7 +60,6 @@ reg [3:0] backtrack_cnt; // the counter to check the backtracking
 //****************************************************************//
 wire [2:0] curr_x, curr_y; // current position
 wire [2:0] prev_x, prev_y; // previous position
-wire signed [2:0] offset_x, offset_y;
 
 wire [4:0] curr_cell_i;
 wire walk_finished;
@@ -96,7 +97,7 @@ always@(posedge clk or negedge rst_n) begin
 		backtrack_cnt <= 0;
 	end
 	else begin
-		case (curr_state)
+		case (current_state)
 		S_WALK: begin
 			if (backtrack_f) begin 
 				// reset the counter when backtracking
@@ -162,7 +163,7 @@ always@(posedge clk or negedge rst_n) begin
 		y <= 0;
 	end
 	else begin
-		case (curr_state) 
+		case (current_state) 
 		S_INPUT	: begin
 			if (in_valid) begin
 				x[3*i_th_step +: 3] <= in_x;
@@ -265,7 +266,7 @@ end
 always@(posedge clk or negedge rst_n) begin
 	if (!rst_n) i_th_step <= 5'b11111;  // 5'b11111 = 31, such that i_th_step = 0 in the first step
 	else begin
-		case (curr_state) 
+		case (current_state) 
 		S_INPUT	: begin
 			if (in_valid) begin
 				i_th_step <= i_th_step + 1;
@@ -293,7 +294,7 @@ end
 // 		cell_dir <= 0;
 // 	end
 // 	else begin
-// 		case (curr_state)
+// 		case (current_state)
 // 		S_INPUT	: begin
 // 			if (in_valid) begin
 // 				cell_dir[3*i_th_step +: 3] <= priority_num;
@@ -354,16 +355,16 @@ end
 //FSM current state assignment
 always@(posedge clk or negedge rst_n) begin
 	if(!rst_n) begin
-		curr_state <= S_RESET;
+		current_state <= S_RESET;
 	end
 	else begin
-		curr_state <= next_state;
+		current_state <= next_state;
 	end
 end
 
 //FSM next state assignment
 always@(*) begin
-	case(curr_state)
+	case(current_state)
 		S_RESET: begin
 			if (in_valid)      next_state = S_INPUT;
 			else               next_state = S_RESET;
