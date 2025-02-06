@@ -308,13 +308,15 @@ end
 // end
 
 
-// Says priority_num_r = 1, start from (1,2), where the prev cell of (1,2) is (0,0)
+// Says priority_num_r = 1, i_th_step = 1, start from (1,2), where the prev cell of (1,2) is (0,0)
+// i_th_step: 0      1          2                   2        ...       2			2             2               0
 // time: 0,11      1,10         2                   3        ...       8            9             10              11
 // dir:          1        1                   2            3      7            0            1 (all 8 dirs failed, so step back to (0,0)!)
 //      (0,0)   -> (1,2) -> attempt_0: (2,4) -> attempt_1 -> ... -> attempt_6 -> attempt_7 -> attempt_8 (1,2) -> (0,0)
 //              -> (2,1) -> ...
 // dir:          2 
-// time:           12     ...
+// time:             12     ...
+// i_th_step: 0      1
 // Now i_th_step is on the backtracked cell (0,0), where the 8 dirs walking starting from (1,2) failed, so step back to (0,0)
 always@(posedge clk or negedge rst_n) begin
 	// 0: not walked, 1: walked
