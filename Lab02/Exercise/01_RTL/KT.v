@@ -68,6 +68,7 @@ wire out_of_bound;
 On every attempt to walk from cell_a (by curr_dir) to the next cell, if the cell is out of bound or already walked, then backtrack_cnt++; 
 Once backtrack_cnt == 9, set backtrack_f to 1, indicating that all 8 dirs have been attempted and failed. */
 wire backtrack_f; 
+wire [4:0] backtrack_cell_i; // the index of the cell to backtrack, for indexing cell_walked
 
 //****************************************************************//
 // Wire Assignments
@@ -83,6 +84,7 @@ assign curr_cell_i = 5 * x[3*i_th_step +: 3] + y[3*i_th_step +: 3];
 assign walk_finished = (cell_walked == {25{1'b1}}); // all 25 cells have been walked
 assign out_of_bound = (curr_x < 0 || curr_x > 4 || curr_y < 0 || curr_y > 4); // out of bound
 assign backtrack_f = (backtrack_cnt == 9); // backtracking flag, raise if all 8 dirs have been attempted and failed
+assign backtrack_cell_i = 5 * x[3*(i_th_step+1) +: 3] + y[3*(i_th_step+1) +: 3]; // might generate unknown value when i_th_step = 24
 
 // x_walk = dir_x[ZERO], dir_x[ONE], dir_x[TWO], dir_x[THREE], dir_x[FOUR], dir_x[FIVE], dir_x[SIX], dir_x[SEVEN]
 // y_walk = dir_y[ZERO], dir_y[ONE], dir_y[TWO], dir_y[THREE], dir_y[FOUR], dir_y[FIVE], dir_y[SIX], dir_y[SEVEN]
@@ -330,7 +332,7 @@ always@(posedge clk or negedge rst_n) begin
 		S_WALK	: begin
 			if (backtrack_f) begin
 				// curr_cell_i now is pointing to the previous cell
-				cell_walked[5 * x[3*(i_th_step+1) +: 3] + y[3*(i_th_step+1) +: 3]] = 1'b0;
+				cell_walked[backtrack_cell_i] = 1'b0;
 			end
 			else if (cell_walked[curr_cell_i]) begin
 				cell_walked[curr_cell_i] <= cell_walked[curr_cell_i];
@@ -363,47 +365,78 @@ end
 always@(*) begin
 	case(curr_state)
 		S_RESET: begin
-			if (in_valid) begin
-				next_state = S_INPUT;
-			end
-			else begin
-				next_state = S_RESET;
-			end
+			if (in_valid)      next_state = S_INPUT;
+			else               next_state = S_RESET;
 		end
 		S_INPUT: begin
-			if (in_valid) begin
-				next_state = S_INPUT
-			end
-			else begin
-				next_state = S_WALK;
-			end
+			if (in_valid)      next_state = S_INPUT
+			else               next_state = S_WALK;
 		end
 		S_WALK: begin
-			if (walk_finished) begin
-				next_state = S_OUTPUT;
-			end
-			else begin
-				next_state = S_WALK;
-			end
+			if (walk_finished) next_state = S_OUTPUT;
+			else               next_state = S_WALK;
 		end
-		default: begin
-			next_state = 
+		S_OUTPUT: begin
+			if (out_valid)     next_state = S_OUTPUT;
+			else               next_state = S_RESET;
 		end
-	
+		default:               next_state = S_RESET;
 	endcase
 end 
 
 //Output assignment
 always@(posedge clk or negedge rst_n) begin
-	if(!rst_n) begin
-		
+	if (!rst_n) begin
+		out_x <= 0;
+		out_y <= 0;
 	end
-	else if(current_state == S_OUTPUT) begin
-		
+	else if (current_state == S_OUTPUT) begin
+		if (move_out > 0) begin
+			out_x <= x[3*(move_out-1) +: 3];
+			out_y <= y[3*(move_out-1) +: 3];
+		end
+		else begin
+			out_x <= out_x;
+			out_y <= out_y;
+		end
 	end
 	else begin
-		
+		out_x <= 0;
+		out_y <= 0;
 	end
 end
 
+always@(posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		out_valid <= 0;
+	end
+	else if (current_state == S_OUTPUT) begin
+		if (move_out == 25) begin
+			out_valid <= 0;
+		end
+		else begin
+			out_valid <= 1;
+		end
+	end
+	else begin
+		out_valid <= 0;
+	end
+end
+
+always@(posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		move_out <= 0;
+	end
+	else if (current_state == S_OUTPUT) begin
+		if (move_out == 25) begin
+			move_out <= 0;
+		end
+		else begin
+			move_out <= move_out + 1;
+		end
+	end
+	else begin
+		move_out <= 0;
+	end
+end
 endmodule
