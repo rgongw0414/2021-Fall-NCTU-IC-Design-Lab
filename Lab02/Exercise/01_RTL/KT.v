@@ -77,7 +77,9 @@ assign curr_y = y[3*i_th_step +: 3];
 assign prev_x = (i_th_step == 0) ? x[0+:3] : x[3*(i_th_step-1) +: 3];
 assign prev_y = (i_th_step == 0) ? y[0+:3] : y[3*(i_th_step-1) +: 3];
 
-assign curr_cell_i = 5 * x[3*i_th_step +: 3] + y[3*i_th_step +: 3];
+/* What is the value of curr_cell_i when out_of_bound is asserted? 
+It will be the previous cell, because curr_cell_i is decrease by 1 when out_of_bound raised. */
+assign curr_cell_i = 5 * x[3*i_th_step +: 3] + y[3*i_th_step +: 3]; 
 assign walk_finished = (cell_walked == {25{1'b1}}); // all 25 cells have been walked
 assign out_of_bound = (curr_x < 0 || curr_x > 4 || curr_y < 0 || curr_y > 4); // out of bound
 assign backtrack_f = (backtrack_cnt == 9); // backtracking flag, raise if all 8 dirs have been attempted and failed
@@ -233,14 +235,15 @@ end
 
 always@(*) begin
 	case (current_state)
+	// Says priority_num_r = 1, start from (1,2), where the prev cell of (1,2) is (0,0)
+	// time: 0,11      1,10         2                   3        ...       8            9             10              11
+	// dir:          1        1                   2            3      7            0            1 (all 8 dirs failed, so step back to (0,0)!)
+	//      (0,0)   -> (1,2) -> attempt_0: (2,4) -> attempt_1 -> ... -> attempt_6 -> attempt_7 -> attempt_8 (1,2) -> (0,0)
+	//              -> (2,1) -> ...
+	// dir:          2 
+	// time:           12     ...
+	// Now i_th_step is on the backtracked cell (0,0), where the 8 dirs walking starting from (1,2) failed, so step back to (0,0)
 	S_WALK: begin
-		// says priority_num_r = 1
-		// i_th_step   1        1                   2            3
-		//    (0,0)   -> (1,2) -> attempt_0: (2,4) -> attempt_1 -> ... -> attempt_6 -> attempt_7 -> a
-		//            -> (2,1) -> ...
-		//             2 
-		// now i_th_step is on the previous cell
-		// the dir should be calculated based on the previous cells
 		if (backtrack_f) begin
 			next_dir = priority_num_r;
 		end
@@ -256,6 +259,7 @@ always@(*) begin
 end
 
 // i-th-step: 0~24, indicating currently taking the i-th step
+// The coordinates indexed by i_th_step are all in the 5x5 grid
 always@(posedge clk or negedge rst_n) begin
 	if (!rst_n) i_th_step <= 5'b11111;  // 5'b11111 = 31, such that i_th_step = 0 in the first step
 	else begin
@@ -271,7 +275,7 @@ always@(posedge clk or negedge rst_n) begin
 		S_WALK	: begin
 			if (out_of_bound || cell_walked[curr_cell_i]) begin
 				if (backtrack_f) i_th_step <= i_th_step - 2;
-				else           i_th_step <= i_th_step - 1;
+				else             i_th_step <= i_th_step - 1;
 			end
 			else begin
 				i_th_step <= i_th_step + 1;
@@ -303,6 +307,15 @@ end
 // 	end
 // end
 
+
+// Says priority_num_r = 1, start from (1,2), where the prev cell of (1,2) is (0,0)
+// time: 0,11      1,10         2                   3        ...       8            9             10              11
+// dir:          1        1                   2            3      7            0            1 (all 8 dirs failed, so step back to (0,0)!)
+//      (0,0)   -> (1,2) -> attempt_0: (2,4) -> attempt_1 -> ... -> attempt_6 -> attempt_7 -> attempt_8 (1,2) -> (0,0)
+//              -> (2,1) -> ...
+// dir:          2 
+// time:           12     ...
+// Now i_th_step is on the backtracked cell (0,0), where the 8 dirs walking starting from (1,2) failed, so step back to (0,0)
 always@(posedge clk or negedge rst_n) begin
 	// 0: not walked, 1: walked
 	if(!rst_n) cell_walked = 0;
@@ -314,7 +327,11 @@ always@(posedge clk or negedge rst_n) begin
 		end
 		S_WALK	: begin
 			if (backtrack_f) begin
-				cell_walked[curr_cell_i] <= 1'b0;
+				// curr_cell_i now is pointing to the previous cell
+				cell_walked[5 * x[3*(i_th_step+1) +: 3] + y[3*(i_th_step+1) +: 3]] = 1'b0;
+			end
+			else if (cell_walked[curr_cell_i]) begin
+				cell_walked[curr_cell_i] <= cell_walked[curr_cell_i];
 			end
 			else begin
 				cell_walked[curr_cell_i] <= 1'b1;
