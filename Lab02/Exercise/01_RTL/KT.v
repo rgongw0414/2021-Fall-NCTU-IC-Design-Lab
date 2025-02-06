@@ -369,7 +369,7 @@ always@(*) begin
 			else               next_state = S_RESET;
 		end
 		S_INPUT: begin
-			if (in_valid)      next_state = S_INPUT
+			if (in_valid)      next_state = S_INPUT;
 			else               next_state = S_WALK;
 		end
 		S_WALK: begin
