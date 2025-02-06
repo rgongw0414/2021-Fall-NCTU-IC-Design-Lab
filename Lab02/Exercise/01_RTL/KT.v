@@ -179,6 +179,7 @@ always@(posedge clk or negedge rst_n) begin
 				// (0,0) -> (1,2) -> attempt_0 -> attempt_1 -> ... -> attempt_6 -> attempt_7 -> a
 				// (2,1) -> ...
 				// now i_th_step is on the previous cell
+// THIS STATE IS BROKEN, NEED TO FIX**************************************************************
 				x[3*(i_th_step) +: 3] <= prev_x;
 				y[3*(i_th_step) +: 3] <= prev_y;
 			end
