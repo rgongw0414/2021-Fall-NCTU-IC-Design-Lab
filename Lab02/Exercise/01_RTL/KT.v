@@ -18,7 +18,7 @@ module KT(
 input clk, rst_n;
 input in_valid;
 input [2:0] in_x, in_y;
-input [4:0] move_num;
+input [4:0] move_num; // how many cells have been visited (since there's no default start position, which means move_num_r = 1~24, i.e., at least 1 cell has been visited)
 input [2:0] priority_num;
 
 output reg out_valid;
@@ -28,6 +28,7 @@ output reg [4:0] move_out;
 //****************************************************************//
 // Parameter Declaration
 //****************************************************************//
+parameter CELL_WIDTH = 3+1; // the width of x and y, +1 for sign bit
 parameter CELL_NUM = 25; // 5x5 cells
 // FSM States
 parameter S_RESET  = 2'd0;
@@ -40,17 +41,17 @@ parameter S_OUTPUT = 2'd3;
 //****************************************************************//
 reg [1:0] current_state, next_state;
 /* To minimize the memory usage, we can store the direction of the 25 cells in 75 bits,
-the walk direction of the 25 cells (3-bit each, i.e., 0~7), except for the last cell,
+the walk direction of the 25 cells (4-signed-bit each, i.e., -8~7), except for the last cell,
 each cell has one of the 8 directions to walk to the next cell.
-reg [74:0] cell_dir; */
+reg [CELL_WIDTH*CELL_NUM-1:0] cell_dir; */
 // Registers for the input signals
 reg [2:0] priority_num_r; // the priority number of the current cell
-reg [4:0] move_num_r;  // how many cells have been visited
-reg [74:0] x, y; // the x and y of the cells which walked from beginning to the end (0-th to 24-th)
-reg signed [2:0] offset_x, offset_y;
+reg [4:0] move_num_r;  // how many cells have been visited (since there's no default start position, which means move_num_r = 1~24, i.e., at least 1 cell has been visited)
+reg signed [CELL_WIDTH*CELL_NUM-1:0] x, y; // the x and y of the cells which walked from beginning to the end (0-th to 24-th)
+reg signed [CELL_WIDTH-1:0] offset_x, offset_y;
 
 // Regs for walking (S_WALK)
-reg [24:0] cell_walked; // the flag to indicate whether the cell has been walked
+reg [CELL_NUM-1:0] cell_walked; // the flag to indicate whether the cell has been walked
 reg [4:0] i_th_step; // i-th step, where i=0~24, the walking finished when i=24 
 reg [2:0] curr_dir, next_dir;
 reg [3:0] backtrack_cnt; // the counter to check the backtracking
@@ -58,10 +59,10 @@ reg [3:0] backtrack_cnt; // the counter to check the backtracking
 //****************************************************************//
 // Wires
 //****************************************************************//
-wire [2:0] curr_x, curr_y; // current position
-wire [2:0] prev_x, prev_y; // previous position
+wire signed [CELL_WIDTH-1:0] curr_x, curr_y; // current position
+wire signed [CELL_WIDTH-1:0] prev_x, prev_y; // previous position
 
-wire [4:0] curr_cell_i;
+wire [4:0] curr_cell_i; // the index of the current cell, for indexing cell_walked
 wire walk_finished;
 wire out_of_bound;
 
@@ -74,18 +75,20 @@ wire [4:0] backtrack_cell_i; // the index of the cell to backtrack, for indexing
 //****************************************************************//
 // Wire Assignments
 //****************************************************************//
-assign curr_x = x[3*i_th_step +: 3];
-assign curr_y = y[3*i_th_step +: 3];
-assign prev_x = (i_th_step == 0) ? x[0+:3] : x[3*(i_th_step-1) +: 3];
-assign prev_y = (i_th_step == 0) ? y[0+:3] : y[3*(i_th_step-1) +: 3];
+assign curr_x = (current_state == S_WALK) ? x[CELL_WIDTH*(move_num_r - 1) +: CELL_WIDTH] + offset_x : x[CELL_WIDTH*i_th_step +: CELL_WIDTH];
+assign curr_y = (current_state == S_WALK) ? y[CELL_WIDTH*(move_num_r - 1) +: CELL_WIDTH] + offset_y : y[CELL_WIDTH*i_th_step +: CELL_WIDTH];
+assign prev_x = (i_th_step == 0) ? x[0+:CELL_WIDTH] : x[CELL_WIDTH*(i_th_step-1) +: CELL_WIDTH];
+assign prev_y = (i_th_step == 0) ? y[0+:CELL_WIDTH] : y[CELL_WIDTH*(i_th_step-1) +: CELL_WIDTH];
 
 /* What is the value of curr_cell_i when out_of_bound is asserted? 
 It will be the previous cell, because curr_cell_i is decrease by 1 when out_of_bound raised. */
-assign curr_cell_i = 5 * x[3*i_th_step +: 3] + y[3*i_th_step +: 3]; 
+assign curr_cell_i = 5 * x[CELL_WIDTH*i_th_step +: (CELL_WIDTH-1)] + 
+                        y[CELL_WIDTH*i_th_step +: (CELL_WIDTH-1)]; // & {(CELL_WIDTH-1){1'b1}} masks out the sign bit because of the auto-filling 0s
 assign walk_finished = (cell_walked == {25{1'b1}}); // all 25 cells have been walked
 assign out_of_bound = (curr_x < 0 || curr_x > 4 || curr_y < 0 || curr_y > 4); // out of bound
 assign backtrack_f = (backtrack_cnt == 9); // backtracking flag, raise if all 8 dirs have been attempted and failed
-assign backtrack_cell_i = 5 * x[3*(i_th_step+1) +: 3] + y[3*(i_th_step+1) +: 3]; // might generate unknown value when i_th_step = 24
+assign backtrack_cell_i = 5 * x[CELL_WIDTH*(i_th_step+1) +: (CELL_WIDTH-1)] + 
+                            y[CELL_WIDTH*(i_th_step+1) +: (CELL_WIDTH-1)]; // might generate unknown value when i_th_step = 24
 
 // x_walk = dir_x[ZERO], dir_x[ONE], dir_x[TWO], dir_x[THREE], dir_x[FOUR], dir_x[FIVE], dir_x[SIX], dir_x[SEVEN]
 // y_walk = dir_y[ZERO], dir_y[ONE], dir_y[TWO], dir_y[THREE], dir_y[FOUR], dir_y[FIVE], dir_y[SIX], dir_y[SEVEN]
@@ -166,31 +169,42 @@ always@(posedge clk or negedge rst_n) begin
 		case (current_state) 
 		S_INPUT	: begin
 			if (in_valid) begin
-				x[3*i_th_step +: 3] <= in_x;
-				y[3*i_th_step +: 3] <= in_y;
+				x[CELL_WIDTH*i_th_step +: CELL_WIDTH] <= {1'b0, in_x};
+				y[CELL_WIDTH*i_th_step +: CELL_WIDTH] <= {1'b0, in_y};
 			end
 			else begin
-				x[3*i_th_step +: 3] <= x[3*i_th_step +: 3];
-				y[3*i_th_step +: 3] <= y[3*i_th_step +: 3];
+				x[CELL_WIDTH*i_th_step +: CELL_WIDTH] <= x[CELL_WIDTH*i_th_step +: CELL_WIDTH];
+				y[CELL_WIDTH*i_th_step +: CELL_WIDTH] <= y[CELL_WIDTH*i_th_step +: CELL_WIDTH];
 			end
 		end
 		S_WALK	: begin
-			if (backtrack_f) begin
+// THIS STATE IS BROKEN, NEED TO FIX**************************************************************
+
+// Says priority_num_r = 1, i_th_step = 1, start from (1,2), where the prev cell of (1,2) is (0,0)
+// i_th_step: 0      1          2                   2        ...       2			2             2               0
+// time: 0,11      1,10         2                   3        ...       8            9             10              11
+// dir:          1        1                   2            3      7            0            1 (all 8 dirs failed, so step back to (0,0)!)
+//      (0,0)   -> (1,2) -> attempt_0: (2,4) -> attempt_1 -> ... -> attempt_6 -> attempt_7 -> attempt_8 (1,2) -> (0,0)
+//              -> (2,1) -> ...
+// dir:          2 
+// time:             12     ...
+// i_th_step: 0      1
+// Now i_th_step is on the backtracked cell (0,0), where the 8 dirs walking starting from (1,2) failed, so step back to (0,0)
+			if (backtrack_f || out_of_bound || cell_walked[curr_cell_i]) begin
 				// (0,0) -> (1,2) -> attempt_0 -> attempt_1 -> ... -> attempt_6 -> attempt_7 -> a
 				// (2,1) -> ...
 				// now i_th_step is on the previous cell
-// THIS STATE IS BROKEN, NEED TO FIX**************************************************************
-				x[3*(i_th_step) +: 3] <= prev_x;
-				y[3*(i_th_step) +: 3] <= prev_y;
+				x[CELL_WIDTH*(i_th_step) +: CELL_WIDTH] <= x[CELL_WIDTH*(i_th_step) +: CELL_WIDTH];
+				y[CELL_WIDTH*(i_th_step) +: CELL_WIDTH] <= y[CELL_WIDTH*(i_th_step) +: CELL_WIDTH];
 			end
-			else if (out_of_bound || cell_walked[curr_cell_i]) begin
-				x[3*(i_th_step) +: 3] <= prev_x;
-				y[3*(i_th_step) +: 3] <= prev_y;
-			end
+			// else if () begin
+			// 	x[CELL_WIDTH*(i_th_step) +: CELL_WIDTH] <= prev_x;
+			// 	y[CELL_WIDTH*(i_th_step) +: CELL_WIDTH] <= prev_y;
+			// end
 			else begin
 				// Walk to the next cell by curr_dir (dir starts from priority_num)
-				x[3*i_th_step +: 3] <= x[3*i_th_step +: 3] + offset_x;
-				y[3*i_th_step +: 3] <= y[3*i_th_step +: 3] + offset_y;
+				x[CELL_WIDTH*i_th_step +: CELL_WIDTH] <= x[CELL_WIDTH*i_th_step +: CELL_WIDTH] + offset_x;
+				y[CELL_WIDTH*i_th_step +: CELL_WIDTH] <= y[CELL_WIDTH*i_th_step +: CELL_WIDTH] + offset_y;
 			end
 		end
 		default: begin
@@ -204,33 +218,20 @@ end
 always @(posedge clk or negedge rst_n) begin
 	if (!rst_n) move_num_r <= 0;
 	else begin
-		if (in_valid) begin
+		if (current_state == S_RESET && next_state == S_INPUT) begin
 			move_num_r <= move_num;
+			priority_num_r <= priority_num;
 		end
 		else begin
 			move_num_r <= move_num_r;
+			priority_num_r <= priority_num_r;
 		end
 	end
 end
 
-// store priority_num to priority_num_r
-always @(posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
-		priority_num_r <= 0;
-	end
-	else begin
-		if (in_valid) begin
-			priority_num_r <= priority_num;
-		end
-		else begin
-			priority_num_r <= priority_num_r;
-		end
-	end
-end 
-
 always@(posedge clk or negedge rst_n) begin
-	if (in_valid) begin
-		curr_dir <= priority_num;
+	if (current_state == S_INPUT) begin
+		curr_dir <= priority_num_r;
 	end
 	else begin
 		curr_dir <= next_dir;
@@ -247,6 +248,11 @@ always@(*) begin
 	// dir:          2 
 	// time:           12     ...
 	// Now i_th_step is on the backtracked cell (0,0), where the 8 dirs walking starting from (1,2) failed, so step back to (0,0)
+	// S_INPUT: begin
+	// 	if (in_valid) begin
+	// 		next_dir = priority_num_r;
+	// 	end
+	// end
 	S_WALK: begin
 		if (backtrack_f) begin
 			next_dir = priority_num_r;
@@ -265,9 +271,13 @@ end
 // i-th-step: 0~24, indicating currently taking the i-th step
 // The coordinates indexed by i_th_step are all in the 5x5 grid
 always@(posedge clk or negedge rst_n) begin
-	if (!rst_n) i_th_step <= 5'b11111;  // 5'b11111 = 31, such that i_th_step = 0 in the first step
+	if (!rst_n) i_th_step <= 0;  // 5'b11111 = 31, such that i_th_step = 0 in the first step
 	else begin
 		case (current_state) 
+		S_RESET	: begin
+			if (next_state == S_INPUT)  i_th_step <= i_th_step + 1;
+			else                        i_th_step <= i_th_step;
+		end
 		S_INPUT	: begin
 			if (in_valid) begin
 				i_th_step <= i_th_step + 1;
@@ -275,6 +285,10 @@ always@(posedge clk or negedge rst_n) begin
 			else begin
 				i_th_step <= i_th_step;
 			end
+
+			// if (next_state == S_WALK) begin
+			// 	i_th_step <= i_th_step + 1;
+			// end
 		end
 		S_WALK	: begin
 			if (out_of_bound || cell_walked[curr_cell_i]) begin
@@ -298,7 +312,7 @@ end
 // 		case (current_state)
 // 		S_INPUT	: begin
 // 			if (in_valid) begin
-// 				cell_dir[3*i_th_step +: 3] <= priority_num;
+// 				cell_dir[CELL_WIDTH*i_th_step +: CELL_WIDTH] <= priority_num;
 // 			end
 // 		end
 // 		S_WALK	: begin
@@ -327,8 +341,12 @@ always@(posedge clk or negedge rst_n) begin
 	if(!rst_n) cell_walked = 0;
 	else begin
 		case (current_state)
+		S_RESET: begin
+			if (next_state == S_INPUT)  cell_walked[in_x*5 + in_y] <= 1'b1;
+			else                        cell_walked <= cell_walked;
+		end
 		S_INPUT	: begin
-			if (in_valid) cell_walked[in_x*5 + in_y] <= 1'b1; 
+			if (in_valid) cell_walked[in_x*5 + in_y] <= 1'b1;
 			else          cell_walked <= cell_walked;
 		end
 		S_WALK	: begin
@@ -371,7 +389,8 @@ always@(*) begin
 			else               next_state = S_RESET;
 		end
 		S_INPUT: begin
-			if (in_valid)      next_state = S_INPUT;
+			if (i_th_step + 1 == move_num_r) next_state = S_WALK;
+			else if (in_valid)      next_state = S_INPUT;
 			else               next_state = S_WALK;
 		end
 		S_WALK: begin
@@ -394,8 +413,8 @@ always@(posedge clk or negedge rst_n) begin
 	end
 	else if (current_state == S_OUTPUT) begin
 		if (move_out > 0) begin
-			out_x <= x[3*(move_out-1) +: 3];
-			out_y <= y[3*(move_out-1) +: 3];
+			out_x <= x[CELL_WIDTH*(move_out-1) +: (CELL_WIDTH-1)];  // x[0+:(4-1)] for not taking the sign bit
+			out_y <= y[CELL_WIDTH*(move_out-1) +: (CELL_WIDTH-1)];
 		end
 		else begin
 			out_x <= out_x;
