@@ -54,14 +54,16 @@ reg signed [CELL_WIDTH-1:0] offset_x, offset_y;
 reg [CELL_NUM-1:0] cell_walked; // the flag to indicate whether the cell has been walked
 reg [4:0] i_th_step; // i-th step, where i=0~24, the walking finished when i=24 
 reg [2:0] curr_dir, next_dir;
+// reg next_cell_found; // the flag to indicate whether the next cell is found (not out of bound and not visited before)
 reg [3:0] backtrack_cnt; // the counter to check the backtracking
+
+reg signed [CELL_WIDTH-1:0] prev_x, prev_y; // previous position
+reg signed [CELL_WIDTH-1:0] curr_x, curr_y; // current position
+reg signed [CELL_WIDTH-1:0] next_x, next_y; // next position
 
 //****************************************************************//
 // Wires
 //****************************************************************//
-wire signed [CELL_WIDTH-1:0] curr_x, curr_y; // current position
-wire signed [CELL_WIDTH-1:0] prev_x, prev_y; // previous position
-wire signed [CELL_WIDTH-1:0] next_x, next_y; // next position
 
 wire [4:0] curr_cell_i; // the index of the current cell, for indexing cell_walked
 wire visited; // the flag to indicate whether the cell has been visited
@@ -73,38 +75,110 @@ On every attempt to walk from cell_a (by curr_dir) to the next cell, if the cell
 Once backtrack_cnt == 9, set backtrack_f to 1, indicating that all 8 dirs have been attempted and failed. */
 wire backtrack_f; 
 wire [4:0] backtrack_cell_i; // the index of the cell to backtrack, for indexing cell_walked
-
+wire signed [CELL_WIDTH-1:0] next_x_tmp, next_y_tmp; // the next position to walk to
+wire next_cell_found; // the flag to indicate whether the next cell is found (not out of bound and not visited before)
 //****************************************************************//
 // Wire Assignments
 //****************************************************************//
-assign curr_x = (current_state == S_WALK) ? x[CELL_WIDTH*(move_num_r - 1) +: CELL_WIDTH] + offset_x : x[CELL_WIDTH*i_th_step +: CELL_WIDTH];
-assign curr_y = (current_state == S_WALK) ? y[CELL_WIDTH*(move_num_r - 1) +: CELL_WIDTH] + offset_y : y[CELL_WIDTH*i_th_step +: CELL_WIDTH];
-assign prev_x = (i_th_step == 0) ? x[0+:CELL_WIDTH] : x[CELL_WIDTH*(i_th_step-1) +: CELL_WIDTH];
-assign prev_y = (i_th_step == 0) ? y[0+:CELL_WIDTH] : y[CELL_WIDTH*(i_th_step-1) +: CELL_WIDTH];
-assign next_x = x[CELL_WIDTH*(i_th_step) +: CELL_WIDTH] + offset_x;
-assign next_y = y[CELL_WIDTH*(i_th_step) +: CELL_WIDTH] + offset_y;
 
 /* What is the value of curr_cell_i when out_of_bound is asserted? 
 It will be the previous cell, because curr_cell_i is decrease by 1 when out_of_bound raised. */
-assign curr_cell_i = 5 * x[CELL_WIDTH*i_th_step +: (CELL_WIDTH-1)] + 
-                        y[CELL_WIDTH*i_th_step +: (CELL_WIDTH-1)]; // & {(CELL_WIDTH-1){1'b1}} masks out the sign bit because of the auto-filling 0s
+assign curr_cell_i = 5*curr_x + curr_y; // & {(CELL_WIDTH-1){1'b1}} masks out the sign bit because of the auto-filling 0s
 assign walk_finished = (cell_walked == {25{1'b1}}); // all 25 cells have been walked
 assign out_of_bound = (curr_x < 0 || curr_x > 4 || curr_y < 0 || curr_y > 4); // out of bound
-assign next_out_of_bound = (next_x < 0 || next_x > 4 || next_y < 0 || next_y > 4); // out of bound
+assign next_x_tmp = curr_x + offset_x;
+assign next_y_tmp = curr_y + offset_y;
+assign next_out_of_bound = (next_x_tmp < 0 || next_x_tmp > 4 || next_y_tmp < 0 || next_y_tmp > 4); // out of bound
 //************************************************************************//
 // backtrack_cnt should be decrease by 1 when current visiting cell not visited before
-assign backtrack_f = (backtrack_cnt == 9); // backtracking flag, raise if all 8 dirs have been attempted and failed
 assign backtrack_cell_i = 5 * x[CELL_WIDTH*(i_th_step+1) +: (CELL_WIDTH-1)] + 
                             y[CELL_WIDTH*(i_th_step+1) +: (CELL_WIDTH-1)]; // might generate unknown value when i_th_step = 24
 // Broken, need to fix cell_walked, once visit the cell, it is asserted right away
 assign visited = cell_walked[curr_cell_i]; // the flag to indicate whether the current cell has been visited
-assign next_visited = cell_walked[5 * next_x + next_y]; // the flag to indicate whether the next cell has been visited
+assign next_visited = ((5*next_x_tmp+next_y_tmp < 0) || (5*next_x_tmp+next_y_tmp > 24)) ? 0 : cell_walked[5 * next_x_tmp + next_y_tmp]; // the flag to indicate whether the next cell has been visited
+assign next_cell_found = (!next_out_of_bound && !next_visited); // the flag to indicate whether the next cell is found (not out of bound and not visited before)
+assign backtrack_f = (current_state == S_WALK && next_dir == priority_num_r && !next_cell_found); // backtracking flag, raise if all 8 dirs have been attempted and failed
 //************************************************************************//
 
 // x_walk = dir_x[ZERO], dir_x[ONE], dir_x[TWO], dir_x[THREE], dir_x[FOUR], dir_x[FIVE], dir_x[SIX], dir_x[SEVEN]
 // y_walk = dir_y[ZERO], dir_y[ONE], dir_y[TWO], dir_y[THREE], dir_y[FOUR], dir_y[FIVE], dir_y[SIX], dir_y[SEVEN]
 // dir_x[8] = {-1, +1, +2, +2, +1, -1, -2, -2}
 // dir_y[8] = {+2, +2, +1, -1, -2, -2, -1, +1}
+
+// assign prev_x = (i_th_step == 0)          ? x[0+:CELL_WIDTH]                                        : x[CELL_WIDTH*(i_th_step-1) +: CELL_WIDTH];
+// assign prev_y = (i_th_step == 0)          ? y[0+:CELL_WIDTH]                                        : y[CELL_WIDTH*(i_th_step-1) +: CELL_WIDTH];
+// // assign curr_x = (current_state == S_WALK) ? x[CELL_WIDTH*(move_num_r - 1) +: CELL_WIDTH] + offset_x : x[CELL_WIDTH*i_th_step +: CELL_WIDTH];
+// // assign curr_y = (current_state == S_WALK) ? y[CELL_WIDTH*(move_num_r - 1) +: CELL_WIDTH] + offset_y : y[CELL_WIDTH*i_th_step +: CELL_WIDTH];
+// assign curr_x = x[CELL_WIDTH*i_th_step +: CELL_WIDTH];
+// assign curr_y = y[CELL_WIDTH*i_th_step +: CELL_WIDTH];
+// assign next_x = curr_x + offset_x;
+// assign next_y = curr_y + offset_y;
+
+// prev_x/y: the previous position, curr_x/y: the current position, next_x/y: the next position
+always@(posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		prev_x <= 0;
+		prev_y <= 0;
+		curr_x <= 0;
+		curr_y <= 0;
+		next_x <= 0;
+		next_y <= 0;
+	end
+	else begin
+		case (current_state)
+		S_INPUT: begin
+			if (next_state == S_WALK) begin
+				curr_x <= {1'b0, in_x};
+				curr_y <= {1'b0, in_y};
+				next_x <= {1'b0, in_x} + offset_x;
+				next_y <= {1'b0, in_y} + offset_y;
+			end
+			else begin
+				prev_x <= prev_x;
+				prev_y <= prev_y;
+				curr_x <= curr_x;
+				curr_y <= curr_y;
+				next_x <= next_x;
+				next_y <= next_y;
+			end
+		end
+		S_WALK: begin
+			if (backtrack_f || next_out_of_bound || next_visited) begin
+				prev_x <= prev_x;
+				prev_y <= prev_y;
+				curr_x <= curr_x;
+				curr_y <= curr_y;
+				next_x <= next_x;
+				next_y <= next_y;
+			end
+			else if (!next_out_of_bound && !next_visited) begin
+				prev_x <= curr_x;
+				prev_y <= curr_y;
+				curr_x <= next_x_tmp;
+				curr_y <= next_y_tmp;
+				next_x <= next_x_tmp + offset_x;
+				next_y <= next_y_tmp + offset_y;
+			end
+			else begin
+				prev_x <= curr_x;
+				prev_y <= curr_y;
+				curr_x <= next_x;
+				curr_y <= next_y;
+				next_x <= curr_x + offset_x;
+				next_y <= curr_y + offset_y;
+			end
+		end
+		default: begin
+			prev_x <= prev_x;
+			prev_y <= prev_y;
+			curr_x <= curr_x;
+			curr_y <= curr_y;
+			next_x <= next_x;
+			next_y <= next_y;
+		end
+		endcase
+	end
+end
 
 always@(posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
@@ -117,7 +191,7 @@ always@(posedge clk or negedge rst_n) begin
 				// reset the counter when backtracking
 				backtrack_cnt <= 0;
 			end
-			else if (out_of_bound || visited) begin
+			else if (next_out_of_bound || next_visited) begin
 				backtrack_cnt <= backtrack_cnt + 1;
 			end
 			else begin
@@ -201,7 +275,7 @@ always@(posedge clk or negedge rst_n) begin
 // time:             12     ...
 // i_th_step: 0      1
 // Now i_th_step is on the backtracked cell (0,0), where the 8 dirs walking starting from (1,2) failed, so step back to (0,0)
-			if (backtrack_f || out_of_bound || visited) begin
+			if (backtrack_f || next_out_of_bound || next_visited) begin
 				// (0,0) -> (1,2) -> attempt_0 -> attempt_1 -> ... -> attempt_6 -> attempt_7 -> a
 				// (2,1) -> ...
 				// now i_th_step is on the previous cell
@@ -268,7 +342,7 @@ always@(*) begin
 		if (backtrack_f) begin
 			next_dir = priority_num_r;
 		end
-		else if (out_of_bound || visited) begin
+		else if (next_out_of_bound || next_visited) begin
 			next_dir = (curr_dir + 1) % 8;
 		end
 		else begin
@@ -291,7 +365,8 @@ always@(posedge clk or negedge rst_n) begin
 		end
 		S_INPUT	: begin
 			if (in_valid) begin
-				i_th_step <= i_th_step + 1;
+				if (next_state == S_WALK) i_th_step <= i_th_step;
+				else i_th_step <= i_th_step + 1;
 			end
 			else begin
 				i_th_step <= i_th_step;
@@ -302,9 +377,8 @@ always@(posedge clk or negedge rst_n) begin
 			// end
 		end
 		S_WALK	: begin
-			if (out_of_bound || visited) begin
-				if (backtrack_f) i_th_step <= i_th_step - 2;
-				else             i_th_step <= i_th_step - 1;
+			if (next_out_of_bound || next_visited || backtrack_f) begin
+				i_th_step <= i_th_step;
 			end
 			else begin
 				i_th_step <= i_th_step + 1;
@@ -363,9 +437,9 @@ always@(posedge clk or negedge rst_n) begin
 		S_WALK	: begin
 			if (backtrack_f) begin
 				// curr_cell_i now is pointing to the previous cell
-				cell_walked[backtrack_cell_i] = 1'b0;
+				cell_walked[curr_cell_i] = 1'b0;
 			end
-			else if (visited) begin
+			else if (next_visited) begin
 				cell_walked[curr_cell_i] <= cell_walked[curr_cell_i];
 			end
 			else begin
@@ -451,7 +525,7 @@ always@(posedge clk or negedge rst_n) begin
 		end
 	end
 	else begin
-		out_valid <= 0;
+		out_valid <= out_valid;
 	end
 end
 
