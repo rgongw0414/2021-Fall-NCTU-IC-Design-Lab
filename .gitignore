@@ -6,6 +6,7 @@ default.svf
 output.txt
 test.cpp
 test.v
+test.tcl
 *.err
 .bpad/
 ida.db/
