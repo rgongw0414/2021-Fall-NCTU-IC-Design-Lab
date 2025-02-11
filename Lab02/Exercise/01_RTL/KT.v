@@ -65,6 +65,7 @@ reg signed [CELL_WIDTH-1:0] curr_x, curr_y; // current position
 //****************************************************************//
 wire [4:0] curr_cell_i; // the index of the current cell, for indexing cell_walked
 // wire visited; // the flag to indicate whether the cell has been visited
+wire next_visited; // the flag to indicate whether the next cell has been visited
 wire walk_finished;
 // wire out_of_bound;
 wire next_out_of_bound; // the flag to indicate whether the cell is out of bound
@@ -88,7 +89,7 @@ assign next_y_tmp = (backtrack_f) ? prev_y : curr_y + offset_y;
 assign next_x_tmp_ext = { {2{next_x_tmp[CELL_WIDTH-1]}}, next_x_tmp }; // Sign extend to 6 bits
 assign next_y_tmp_ext = { {2{next_y_tmp[CELL_WIDTH-1]}}, next_y_tmp }; // Sign extend to 6 bits
 // assign out_of_bound = (curr_x < 0 || curr_x > 4 || curr_y < 0 || curr_y > 4); // out of bound
-assign next_out_of_bound = (next_x_tmp < 0 || next_x_tmp > 4 || next_y_tmp_ext < 0 || next_y_tmp_ext > 4); // out of bound
+assign next_out_of_bound = (next_x_tmp_ext < 0 || next_x_tmp_ext > 4 || next_y_tmp_ext < 0 || next_y_tmp_ext > 4); // out of bound
 assign next_visited = ((5*next_x_tmp_ext+next_y_tmp_ext < 0) || (5*next_x_tmp_ext+next_y_tmp_ext > 24)) ? 0 : cell_walked[5*next_x_tmp_ext + next_y_tmp_ext]; // the flag to indicate whether the next cell has been visited
 assign next_cell_found = (!next_out_of_bound && !next_visited); // the flag to indicate whether the next cell is found (not out of bound and not visited before)
 assign backtrack_f = (current_state == S_WALK && next_dir == priority_num_r && !next_cell_found); // backtracking flag, raise if all 8 dirs have been attempted and failed
@@ -187,7 +188,7 @@ end
 
 // prev_x/y: the previous position, curr_x/y: the current position, next_x/y: the next position
 always@(posedge clk or negedge rst_n) begin
-	if (!rst_n || next_state == S_RESET) begin
+	if (!rst_n) begin
 		prev_x <= 0;
 		prev_y <= 0;
 	end
@@ -222,6 +223,16 @@ always@(posedge clk or negedge rst_n) begin
 				prev_y <= curr_y;
 			end
 		end
+		S_OUTPUT: begin
+			if (next_state == S_RESET) begin
+				prev_x <= 0;
+				prev_y <= 0;
+			end
+			else begin
+				prev_x <= prev_x;
+				prev_y <= prev_y;
+			end
+		end
 		default: begin
 			prev_x <= prev_x;
 			prev_y <= prev_y;
@@ -231,7 +242,7 @@ always@(posedge clk or negedge rst_n) begin
 end
 
 always@(posedge clk or negedge rst_n) begin
-	if (!rst_n || next_state == S_RESET) begin
+	if (!rst_n) begin
 		curr_x <= 0;
 		curr_y <= 0;
 	end
@@ -265,6 +276,16 @@ always@(posedge clk or negedge rst_n) begin
 				curr_y <= curr_y;
 			end
 		end
+		S_OUTPUT: begin
+			if (next_state == S_RESET) begin
+				curr_x <= 0;
+				curr_y <= 0;
+			end
+			else begin
+				curr_x <= curr_x;
+				curr_y <= curr_y;
+			end
+		end
 		default: begin
 			curr_x <= curr_x;
 			curr_y <= curr_y;
@@ -275,7 +296,7 @@ end
 
 // store the input x, y, and move_num to regs
 always@(posedge clk or negedge rst_n) begin
-	if (!rst_n || next_state == S_RESET) begin
+	if (!rst_n) begin
 		x <= 0;
 		y <= 0;
 	end
@@ -307,6 +328,16 @@ always@(posedge clk or negedge rst_n) begin
 			// 	y[CELL_WIDTH*i_th_step +: CELL_WIDTH] <= next_y_tmp;
 			// end
 		end
+		S_OUTPUT: begin
+			if (next_state == S_RESET) begin
+				x <= 0;
+				y <= 0;
+			end
+			else begin
+				x <= x;
+				y <= y;
+			end
+		end
 		default: begin
 			x <= x;
 			y <= y;
@@ -316,21 +347,43 @@ always@(posedge clk or negedge rst_n) begin
 end
 
 always @(posedge clk or negedge rst_n) begin
-	if (!rst_n || next_state == S_RESET) move_num_r <= 0;
+	if (!rst_n) begin
+		move_num_r <= 0;
+		priority_num_r <= 0;
+	end 
 	else begin
-		if (current_state == S_RESET && next_state == S_INPUT) begin
-			move_num_r <= move_num;
-			priority_num_r <= priority_num;
-		end
-		else begin
-			move_num_r <= move_num_r;
-			priority_num_r <= priority_num_r;
-		end
+		case (current_state)
+			S_RESET: begin
+				if (next_state == S_INPUT) begin
+					move_num_r <= move_num;
+					priority_num_r <= priority_num;
+				end
+				else begin
+					move_num_r <= move_num_r;
+					priority_num_r <= priority_num_r;
+				end
+			end
+			S_OUTPUT: begin
+				if (next_state == S_RESET) begin
+					move_num_r <= 0;
+					priority_num_r <= 0;
+				end
+				else begin
+					move_num_r <= move_num_r;
+					priority_num_r <= priority_num_r;
+				end
+			end
+			default: begin
+				move_num_r <= move_num_r;
+				priority_num_r <= priority_num_r;
+			end
+		endcase
 	end
 end
 
 always@(posedge clk or negedge rst_n) begin
-	if (current_state == S_INPUT) begin
+	if (!rst_n) curr_dir <= 0;
+	else if (current_state == S_INPUT) begin
 		curr_dir <= priority_num_r;
 	end
 	else begin
@@ -358,7 +411,7 @@ end
 // i-th-step: 0~24, indicating currently taking the i-th step
 // The coordinates indexed by i_th_step are all in the 5x5 grid
 always@(posedge clk or negedge rst_n) begin
-	if (!rst_n || next_state == S_RESET) i_th_step <= 0;  // 5'b11111 = 31, such that i_th_step = 0 in the first step
+	if (!rst_n) i_th_step <= 0;  // 5'b11111 = 31, such that i_th_step = 0 in the first step
 	else begin
 		case (current_state) 
 		S_RESET	: begin
@@ -389,24 +442,22 @@ always@(posedge clk or negedge rst_n) begin
 				i_th_step <= i_th_step + 1;
 			end
 		end
+		S_OUTPUT: begin
+			if (next_state == S_RESET) begin
+				i_th_step <= 0;
+			end
+			else begin
+				i_th_step <= i_th_step;
+			end
+		end
 		default: i_th_step <= i_th_step;
 		endcase
 	end
 end
 
-// Says priority_num_r = 1, i_th_step = 1, start from (1,2), where the prev cell of (1,2) is (0,0)
-// i_th_step: 0      1          2                   2        ...       2			2             2               0
-// time: 0,11      1,10         2                   3        ...       8            9             10              11
-// dir:          1        1                   2            3      7            0            1 (all 8 dirs failed, so step back to (0,0)!)
-//      (0,0)   -> (1,2) -> attempt_0: (2,4) -> attempt_1 -> ... -> attempt_6 -> attempt_7 -> attempt_8 (1,2) -> (0,0)
-//              -> (2,1) -> ...
-// dir:          2 
-// time:             12     ...
-// i_th_step: 0      1
-// Now i_th_step is on the backtracked cell (0,0), where the 8 dirs walking starting from (1,2) failed, so step back to (0,0)
 always@(posedge clk or negedge rst_n) begin
 	// 0: not walked, 1: walked
-	if(!rst_n || next_state == S_RESET) cell_walked = 0;
+	if(!rst_n) cell_walked <= 0;
 	else begin
 		case (current_state)
 		S_RESET: begin
@@ -420,13 +471,21 @@ always@(posedge clk or negedge rst_n) begin
 		S_WALK	: begin
 			if (backtrack_f) begin
 				// curr_cell_i now is pointing to the previous cell
-				cell_walked[curr_cell_i] = 1'b0;
+				cell_walked[curr_cell_i] <= 1'b0;
 			end
 			else if (next_visited) begin
 				cell_walked[curr_cell_i] <= cell_walked[curr_cell_i];
 			end
 			else begin
 				cell_walked[curr_cell_i] <= 1'b1;
+			end
+		end
+		S_OUTPUT: begin
+			if (next_state == S_RESET) begin
+				cell_walked <= 0;
+			end
+			else begin
+				cell_walked <= cell_walked;
 			end
 		end
 		default: cell_walked <= cell_walked;
@@ -441,7 +500,7 @@ end
 
 //FSM current state assignment
 always@(posedge clk or negedge rst_n) begin
-	if(!rst_n || next_state == S_RESET) begin
+	if(!rst_n) begin
 		current_state <= S_RESET;
 	end
 	else begin
@@ -458,15 +517,15 @@ always@(*) begin
 		end
 		S_INPUT: begin
 			if (i_th_step + 1 == move_num_r) next_state = S_WALK;
-			else if (in_valid)      next_state = S_INPUT;
-			else               next_state = S_WALK;
+			else if (in_valid)               next_state = S_INPUT;
+			else                             next_state = S_WALK;
 		end
 		S_WALK: begin
 			if (walk_finished) next_state = S_OUTPUT;
 			else               next_state = S_WALK;
 		end
 		S_OUTPUT: begin
-			if (move_out < 25)     next_state = S_OUTPUT;
+			if (move_out < 25) next_state = S_OUTPUT;
 			else               next_state = S_RESET;
 		end
 		default:               next_state = S_RESET;
@@ -475,7 +534,7 @@ end
 
 //Output assignment
 always@(posedge clk or negedge rst_n) begin
-	if (!rst_n || next_state == S_RESET) begin
+	if (!rst_n) begin
 		out_x <= 0;
 		out_y <= 0;
 	end
@@ -483,6 +542,10 @@ always@(posedge clk or negedge rst_n) begin
 		if (out_valid) begin
 			out_x <= x[CELL_WIDTH*(move_out) +: (CELL_WIDTH-1)];  // x[0+:(4-1)] for not taking the sign bit
 			out_y <= y[CELL_WIDTH*(move_out) +: (CELL_WIDTH-1)];
+		end
+		else if (next_state == S_RESET) begin
+			out_x <= 0;
+			out_y <= 0;
 		end
 		else begin
 			out_x <= out_x;
@@ -496,11 +559,11 @@ always@(posedge clk or negedge rst_n) begin
 end
 
 always@(posedge clk or negedge rst_n) begin
-	if (!rst_n || next_state == S_RESET) begin
+	if (!rst_n) begin
 		out_valid <= 0;
 	end
 	else if (current_state == S_OUTPUT) begin
-		if (move_out == 25) begin
+		if (move_out == 25 || next_state == S_RESET) begin
 			out_valid <= 0;
 		end
 		else begin
@@ -513,11 +576,11 @@ always@(posedge clk or negedge rst_n) begin
 end
 
 always@(posedge clk or negedge rst_n) begin
-	if (!rst_n || next_state == S_RESET) begin
+	if (!rst_n) begin
 		move_out <= 0;
 	end
 	else if (current_state == S_OUTPUT) begin
-		if (move_out == 25) begin
+		if (move_out == 25 || next_state == S_RESET) begin
 			move_out <= 0;
 		end
 		else begin
@@ -529,3 +592,14 @@ always@(posedge clk or negedge rst_n) begin
 	end
 end
 endmodule
+
+// Says priority_num_r = 1, i_th_step = 1, start from (1,2), where the prev cell of (1,2) is (0,0)
+// i_th_step: 0      1          2                   2        ...       2			2             2               0
+// time: 0,11      1,10         2                   3        ...       8            9             10              11
+// dir:          1        1                   2            3      7            0            1 (all 8 dirs failed, so step back to (0,0)!)
+//      (0,0)   -> (1,2) -> attempt_0: (2,4) -> attempt_1 -> ... -> attempt_6 -> attempt_7 -> attempt_8 (1,2) -> (0,0)
+//              -> (2,1) -> ...
+// dir:          2 
+// time:             12     ...
+// i_th_step: 0      1
+// Now i_th_step is on the backtracked cell (0,0), where the 8 dirs walking starting from (1,2) failed, so step back to (0,0)
