@@ -14,13 +14,15 @@ module tb;
     wire clk_out_2x;
     wire clk_out_3x;
     wire clk_out_4x;
+    wire clk_out_5x;
 
     F_DIV uut (
         .clk_in(clk_in),
         .rst(rst),
         .clk_out_2x(clk_out_2x),
         .clk_out_3x(clk_out_3x),
-        .clk_out_4x(clk_out_4x)
+        .clk_out_4x(clk_out_4x),
+        .clk_out_5x(clk_out_5x)
     );
 
     initial begin
