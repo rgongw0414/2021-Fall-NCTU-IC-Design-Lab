@@ -3,9 +3,13 @@
 `define DESIGN_FILE "SEQ_BLK"
 `ifdef RTL
     `include "SEQ_BLK.v"
-`endif
-`ifdef GATE
+`elsif GATE
     `include "Netlist/SEQ_BLK_SYN.v"
+`else
+    initial begin
+        $display("Error: Neither RTL nor GATE is defined.");
+        $finish;
+    end
 `endif
 
 module tb;

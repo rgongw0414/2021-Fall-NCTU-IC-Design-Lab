@@ -3,9 +3,13 @@
 `define DESIGN_FILE "FREQ_DIV"
 `ifdef RTL
     `include "FREQ_DIV.v"
-`endif
-`ifdef GATE
+`elsif GATE
     `include "Netlist/FREQ_DIV_SYN.v"
+`else
+    initial begin
+        $display("Error: Neither RTL nor GATE is defined.");
+        $finish;
+    end
 `endif
 
 module tb;
