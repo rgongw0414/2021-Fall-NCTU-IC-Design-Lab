@@ -40,3 +40,9 @@ Time:
   -----------------------------------------------------------
   slack (MET)                                         0.00
 ```
+
+## What to notice
+* Default values of min/max regs
+* Since only the top-3 max/min values are needed, so no need to sort the entire array
+* Sorting algorithm excels in time complexity takes extra space. Implementing them in Verilog might take more registers, i.e., more area
+
