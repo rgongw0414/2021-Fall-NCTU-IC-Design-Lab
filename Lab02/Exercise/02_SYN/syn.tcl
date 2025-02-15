@@ -7,15 +7,15 @@
 #======================================================
 #  Set Libraries
 #======================================================
-set search_path { 	../01_RTL/ \
-					/usr/synthesis/libraries/syn/ \
-					/usr/synthesis/dw/ \
-					~iclabta01/umc018/Synthesis/ \
-					/misc/RAID2/COURSE/iclab/iclabta01/CIC_PDK45/lib/ \
-}
-set link_library {* slow.db standard.sldb dw_foundation.sldb}
-set target_library {slow.db}      
-set synthetic_library {dw_foundation.sldb}             
+set search_path "./../01_RTL \
+                   /usr/cad/synopsys/synthesis/cur/libraries/syn \
+                   /home/eric/CBDK018_TSMC_Artisan/CIC/SynopsysDC"
+
+#                    ~iclabta01/umc018/Synthesis \
+
+set synthetic_library "dw_foundation.sldb"
+set link_library "* dw_foundation.sldb standard.sldb slow.db"
+set target_library "slow.db"       
 
 #======================================================
 #  Global Parameters
@@ -30,7 +30,7 @@ set OUT_DLY [expr 0.5*$clk_period]
 #======================================================
 #  Read RTL Code
 #======================================================
-read_sverilog { $DESIGN\.v }
+read_sverilog "$DESIGN\.v"
 current_design $DESIGN
 
 #======================================================

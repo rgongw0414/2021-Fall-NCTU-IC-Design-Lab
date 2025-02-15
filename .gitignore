@@ -1,12 +1,11 @@
+test.*
+TEST.*
 Netlist/
-input.txt
+# input.txt
 default.svf
 *.svf
 *.repC
-output.txt
-test.cpp
-test.v
-test.tcl
+# output.txt
 *.err
 .bpad/
 ida.db/

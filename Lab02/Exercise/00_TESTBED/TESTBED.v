@@ -66,7 +66,7 @@ initial begin
 		$fsdbDumpvars();
 	`endif
 	`ifdef GATE
-		$sdf_annotate("KT_SYN.sdf",U_KT);
+		$sdf_annotate("../02_SYN/Netlist/KT_SYN.sdf",U_KT);
 		$fsdbDumpfile("KT_SYN.fsdb");
 		$fsdbDumpvars();
 	`endif

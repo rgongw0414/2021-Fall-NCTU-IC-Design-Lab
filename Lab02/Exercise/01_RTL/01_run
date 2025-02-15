@@ -1,1 +1,1 @@
-irun TESTBED.v -define RTL -debug
+xrun TESTBED.v -define RTL -debug
