@@ -1,0 +1,28 @@
+ 
+****************************************
+check_design summary:
+Version:     S-2021.06-SP2
+Date:        Sat Feb 15 22:39:30 2025
+****************************************
+
+                   Name                                            Total
+--------------------------------------------------------------------------------
+Cells                                                              14
+    Cells do not drive (LINT-1)                                    14
+--------------------------------------------------------------------------------
+
+Warning: In design 'KT', cell 'B_233' does not drive any nets. (LINT-1)
+Warning: In design 'KT', cell 'B_234' does not drive any nets. (LINT-1)
+Warning: In design 'KT', cell 'B_235' does not drive any nets. (LINT-1)
+Warning: In design 'KT', cell 'C9957' does not drive any nets. (LINT-1)
+Warning: In design 'KT', cell 'C10278' does not drive any nets. (LINT-1)
+Warning: In design 'KT', cell 'C10294' does not drive any nets. (LINT-1)
+Warning: In design 'KT', cell 'C10298' does not drive any nets. (LINT-1)
+Warning: In design 'KT', cell 'C10305' does not drive any nets. (LINT-1)
+Warning: In design 'KT', cell 'C10306' does not drive any nets. (LINT-1)
+Warning: In design 'KT', cell 'C10324' does not drive any nets. (LINT-1)
+Warning: In design 'KT', cell 'C10326' does not drive any nets. (LINT-1)
+Warning: In design 'KT', cell 'B_338' does not drive any nets. (LINT-1)
+Warning: In design 'KT', cell 'B_339' does not drive any nets. (LINT-1)
+Warning: In design 'KT', cell 'C10398' does not drive any nets. (LINT-1)
+1

@@ -1,0 +1,69 @@
+Information: Updating design information... (UID-85)
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : KT
+Version: S-2021.06-SP2
+Date   : Sat Feb 15 22:39:37 2025
+****************************************
+
+Operating Conditions: slow   Library: slow
+Wire Load Model Mode: top
+
+  Startpoint: curr_x_reg[0]
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: i_th_step_reg[1]
+            (rising edge-triggered flip-flop clocked by clk)
+  Path Group: clk
+  Path Type: max
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  clock clk (rise edge)                    0.00       0.00
+  clock network delay (ideal)              0.00       0.00
+  curr_x_reg[0]/CK (DFFSX1)                0.00       0.00 r
+  curr_x_reg[0]/Q (DFFSX1)                 0.61       0.61 r
+  U1971/Y (NOR2X1)                         0.11       0.72 f
+  U1979/Y (NAND2X1)                        0.11       0.83 r
+  U1468/Y (INVX1)                          0.06       0.89 f
+  U1467/Y (NOR2X1)                         0.13       1.02 r
+  U1987/Y (XOR2X1)                         0.28       1.30 r
+  U1988/Y (NAND2X1)                        0.08       1.38 f
+  U1608/Y (OAI21XL)                        0.33       1.71 r
+  U1292/S (ADDFX1)                         0.55       2.25 r
+  U2013/Y (INVXL)                          0.08       2.33 f
+  U1528/Y (AND2XL)                         0.21       2.55 f
+  U1276/Y (OAI21XL)                        0.24       2.79 r
+  U2014/Y (XOR2X1)                         0.32       3.10 f
+  U2048/Y (INVX1)                          0.10       3.21 r
+  U2049/Y (MXI2X1)                         0.17       3.38 f
+  U1666/Y (NOR2XL)                         0.14       3.52 r
+  U1664/Y (NOR2X1)                         0.11       3.63 f
+  U2053/Y (OR2X4)                          0.23       3.86 f
+  U2098/Y (CLKINVX2)                       0.08       3.94 r
+  U2099/Y (NAND2X2)                        0.12       4.06 f
+  U2116/Y (NOR2X2)                         0.15       4.21 r
+  U2362/Y (NOR2X2)                         0.10       4.31 f
+  U1801/Y (INVXL)                          0.08       4.40 r
+  U1800/Y (NOR2XL)                         0.07       4.47 f
+  U1328/Y (AOI211X1)                       0.18       4.65 r
+  U1799/Y (AOI21XL)                        0.07       4.72 f
+  i_th_step_reg[1]/D (DFFSX1)              0.00       4.72 f
+  data arrival time                                   4.72
+
+  clock clk (rise edge)                    5.00       5.00
+  clock network delay (ideal)              0.00       5.00
+  i_th_step_reg[1]/CK (DFFSX1)             0.00       5.00 r
+  library setup time                      -0.27       4.73
+  data required time                                  4.73
+  -----------------------------------------------------------
+  data required time                                  4.73
+  data arrival time                                  -4.72
+  -----------------------------------------------------------
+  slack (MET)                                         0.01
+
+
+1
