@@ -1,0 +1,2 @@
+mkdir -p Report Netlist
+xrun tb.v -define RTL -debug
