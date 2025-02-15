@@ -1,4 +1,4 @@
-module F_DIV(
+module FREQ_DIV(
     input wire clk_in,
     input wire rst,
     output reg clk_out_2x,   // 2x clock

@@ -1,0 +1,33 @@
+Information: Updating design information... (UID-85)
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : FREQ_DIV
+Version: S-2021.06-SP2
+Date   : Sun Feb 16 03:04:20 2025
+****************************************
+
+Operating Conditions: slow   Library: slow
+Wire Load Model Mode: top
+
+  Startpoint: clk_3x_falling_reg
+              (falling edge-triggered flip-flop)
+  Endpoint: clk_out_3x (output port)
+  Path Group: (none)
+  Path Type: max
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  clk_3x_falling_reg/CKN (DFFNXL)          0.00       0.00 f
+  clk_3x_falling_reg/Q (DFFNXL)            0.50       0.50 f
+  U38/Y (OR2XL)                            0.22       0.72 f
+  clk_out_3x (out)                         0.00       0.72 f
+  data arrival time                                   0.72
+  -----------------------------------------------------------
+  (Path is unconstrained)
+
+
+1

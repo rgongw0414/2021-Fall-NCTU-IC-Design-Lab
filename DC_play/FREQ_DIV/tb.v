@@ -1,12 +1,12 @@
 `timescale 1ns/10ps
+
+`define DESIGN_FILE "FREQ_DIV"
 `ifdef RTL
-    `include "F_DIV.v"
+    `include "FREQ_DIV.v"
 `endif
 `ifdef GATE
-    `include "F_DIV_SYN.v"
+    `include "Netlist/FREQ_DIV_SYN.v"
 `endif
-
-`define DESIGN_FILE "F_DIV"
 
 module tb;
     reg clk_in;
@@ -16,7 +16,7 @@ module tb;
     wire clk_out_4x;
     wire clk_out_5x;
 
-    F_DIV uut (
+    FREQ_DIV uut (
         .clk_in(clk_in),
         .rst(rst),
         .clk_out_2x(clk_out_2x),
@@ -37,7 +37,6 @@ module tb;
         #5 clk_in = ~clk_in;
     end
 
-
     initial begin
         `ifdef RTL
             $fsdbDumpfile({`DESIGN_FILE, ".fsdb"});
@@ -45,7 +44,7 @@ module tb;
             $fsdbDumpvars();
         `endif
         `ifdef GATE
-            $sdf_annotate({`DESIGN_FILE, ".sdf"}, uut);
+            $sdf_annotate({"Netlist/", `DESIGN_FILE, "_SYN.sdf"}, uut);
             $fsdbDumpfile({`DESIGN_FILE, "_SYN.fsdb"});
             $fsdbDumpvars(0,"+mda");
             $fsdbDumpvars();    
