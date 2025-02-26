@@ -12,4 +12,4 @@
   * Def: The time it takes for a signal to travel from the input to the output of a combinational logic gate, **under worst-case conditions**.
   * Instead of an absolute value, it is obtained bt analysis or simulations (using tools like SPICE)
 
-* **Hence, whether it takes tpd to the output of com logic or not, does not neccessarily violate the violations right**
+* **Hence, whether it takes $T_{pd}$ or $T_{cd}$ to the output of com logic or not, does not neccessarily violate the violations right**
