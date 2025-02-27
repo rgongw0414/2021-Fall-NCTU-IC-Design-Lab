@@ -6,7 +6,7 @@
 
   * For an combinational circuit, the **minimum time** it takes for an input change to cause an output change.
   * It determines how soon the output sees an output transition (not stable yet).
-  * If $T_{cd}$ is too small, it can cause hold-time violations: $T_{cd}$ is too small, making $D$_$2$ capture errornous value ($U$ does not hold long enough).
+  * If $T_{cd}$ is too small, it can cause hold-time violations: $T_{cd}$ is too small, making $D_2$ capture errornous value ($U$ does not hold long enough).
   
     ![hold-time violation](../imgs/hold-time_violation.png)
 
@@ -14,7 +14,7 @@
 
   * The **maximum time** it takes for an input change to be fully reflected (stable) at the output.
   * Also called **maximum delay** or **critical path delay**.
-  * If $T_{pd}$ is too large, it can cause setup-time violations: $T_{pd}$ is too large, making $D$_$2$ capture errornous value ($V$ comes too late).
+  * If $T_{pd}$ is too large, it can cause setup-time violations: $T_{pd}$ is too large, making $D_2$ capture errornous value ($V$ comes too late).
   
     ![setup-time violation](../imgs/setup-time_violation.png)
 
