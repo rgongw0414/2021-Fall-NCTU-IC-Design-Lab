@@ -65,6 +65,7 @@
       * For the capture register to read the data launched from **LAST CLOCK** correctly, which is defined by the adopted cell-library (vendor)
       * Setup violation may cause metastability or incorrect data being latched
   * $Slack = Data\ Arrive\ Time - Data\ Required\ Time$
+* Hold-check concerns the previous data is overwritten by the new data that comes too early at the **CURRENT CLOCK**
 * The criterion must be satisfied: If $t_{ccq} + t_{cd}$ is too small, DFF_2 might capture 1, not 0, i.e., the previous data (0) is overwritten by 1.
   
   <img src="../imgs/hold-time-signal-timing2.png" alt="Hold-time Timing" width="650"/>
