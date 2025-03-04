@@ -52,6 +52,7 @@
 ## Hold-Time Criterion
 
 * When Clock (net) delay or Clock skew ($T_{capture} - T_{launch}$) >>> combinational delay ($t_{cd}$), the data might arrived at FF2 too early, and violate hold-time check
+  
 ![Hold-time Criterion](../imgs/hold-time.png)
 
 * ### Criterion: $Data\ Arrive\ Time > Data\ Required\ Time$
