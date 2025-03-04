@@ -32,31 +32,41 @@
 ## Setup-Time Criterion
 
 <img src="../imgs/setup-time.png" alt="Setup-time Criterion" width="650"/>
+
 <img src="../imgs/setup-time2.png" alt="Setup-time Criterion2" width="650"/>
 
-
 * ### Criterion: $Data\ Arrive\ Time < Data\ Required\ Time$
-  * Make sure the data launched from DFF_1 is correctly captured by DFF_2 at **NEXT CLOCK** (that's why taking $T_{cycle}$ into consideration)
-  * Make sure the data is being stable early enough, such that the capture register can read the data correctly
-  * $Data\ Arrive\ Time = t_{pcq} + t_{pd}$
-
-  * $Data\ Required\ Time = T_{cycle} + t_{skew} - t_{setup}$
+  * Setup-time check concerns: Slow paths (Propagation delays: $t_{pcq}, t_{pd}$)
+  * $Data\ Arrive\ Time = T_{launch} + t_{pcq} + t_{pd}$
+  * $Data\ Required\ Time = T_{capture} + T_{cycle} - t_{setup}$
     * $t_{skew} = T_{capture} - T_{launch}$
       * $T_{launch}$: The clock offset b/w the main clock (CLKM) & the launch register (UFF0)
       * $T_{capture}$: The clock offset b/w CLKM & UFF1
-    * $t_{setup}$: The required time for the register to read the data correctly, which is defined by the adopted cell-library (vendor)
+    * $t_{setup}$: The minimum time period that must be stable **before** the capture clock edge. 
+      * For the capture register to read the data launched from **LAST CLOCK** correctly, which is defined by the adopted cell-library (vendor)
+      * Setup violation may cause metastability or incorrect data being latched
   * $Slack = Data\ Required\ Time - Data\ Arrive\ Time$
+* Make sure the data launched from DFF_1 is correctly captured by DFF_2 at **NEXT CLOCK** (that's why taking $T_{cycle}$ into consideration)
+* Make sure the data is being stable early enough, such that the capture register can read the data correctly
 
 ## Hold-Time Criterion
 
-* Clock (net) delay or Clock skew ($T_{capture} - T_{launch}$) >>> combinational delay ($t_{cd}$)
+* When Clock (net) delay or Clock skew ($T_{capture} - T_{launch}$) >>> combinational delay ($t_{cd}$), the data might arrived at FF2 too early, and violate hold-time check
 ![Hold-time Criterion](../imgs/hold-time.png)
 
-<!-- <img src="../imgs/hold-time-signal-timing.png" alt="Hold-time Timing" width="650"/> -->
-* Passed Hold-time Check 
-  * If $t_{ccq} + t_{cd}$ is too small, DFF_2 will capture 1, not 0, i.e., the previous data (0) is overwritten by 1.
+* ### Criterion: $Data\ Arrive\ Time > Data\ Required\ Time$
+  * Hold-time check concerns: Fast paths (Contamination delays: $t_{ccq}, t_{cd}$)
+  * $Data\ Arrive\ Time = T_{launch} + t_{ccq} + t_{cd}$
+  * $Data\ Required\ Time = T_{capture} - t_{setup}$
+    * $t_{skew} = T_{capture} - T_{launch}$
+      * $T_{launch}$: The clock offset b/w the main clock (CLKM) & the launch register (UFF0)
+      * $T_{capture}$: The clock offset b/w CLKM & UFF1
+    * $t_{hold}$: The minimum time period that must be stable **after** the capture clock edge.
+      * For the capture register to read the data launched from **LAST CLOCK** correctly, which is defined by the adopted cell-library (vendor)
+      * Setup violation may cause metastability or incorrect data being latched
+  * $Slack = Data\ Arrive\ Time - Data\ Required\ Time$
+* The criterion must be satisfied: If $t_{ccq} + t_{cd}$ is too small, DFF_2 might capture 1, not 0, i.e., the previous data (0) is overwritten by 1.
   
   <img src="../imgs/hold-time-signal-timing2.png" alt="Hold-time Timing" width="650"/>
 
-* ### Criterion: $Data\ Arrive\ Time > Data\ Required\ Time$
-  * Check that the data launched from the first flip-flop does not reach the second flip-flop too soon (i.e., it should not overwrite the previous data before the hold time is satisfied)
+* Check that the data launched from the first flip-flop does not reach the second flip-flop too soon (i.e., it should not overwrite the previous data before the hold time is satisfied)
