@@ -43,10 +43,10 @@
       * $T_{launch}$: The clock offset b/w the main clock (CLKM) & the launch register (UFF0)
       * $T_{capture}$: The clock offset b/w CLKM & UFF1
     * $t_{setup}$: The minimum time period that must be stable **before** the capture clock edge. 
-      * For the capture register to read the data launched from **LAST CLOCK** correctly, which is defined by the adopted cell-library (vendor)
+      * For the capture register to read the data launched from the **PREVIOUS CLOCK** correctly, which is defined by the adopted cell-library (vendor)
       * Setup violation may cause metastability or incorrect data being latched
   * $Slack = Data\ Required\ Time - Data\ Arrive\ Time$
-* Make sure the data launched from DFF_1 is correctly captured by DFF_2 at **NEXT CLOCK** (that's why taking $T_{cycle}$ into consideration)
+* Make sure the data launched from DFF_1 is correctly captured by DFF_2 at the **NEXT CLOCK** (that's why taking $T_{cycle}$ into consideration)
 * Make sure the data is being stable early enough, such that the capture register can read the data correctly
 
 ## Hold-Time Criterion
@@ -63,7 +63,7 @@
       * $T_{launch}$: The clock offset b/w the main clock (CLKM) & the launch register (UFF0)
       * $T_{capture}$: The clock offset b/w CLKM & UFF1
     * $t_{hold}$: The minimum time period that must be stable **after** the capture clock edge.
-      * For the capture register to read the data launched from **LAST CLOCK** correctly, which is defined by the adopted cell-library (vendor)
+      * For the capture register to read the data launched from the **LAST CLOCK** correctly, which is defined by the adopted cell-library (vendor)
       * Setup violation may cause metastability or incorrect data being latched
   * $Slack = Data\ Arrive\ Time - Data\ Required\ Time$
 * Hold-check concerns the previous data is overwritten by the new data that comes too early at the **CURRENT CLOCK**
