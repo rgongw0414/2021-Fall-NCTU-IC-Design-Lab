@@ -7,15 +7,15 @@ Report : timing
         -max_paths 1
 Design : KT
 Version: S-2021.06-SP2
-Date   : Sat Feb 15 22:39:37 2025
+Date   : Fri Apr 25 01:43:29 2025
 ****************************************
 
 Operating Conditions: slow   Library: slow
 Wire Load Model Mode: top
 
-  Startpoint: curr_x_reg[0]
+  Startpoint: curr_y_reg[0]
               (rising edge-triggered flip-flop clocked by clk)
-  Endpoint: i_th_step_reg[1]
+  Endpoint: backtrack_f_reg
             (rising edge-triggered flip-flop clocked by clk)
   Path Group: clk
   Path Type: max
@@ -24,46 +24,49 @@ Wire Load Model Mode: top
   -----------------------------------------------------------
   clock clk (rise edge)                    0.00       0.00
   clock network delay (ideal)              0.00       0.00
-  curr_x_reg[0]/CK (DFFSX1)                0.00       0.00 r
-  curr_x_reg[0]/Q (DFFSX1)                 0.61       0.61 r
-  U1971/Y (NOR2X1)                         0.11       0.72 f
-  U1979/Y (NAND2X1)                        0.11       0.83 r
-  U1468/Y (INVX1)                          0.06       0.89 f
-  U1467/Y (NOR2X1)                         0.13       1.02 r
-  U1987/Y (XOR2X1)                         0.28       1.30 r
-  U1988/Y (NAND2X1)                        0.08       1.38 f
-  U1608/Y (OAI21XL)                        0.33       1.71 r
-  U1292/S (ADDFX1)                         0.55       2.25 r
-  U2013/Y (INVXL)                          0.08       2.33 f
-  U1528/Y (AND2XL)                         0.21       2.55 f
-  U1276/Y (OAI21XL)                        0.24       2.79 r
-  U2014/Y (XOR2X1)                         0.32       3.10 f
-  U2048/Y (INVX1)                          0.10       3.21 r
-  U2049/Y (MXI2X1)                         0.17       3.38 f
-  U1666/Y (NOR2XL)                         0.14       3.52 r
-  U1664/Y (NOR2X1)                         0.11       3.63 f
-  U2053/Y (OR2X4)                          0.23       3.86 f
-  U2098/Y (CLKINVX2)                       0.08       3.94 r
-  U2099/Y (NAND2X2)                        0.12       4.06 f
-  U2116/Y (NOR2X2)                         0.15       4.21 r
-  U2362/Y (NOR2X2)                         0.10       4.31 f
-  U1801/Y (INVXL)                          0.08       4.40 r
-  U1800/Y (NOR2XL)                         0.07       4.47 f
-  U1328/Y (AOI211X1)                       0.18       4.65 r
-  U1799/Y (AOI21XL)                        0.07       4.72 f
-  i_th_step_reg[1]/D (DFFSX1)              0.00       4.72 f
-  data arrival time                                   4.72
+  curr_y_reg[0]/CK (DFFSX1)                0.00       0.00 r
+  curr_y_reg[0]/Q (DFFSX1)                 0.51       0.51 f
+  U1680/Y (NOR2X1)                         0.19       0.71 r
+  U1709/Y (INVX1)                          0.14       0.85 f
+  U1741/Y (NAND2XL)                        0.18       1.03 r
+  U2215/Y (NOR2XL)                         0.08       1.11 f
+  U2218/Y (NOR3XL)                         0.21       1.32 r
+  U2219/Y (NAND3XL)                        0.17       1.49 f
+  U2220/Y (NAND2X2)                        0.20       1.68 r
+  U2222/Y (XOR2X4)                         0.26       1.94 r
+  U2224/Y (NAND2XL)                        0.13       2.07 f
+  U2225/Y (NAND2X2)                        0.13       2.20 r
+  U2232/Y (XOR2X2)                         0.33       2.53 r
+  U2240/Y (INVX4)                          0.06       2.59 f
+  U1386/Y (NOR2X2)                         0.16       2.76 r
+  U2289/Y (AOI22XL)                        0.10       2.86 f
+  U1735/Y (NAND2XL)                        0.11       2.97 r
+  U1733/Y (MXI2XL)                         0.13       3.10 f
+  U1460/Y (MXI2X1)                         0.19       3.29 r
+  U1459/Y (NOR2X2)                         0.07       3.36 f
+  U2291/Y (NOR2X2)                         0.13       3.49 r
+  U2295/Y (OR2X4)                          0.16       3.65 r
+  U2306/Y (NAND2X4)                        0.06       3.71 f
+  U1486/Y (OR2X2)                          0.24       3.94 f
+  U2307/Y (OR2X4)                          0.20       4.14 f
+  U1383/Y (INVX1)                          0.07       4.21 r
+  U1816/Y (MXI2X1)                         0.10       4.31 f
+  U1815/Y (NAND3X1)                        0.15       4.46 r
+  U1886/Y (MXI2X1)                         0.16       4.62 r
+  U1396/Y (NAND3BXL)                       0.11       4.73 f
+  backtrack_f_reg/D (DFFSX1)               0.00       4.73 f
+  data arrival time                                   4.73
 
   clock clk (rise edge)                    5.00       5.00
   clock network delay (ideal)              0.00       5.00
-  i_th_step_reg[1]/CK (DFFSX1)             0.00       5.00 r
+  backtrack_f_reg/CK (DFFSX1)              0.00       5.00 r
   library setup time                      -0.27       4.73
   data required time                                  4.73
   -----------------------------------------------------------
   data required time                                  4.73
-  data arrival time                                  -4.72
+  data arrival time                                  -4.73
   -----------------------------------------------------------
-  slack (MET)                                         0.01
+  slack (MET)                                         0.00
 
 
 1

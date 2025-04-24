@@ -61,12 +61,14 @@ PATTERN U_PATTERN(
 
 initial begin
 	`ifdef RTL
+		// $dumpfile("tb.vcd");         // Name of the VCD file to be generated
+  		// $dumpvars(0, TESTBED);            // Dump all variables in the testbench hierarchy 'tb'
 		$fsdbDumpfile("KT.fsdb");
 		$fsdbDumpvars(0,"+mda");
 		$fsdbDumpvars();
 	`endif
 	`ifdef GATE
-		$sdf_annotate("../02_SYN/Netlist/KT_SYN.sdf",U_KT);
+		$sdf_annotate("../02_SYN/Netlist/KT_SYN.sdf", U_KT);
 		$fsdbDumpfile("KT_SYN.fsdb");
 		$fsdbDumpvars();
 	`endif

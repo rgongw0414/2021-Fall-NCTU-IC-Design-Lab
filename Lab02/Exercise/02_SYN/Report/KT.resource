@@ -3,7 +3,7 @@
 Report : resources
 Design : KT
 Version: S-2021.06-SP2
-Date   : Sat Feb 15 22:39:37 2025
+Date   : Fri Apr 25 01:43:29 2025
 ****************************************
 
 
@@ -12,53 +12,53 @@ Resource Report for this hierarchy in file
 =============================================================================
 | Cell           | Module         | Parameters | Contained Operations       |
 =============================================================================
-| add_x_1        | DW01_add       | width=4    | add_87 (KT.v:87)           |
-| add_x_3        | DW01_add       | width=4    | add_88 (KT.v:88)           |
-| lt_x_5         | DW_cmp         | width=4    | lt_92 (KT.v:92)            |
-| gt_x_6         | DW_cmp         | width=4    | gt_92 (KT.v:92)            |
-| lt_x_7         | DW_cmp         | width=4    | lt_92_2 (KT.v:92)          |
-| gt_x_8         | DW_cmp         | width=4    | gt_92_2 (KT.v:92)          |
-| eq_x_10        | DW_cmp         | width=3    | eq_117 (KT.v:117)          |
-| sub_x_14       | DW01_sub       | width=4    | sub_173 (KT.v:173)         |
-| sub_x_15       | DW01_sub       | width=4    | sub_174 (KT.v:174)         |
-| add_x_62       | DW01_inc       | width=3    | add_434 (KT.v:434)         |
-| sub_x_65       | DW01_dec       | width=5    | sub_469 (KT.v:469)         |
-| lt_x_78        | DW_cmp         | width=5    | lt_562 (KT.v:562)          |
-| add_x_99       | DW01_inc       | width=5    | add_635 (KT.v:635)         |
-| eq_x_110       | DW_cmp         | width=4    | eq_178 (KT.v:178)          |
-|                |                |            | eq_193 (KT.v:193)          |
-| eq_x_111       | DW_cmp         | width=4    | eq_178_2 (KT.v:178)        |
-|                |                |            | eq_181_2 (KT.v:181)        |
-| eq_x_112       | DW_cmp         | width=4    | eq_181 (KT.v:181)          |
-|                |                |            | eq_190 (KT.v:190)          |
-| eq_x_113       | DW_cmp         | width=4    | eq_184 (KT.v:184)          |
-|                |                |            | eq_187 (KT.v:187)          |
-| eq_x_114       | DW_cmp         | width=4    | eq_184_2 (KT.v:184)        |
-|                |                |            | eq_199_2 (KT.v:199)        |
-| eq_x_115       | DW_cmp         | width=4    | eq_187_2 (KT.v:187)        |
-|                |                |            | eq_196_2 (KT.v:196)        |
-| eq_x_116       | DW_cmp         | width=4    | eq_190_2 (KT.v:190)        |
-|                |                |            | eq_193_2 (KT.v:193)        |
-| eq_x_117       | DW_cmp         | width=4    | eq_196 (KT.v:196)          |
-|                |                |            | eq_199 (KT.v:199)          |
-| DP_OP_390J1_122_1019            |            |                            |
-|                | DP_OP_390J1_122_1019 |      |                            |
-| DP_OP_391J1_123_9307            |            |                            |
-|                | DP_OP_391J1_123_9307 |      |                            |
-| DP_OP_392J1_124_3613            |            |                            |
-|                | DP_OP_392J1_124_3613 |      |                            |
-| DP_OP_393J1_125_3319            |            |                            |
-|                | DP_OP_393J1_125_3319 |      |                            |
+| add_x_1        | DW01_add       | width=4    | add_89 (KT.v:89)           |
+| add_x_3        | DW01_add       | width=4    | add_90 (KT.v:90)           |
+| lt_x_5         | DW_cmp         | width=4    | lt_94 (KT.v:94)            |
+| gt_x_6         | DW_cmp         | width=4    | gt_94 (KT.v:94)            |
+| lt_x_7         | DW_cmp         | width=4    | lt_94_2 (KT.v:94)          |
+| gt_x_8         | DW_cmp         | width=4    | gt_94_2 (KT.v:94)          |
+| eq_x_10        | DW_cmp         | width=3    | eq_119 (KT.v:119)          |
+| sub_x_14       | DW01_sub       | width=4    | sub_175 (KT.v:175)         |
+| sub_x_15       | DW01_sub       | width=4    | sub_176 (KT.v:176)         |
+| add_x_62       | DW01_inc       | width=3    | add_441 (KT.v:441)         |
+| sub_x_65       | DW01_dec       | width=5    | sub_476 (KT.v:476)         |
+| lt_x_78        | DW_cmp         | width=5    | lt_569 (KT.v:569)          |
+| add_x_99       | DW01_inc       | width=5    | add_643 (KT.v:643)         |
+| eq_x_112       | DW_cmp         | width=4    | eq_180 (KT.v:180)          |
+|                |                |            | eq_195 (KT.v:195)          |
+| eq_x_113       | DW_cmp         | width=4    | eq_180_2 (KT.v:180)        |
+|                |                |            | eq_183_2 (KT.v:183)        |
+| eq_x_114       | DW_cmp         | width=4    | eq_183 (KT.v:183)          |
+|                |                |            | eq_192 (KT.v:192)          |
+| eq_x_115       | DW_cmp         | width=4    | eq_186 (KT.v:186)          |
+|                |                |            | eq_189 (KT.v:189)          |
+| eq_x_116       | DW_cmp         | width=4    | eq_186_2 (KT.v:186)        |
+|                |                |            | eq_201_2 (KT.v:201)        |
+| eq_x_117       | DW_cmp         | width=4    | eq_189_2 (KT.v:189)        |
+|                |                |            | eq_198_2 (KT.v:198)        |
+| eq_x_118       | DW_cmp         | width=4    | eq_192_2 (KT.v:192)        |
+|                |                |            | eq_195_2 (KT.v:195)        |
+| eq_x_119       | DW_cmp         | width=4    | eq_198 (KT.v:198)          |
+|                |                |            | eq_201 (KT.v:201)          |
+| DP_OP_392J1_122_1019            |            |                            |
+|                | DP_OP_392J1_122_1019 |      |                            |
+| DP_OP_393J1_123_9307            |            |                            |
+|                | DP_OP_393J1_123_9307 |      |                            |
+| DP_OP_394J1_124_3613            |            |                            |
+|                | DP_OP_394J1_124_3613 |      |                            |
+| DP_OP_395J1_125_3319            |            |                            |
+|                | DP_OP_395J1_125_3319 |      |                            |
 =============================================================================
 
-Datapath Report for DP_OP_390J1_122_1019
+Datapath Report for DP_OP_392J1_122_1019
 ==============================================================================
 | Cell                 | Contained Operations                                |
 ==============================================================================
-| DP_OP_390J1_122_1019 | mult_93 (KT.v:93) mult_93_2 (KT.v:93)               |
-|                      | mult_93_3 (KT.v:93) add_93 (KT.v:93)                |
-|                      | add_93_2 (KT.v:93) lt_93 (KT.v:93) gt_93 (KT.v:93)  |
-|                      | add_93_3 (KT.v:93)                                  |
+| DP_OP_392J1_122_1019 | mult_95 (KT.v:95) mult_95_2 (KT.v:95)               |
+|                      | mult_95_3 (KT.v:95) add_95 (KT.v:95)                |
+|                      | add_95_2 (KT.v:95) lt_95 (KT.v:95) gt_95 (KT.v:95)  |
+|                      | add_95_3 (KT.v:95)                                  |
 ==============================================================================
 
 ==============================================================================
@@ -67,19 +67,19 @@ Datapath Report for DP_OP_390J1_122_1019
 ==============================================================================
 | I1    | PI   | Signed   | 4     |                                          |
 | I2    | PI   | Signed   | 4     |                                          |
-| T8    | IFO  | Signed   | 8     | $unsigned(3'b101) * I1 (KT.v:93)         |
-| T9    | IFO  | Signed   | 9     | T8 + I2 (KT.v:93)                        |
-| T368  | IFO  | Signed   | 5     | T8[4:0]                                  |
-| O1    | PO   | Signed   | 1     | T9 < $signed(1'b0) (KT.v:93)             |
-| O2    | PO   | Signed   | 1     | T9 > $signed(6'b011000) (KT.v:93)        |
-| O3    | PO   | Signed   | 5     | T368 + I2 (KT.v:93)                      |
+| T8    | IFO  | Signed   | 8     | $unsigned(3'b101) * I1 (KT.v:95)         |
+| T9    | IFO  | Signed   | 9     | T8 + I2 (KT.v:95)                        |
+| T370  | IFO  | Signed   | 5     | T8[4:0]                                  |
+| O1    | PO   | Signed   | 1     | T9 < $signed(1'b0) (KT.v:95)             |
+| O2    | PO   | Signed   | 1     | T9 > $signed(6'b011000) (KT.v:95)        |
+| O3    | PO   | Signed   | 5     | T370 + I2 (KT.v:95)                      |
 ==============================================================================
 
-Datapath Report for DP_OP_391J1_123_9307
+Datapath Report for DP_OP_393J1_123_9307
 ==============================================================================
 | Cell                 | Contained Operations                                |
 ==============================================================================
-| DP_OP_391J1_123_9307 | mult_99 (KT.v:99) add_99 (KT.v:99)                  |
+| DP_OP_393J1_123_9307 | mult_101 (KT.v:101) add_101 (KT.v:101)              |
 ==============================================================================
 
 ==============================================================================
@@ -88,17 +88,17 @@ Datapath Report for DP_OP_391J1_123_9307
 ==============================================================================
 | I1    | PI   | Signed   | 4     |                                          |
 | I2    | PI   | Signed   | 4     |                                          |
-| T17   | IFO  | Signed   | 5     | $unsigned(3'b101) * I1 (KT.v:99)         |
-| O1    | PO   | Signed   | 5     | T17 + I2 (KT.v:99)                       |
+| T17   | IFO  | Signed   | 5     | $unsigned(3'b101) * I1 (KT.v:101)        |
+| O1    | PO   | Signed   | 5     | T17 + I2 (KT.v:101)                      |
 ==============================================================================
 
-Datapath Report for DP_OP_392J1_124_3613
+Datapath Report for DP_OP_394J1_124_3613
 ==============================================================================
 | Cell                 | Contained Operations                                |
 ==============================================================================
-| DP_OP_392J1_124_3613 | add_451_S2 (KT.v:451) add_457 (KT.v:457)            |
-|                      | add_476 (KT.v:476) add_553 (KT.v:553)               |
-|                      | eq_553 (KT.v:553)                                   |
+| DP_OP_394J1_124_3613 | add_458_S2 (KT.v:458) add_464 (KT.v:464)            |
+|                      | add_483 (KT.v:483) add_560 (KT.v:560)               |
+|                      | eq_560 (KT.v:560)                                   |
 ==============================================================================
 
 ==============================================================================
@@ -107,16 +107,16 @@ Datapath Report for DP_OP_392J1_124_3613
 ==============================================================================
 | I1    | PI   | Unsigned | 5     |                                          |
 | I2    | PI   | Unsigned | 5     |                                          |
-| O1    | PO   | Unsigned | 6     | I1 + $unsigned(1'b1) ( KT.v:451 KT.v:457 KT.v:476 KT.v:553 ) |
-| O2    | PO   | Unsigned | 1     | O1 == I2 (KT.v:553)                      |
+| O1    | PO   | Unsigned | 6     | I1 + $unsigned(1'b1) ( KT.v:458 KT.v:464 KT.v:483 KT.v:560 ) |
+| O2    | PO   | Unsigned | 1     | O1 == I2 (KT.v:560)                      |
 ==============================================================================
 
-Datapath Report for DP_OP_393J1_125_3319
+Datapath Report for DP_OP_395J1_125_3319
 ==============================================================================
 | Cell                 | Contained Operations                                |
 ==============================================================================
-| DP_OP_393J1_125_3319 | mult_498_S2 (KT.v:498) mult_502_S2 (KT.v:502)       |
-|                      | add_498_S2 (KT.v:498) add_502_S2 (KT.v:502)         |
+| DP_OP_395J1_125_3319 | mult_505_S2 (KT.v:505) mult_509_S2 (KT.v:509)       |
+|                      | add_505_S2 (KT.v:505) add_509_S2 (KT.v:509)         |
 ==============================================================================
 
 ==============================================================================
@@ -125,18 +125,18 @@ Datapath Report for DP_OP_393J1_125_3319
 ==============================================================================
 | I1    | PI   | Unsigned | 3     |                                          |
 | I2    | PI   | Unsigned | 3     |                                          |
-| T120  | IFO  | Unsigned | 6     | I1 * $unsigned(3'b101) ( KT.v:498 KT.v:502 ) |
-| O1    | PO   | Unsigned | 7     | T120 + I2 ( KT.v:498 KT.v:502 )          |
+| T120  | IFO  | Unsigned | 6     | I1 * $unsigned(3'b101) ( KT.v:505 KT.v:509 ) |
+| O1    | PO   | Unsigned | 7     | T120 + I2 ( KT.v:505 KT.v:509 )          |
 ==============================================================================
 
 
 Datapath Extraction Report
 
-Information: Operator associated with resources 'add_87 (KT.v:87)' in design 'KT' breaks the datapath extraction because there is leakage due to truncation on its fanout to operator of resources 'C9815 (KT.v:87)'.  (HDL-120)
+Information: Operator associated with resources 'add_89 (KT.v:89)' in design 'KT' breaks the datapath extraction because there is leakage due to truncation on its fanout to operator of resources 'C10125 (KT.v:89)'.  (HDL-120)
 
-Information: Operator associated with resources 'add_88 (KT.v:88)' in design 'KT' breaks the datapath extraction because there is leakage due to truncation on its fanout to operator of resources 'C9816 (KT.v:88)'.  (HDL-120)
+Information: Operator associated with resources 'add_90 (KT.v:90)' in design 'KT' breaks the datapath extraction because there is leakage due to truncation on its fanout to operator of resources 'C10126 (KT.v:90)'.  (HDL-120)
 
-Information: Operator associated with resources 'add_434 (KT.v:434)' in design 'KT' breaks the datapath extraction because there is leakage due to truncation on its fanout to operator of resources 'C9895 (KT.v:430)'.  (HDL-120)
+Information: Operator associated with resources 'add_441 (KT.v:441)' in design 'KT' breaks the datapath extraction because there is leakage due to truncation on its fanout to operator of resources 'C10207 (KT.v:437)'.  (HDL-120)
 
 
 Implementation Report
@@ -157,22 +157,22 @@ Implementation Report
 | sub_x_65           | DW01_dec         | apparch (area)     |                |
 | lt_x_78            | DW_cmp           | apparch (area)     |                |
 | add_x_99           | DW01_inc         | apparch (area)     |                |
-| eq_x_110           | DW_cmp           | apparch (area)     |                |
-| eq_x_111           | DW_cmp           | apparch (area)     |                |
 | eq_x_112           | DW_cmp           | apparch (area)     |                |
 | eq_x_113           | DW_cmp           | apparch (area)     |                |
 | eq_x_114           | DW_cmp           | apparch (area)     |                |
 | eq_x_115           | DW_cmp           | apparch (area)     |                |
 | eq_x_116           | DW_cmp           | apparch (area)     |                |
 | eq_x_117           | DW_cmp           | apparch (area)     |                |
-| DP_OP_390J1_122_1019                  |                    |                |
-|                    | DP_OP_390J1_122_1019 | str (speed)    |                |
-| DP_OP_391J1_123_9307                  |                    |                |
-|                    | DP_OP_391J1_123_9307 | str (area)     |                |
-| DP_OP_392J1_124_3613                  |                    |                |
-|                    | DP_OP_392J1_124_3613 | str (area)     |                |
-| DP_OP_393J1_125_3319                  |                    |                |
-|                    | DP_OP_393J1_125_3319 | str (area)     |                |
+| eq_x_118           | DW_cmp           | apparch (area)     |                |
+| eq_x_119           | DW_cmp           | apparch (area)     |                |
+| DP_OP_392J1_122_1019                  |                    |                |
+|                    | DP_OP_392J1_122_1019 | str (speed)    |                |
+| DP_OP_393J1_123_9307                  |                    |                |
+|                    | DP_OP_393J1_123_9307 | str (area)     |                |
+| DP_OP_394J1_124_3613                  |                    |                |
+|                    | DP_OP_394J1_124_3613 | str (area)     |                |
+| DP_OP_395J1_125_3319                  |                    |                |
+|                    | DP_OP_395J1_125_3319 | str (area)     |                |
 ===============================================================================
 
 1
