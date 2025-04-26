@@ -9,6 +9,15 @@ using namespace std;
 
 ofstream test_in("test_in_ignore.txt");
 ofstream test_out("test_out_ignore.txt");
+/*
+These generated test cases got deep and complex backtracking to find the solution, not sure the lab itself uses such hard cases as hidden tests.
+PASS PATTERN NO.   0,  Cycles: 459896
+PASS PATTERN NO.   1,  Cycles: 1657465
+PASS PATTERN NO.   2,  Cycles: 541304
+PASS PATTERN NO.   3,  Cycles: 325765
+PASS PATTERN NO.   4,  Cycles: 2791
+PASS PATTERN NO.   5,  Cycles: 1657529
+*/
 const int N = 5;
 const int TOTAL_MOVES = N * N;
 const int dx[8] = {-1, 1, 2,  2,  1, -1, -2, -2};
