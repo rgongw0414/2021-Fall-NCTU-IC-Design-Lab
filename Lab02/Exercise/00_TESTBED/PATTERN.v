@@ -60,10 +60,12 @@ reg [4:0] step_temp;
 integer total_cycles;
 integer patcount;
 integer cycles;
-integer a, b, c, i, k, input_file,output_file;
+integer a, b, c, i, k, input_file, output_file;
 integer gap;
 
 parameter PATNUM=104;
+// parameter PATNUM=10000;
+parameter cycle_limit=10000;
 //================================================================
 // clock
 //================================================================
@@ -83,6 +85,8 @@ initial begin
 	total_cycles = 0;
 	reset_task;
 	
+	// input_file=$fopen("../00_TESTBED/test_in_ignore.txt","r");
+  	// output_file=$fopen("../00_TESTBED/test_out_ignore.txt","r");
 	input_file=$fopen("../00_TESTBED/input.txt","r");
   	output_file=$fopen("../00_TESTBED/output.txt","r");
     @(negedge clk);
@@ -145,10 +149,10 @@ begin
 	cycles = 0;
 	while(out_valid === 0)begin
 		cycles = cycles + 1;
-		if(cycles == 10000) begin
+		if(cycles == cycle_limit) begin
 			$display ("--------------------------------------------------------------------------------------------------------------------------------------------");
 			$display ("                                                                                                                                            ");
-			$display ("                                                     The execution latency are over 10000 cycles                                              ");
+			$display ("                                                     The execution latency are over %2d cycles                                              ", cycle_limit);
 			$display ("                                                                                                                                            ");
 			$display ("--------------------------------------------------------------------------------------------------------------------------------------------");
 			repeat(2)@(negedge clk);
