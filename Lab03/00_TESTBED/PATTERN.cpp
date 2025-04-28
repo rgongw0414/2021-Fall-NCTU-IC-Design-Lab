@@ -161,6 +161,12 @@ int main() {
     // srand(time(0)); // Seed random number generator
     srand(10531615); // Fixed seed for reproducibility
     int found = 0;
+    unordered_map<char, int> arrow2num = {
+        {'^', 3}, 
+        {'v', 1}, 
+        {'<', 2}, 
+        {'>', 0}
+    };
     while (found < PATTERN_NUM) {
         // cout << "Pattern " << _ + 1 << ":" << endl;
         vector<vector<int>> maze(N, vector<int>(N, 0)); // 0 = Wall, 1 = Path
@@ -180,12 +186,15 @@ int main() {
             test_in_formated << "Pattern " << found + 1 << ":" << endl;
             printMaze(maze);
             int steps = path.size();
-            test_out << "Path found with " << steps << " steps: ";
+            // cout << "Path found with " << steps << " steps: ";
             for (const auto &p : path) {
                 int dx = p.first - parents[p.first][p.second].first; 
                 int dy = p.second - parents[p.first][p.second].second;
-                test_out << arrow_map[dx][dy];
+                // cout << arrow_map[dx][dy];
+                // test_out << arrow_map[dx][dy];
+                test_out << arrow2num[arrow_map[dx][dy]];
             }
+            // cout << endl;
             test_out << endl;
             found++;
         }
