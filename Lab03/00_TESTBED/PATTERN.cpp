@@ -94,6 +94,8 @@ vector<pair<int, int>> buildPath(vector<vector<pair<int, int>>> &parents) {
     return path;
 }
 
+/* * Returns the parents of each cell in the maze
+   * With buildPath(), the parents are used to reconstruct the path */
 vector<vector<pair<int, int>>> solveMaze(vector<vector<int>> &maze, int startX, int startY) {
     // Implement a maze-solving algorithm here if needed
     queue<pair<int, int>> q;
@@ -155,11 +157,16 @@ vector<vector<pair<int, int>>> solveMaze(vector<vector<int>> &maze, int startX, 
 }
 
 int main() {
-    /*
-    TODO: Generate cases with loops and cycles
-    */
-    // srand(time(0)); // Seed random number generator
-    srand(10531615); // Fixed seed for reproducibility
+    /* 
+     * Generate a maze which starts from (0, 0) and ends at (N-1, N-1).
+     * The maze is represented as a 2D vector of integers, where 0 = Wall and 1 = Path.
+     * The maze is generated using a DFS (Backtracking) algorithm with random directions.
+     * There's only one shortest path from the start to the end in the maze, i.e., there're no loops in the maze. 
+     * The maze is solved with a BFS algorithm. 
+     * Optimization TODO: Use the maze array itself to save the parent of each cell. */
+
+     srand(10531615); // Fixed seed for reproducibility
+     // srand(time(0)); // Seed random number generator
     int found = 0;
     unordered_map<char, int> arrow2num = {
         {'^', 3}, 
