@@ -8,6 +8,7 @@
 #include <utility>
 #include <queue>
 #include <unordered_map>
+#include <cmath>
 
 using namespace std;
 
@@ -96,6 +97,7 @@ vector<pair<int, int>> buildPath(vector<vector<pair<int, int>>> &parents) {
 
 /* * Returns the parents of each cell in the maze
    * With buildPath(), the parents are used to reconstruct the path */
+int Q_MAX_DEPTH = 0; // The maximum size of the queue of all cases, which is used to determine the DEPTH (#entries) of the queue 
 vector<vector<pair<int, int>>> solveMaze(vector<vector<int>> &maze, int startX, int startY) {
     // Implement a maze-solving algorithm here if needed
     queue<pair<int, int>> q;
@@ -151,6 +153,7 @@ vector<vector<pair<int, int>>> solveMaze(vector<vector<int>> &maze, int startX, 
                 } 
             }
         }
+        Q_MAX_DEPTH = max(Q_MAX_DEPTH, (int)q.size());
     }
     test_out << "Failed to find the answer" << endl;
     return {}; // No path found
@@ -205,5 +208,7 @@ int main() {
             found++;
         }
     }
+    cout << "Queue max size of all cases Q_MAX_DEPTH = " << Q_MAX_DEPTH << endl;
+    cout << "The DEPTH (#entries) of the queue should be at least $clog2(Q_MAX_DEPTH) = " << ceil(log2(Q_MAX_DEPTH)) << endl;
     return 0;
 }

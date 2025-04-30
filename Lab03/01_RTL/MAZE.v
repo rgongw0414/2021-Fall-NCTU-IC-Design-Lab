@@ -17,6 +17,7 @@ parameter DATA_WIDTH = 5; // 5 bits for x and y (0 to 31)
 parameter MAZE_WIDTH = 17; // 17x17 maze
 parameter MAZE_SIZE  = MAZE_WIDTH * MAZE_WIDTH; // The maze consists of 289 (17x17) cells
 parameter STATE_WIDTH = 2; // 2 bits for the FSM state
+parameter QUEUE_DEPTH = 16; // The depth of the queue
 
 // Primary FSM States
 parameter S_RESET  = 2'd0;
@@ -29,9 +30,6 @@ parameter RIGHT    = 2'd0;
 parameter DOWN     = 2'd1;
 parameter LEFT     = 2'd2;
 parameter UP       = 2'd3;
-
-// Loop variables
-integer i, j; 
 
 //****************************************************************//
 // Input/Output Declaration
@@ -50,6 +48,12 @@ reg [STATE_WIDTH-1:0] curr_state, next_state;
 reg [DIR_WIDTH-1:0]   curr_dir; // Current direction in the maze
 reg [1:0]             offset_x, offset_y; // Offset for the next cell in the maze
 
+// Loop variables
+reg [$clog2(MAZE_WIDTH)-1:0] i, j; // Index for maze
+
+// Queue variables
+reg enq_valid, deq_ready;
+
 //*****************************************************************//
 // Wires
 //****************************************************************//
@@ -58,6 +62,10 @@ wire [DATA_WIDTH-1:0] next_x, next_y;
 wire [DIR_WIDTH-1:0] next_dir;
 wire curr_y_reached_N;
 
+// Queue variables
+wire q_full, q_empty;
+wire [(DATA_WIDTH)*2-1:0] enq_data, deq_data; // Concatenation of x and y for the queue
+
 //*****************************************************************//
 // Assigns
 //****************************************************************//
@@ -65,13 +73,33 @@ assign walk_finished = (curr_x == MAZE_WIDTH - 1 && curr_y == MAZE_WIDTH - 1);
 assign next_x = curr_x + offset_x;
 assign next_y = curr_y + offset_y;
 assign curr_y_reached_N = (curr_y == MAZE_WIDTH - 1);
+assign enq_data = {next_x, next_y}; // Concatenate x and y for the queue
+
+//****************************************************************//
+// Module Declaration
+//****************************************************************//
+`include "QUEUE.v" // Include the QUEUE module for BFS implementation
+QUEUE #(
+    .DATA_WIDTH(DATA_WIDTH*2), // 2*DATA_WIDTH for the concatenation of x and y
+    .DEPTH(QUEUE_DEPTH),
+    .ADDR_WIDTH($clog2(QUEUE_DEPTH))
+) Q (
+    .clk(clk),
+    .rst_n(rst_n),
+    .enq_valid(enq_valid),
+    .enq_data(enq_data),
+    .full(q_full),
+    .deq_ready(deq_ready),
+    .deq_data(deq_data),
+    .empty(q_empty)
+);
 
 //*****************************************************************//
 // Always Blocks
 //****************************************************************//
 
 //******************************************//
-// Direction Logic
+// 1. Direction Logic
 //******************************************//
 always@(*) begin
     if (curr_dir == RIGHT) begin
@@ -120,7 +148,7 @@ always@(posedge clk or negedge rst_n) begin
 end
 
 //******************************************//
-// curr_x and curr_y Logic
+// 1-1. curr_x and curr_y Logic
 //******************************************//
 always@(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
@@ -171,6 +199,45 @@ always@(posedge clk or negedge rst_n) begin
             end
         end
         endcase
+    end
+end
+
+//******************************************//
+// 1-2. curr_dir and next_dir Logic
+//******************************************//
+always@(posedge clk or negedge rst_n) begin // RIGHT: 0, DOWN: 1, LEFT: 2, UP: 3
+    if (!rst_n) begin
+        curr_dir <= RIGHT; 
+    end
+    else begin
+        case (curr_state)
+        S_WALK: begin
+            if (walk_finished) begin
+                curr_dir <= RIGHT;
+            end
+            else begin
+                curr_dir <= next_dir;
+            end
+        end
+        endcase
+    end
+end
+
+always@(*) begin // RIGHT: 0, DOWN: 1, LEFT: 2, UP: 3
+    if (curr_dir == RIGHT) begin
+        next_dir = DOWN;
+    end
+    else if (curr_dir == DOWN) begin
+        next_dir = LEFT;
+    end
+    else if (curr_dir == LEFT) begin
+        next_dir = UP;
+    end
+    else if (curr_dir == UP) begin
+        next_dir = RIGHT;
+    end
+    else begin // should not happen, because curr_dir is 2-bit long
+        next_dir = RIGHT;
     end
 end
 
