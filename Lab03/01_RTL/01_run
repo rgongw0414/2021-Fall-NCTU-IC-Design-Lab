@@ -1,0 +1,1 @@
+xrun TESTBED.v -define RTL -debug
