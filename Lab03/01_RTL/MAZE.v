@@ -59,12 +59,13 @@ reg enq_valid, deq_ready;
 //****************************************************************//
 wire walk_finished;
 wire [DATA_WIDTH-1:0] next_x, next_y;
-wire [DIR_WIDTH-1:0] next_dir;
+wire [DIR_WIDTH-1:0]  next_dir;
 wire curr_y_reached_N;
 
 // Queue variables
 wire q_full, q_empty;
 wire [(DATA_WIDTH)*2-1:0] enq_data, deq_data; // Concatenation of x and y for the queue
+wire [DATA_WIDTH-1:0] deq_x, deq_y; // Dequeue x and y from the queue
 
 //*****************************************************************//
 // Assigns
@@ -73,7 +74,8 @@ assign walk_finished = (curr_x == MAZE_WIDTH - 1 && curr_y == MAZE_WIDTH - 1);
 assign next_x = curr_x + offset_x;
 assign next_y = curr_y + offset_y;
 assign curr_y_reached_N = (curr_y == MAZE_WIDTH - 1);
-assign enq_data = {next_x, next_y}; // Concatenate x and y for the queue
+assign enq_data = {next_x, next_y}; // Concatenate x and y for enqueue
+assign {deq_x, deq_y} = deq_data; // Dequeue x and y from the queue
 
 //****************************************************************//
 // Module Declaration
@@ -137,13 +139,6 @@ always@(posedge clk or negedge rst_n) begin
         if (in_valid) begin
             maze[curr_x][curr_y] <= in;
         end
-        // else begin
-        //     for (int i = 0; i < MAZE_WIDTH; i = i + 1) begin
-        //         for (int j = 0; j < MAZE_WIDTH; j = j + 1) begin
-        //             maze[i][j] <= 0;
-        //         end
-        //     end
-        // end
     end
 end
 
@@ -159,12 +154,7 @@ always@(posedge clk or negedge rst_n) begin
         S_INPUT: begin
             if (in_valid) begin
                 if (curr_y_reached_N) begin
-                    if (next_state == S_WALK) begin
-                        curr_x <= 0;
-                    end
-                    else begin
-                        curr_x <= curr_x + 1;
-                    end
+                    curr_x <= (next_state == S_WALK) ? 0 : curr_x + 1;
                 end
             end
         end
@@ -185,19 +175,14 @@ always@(posedge clk or negedge rst_n) begin
         end
         S_INPUT: begin
             if (in_valid) begin
-                if (curr_y_reached_N) begin
-                    if (next_state == S_WALK) begin
-                        curr_y <= 0;
-                    end
-                    else begin
-                        curr_y <= 0;
-                    end
-                end
-                else begin
-                    curr_y <= curr_y + 1;
-                end
+                curr_y <= (curr_y_reached_N) ? 0 : curr_y + 1;
             end
         end
+        // S_WALK: begin
+        //     if (walk_finished) begin
+        //         next_state = S_OUTPUT;
+        //     end
+        // end
         endcase
     end
 end
