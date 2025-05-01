@@ -197,16 +197,16 @@ int main() {
             test_in_formated << "Pattern " << found + 1 << ":" << endl;
             printMaze(maze);
             int steps = path.size();
-            test_out << steps << endl;
+            test_out << steps << " ";
             max_steps = max(max_steps, steps);
             for (const auto &p : path) {
                 int dx = p.first - parents[p.first][p.second].first; 
                 int dy = p.second - parents[p.first][p.second].second;
                 // cout << arrow_map[dx][dy];
                 // test_out << arrow_map[dx][dy];
-                test_out << arrow2num[arrow_map[dx][dy]] << endl;
+                test_out << arrow2num[arrow_map[dx][dy]];
             }
-            // cout << endl;
+            test_out << endl;
             found++;
         }
     }

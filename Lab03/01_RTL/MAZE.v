@@ -42,7 +42,7 @@ parameter MAX_STEPS = 150; // Maximum number of steps taken to reach the goal (1
 //****************************************************************//
 input clk, rst_n, in_valid, in;
 output reg out_valid; // Pull up when the BFS is finished, and the parents array is reversed
-output reg [DIR_WIDTH-1:0] out;
+output [DIR_WIDTH-1:0] out;
 
 //*****************************************************************//
 // Regs
@@ -60,6 +60,7 @@ reg [$clog2(MAX_STEPS)-1:0] i, j; // Index for maze
 // Backtracking variables
 reg [DIR_WIDTH-1:0]         backtrack_dirs [MAX_STEPS-1:0];
 reg [$clog2(MAX_STEPS)-1:0] backtrack_idx; // Index for saving the backtrack directions
+reg backtrack_finished;
 
 //*****************************************************************//
 // Wires
@@ -69,7 +70,6 @@ wire signed [DATA_WIDTH-1:0] next_x, next_y;
 wire curr_is_start, next_is_start;
 wire curr_y_reached_N;
 wire next_is_wall, next_is_visited, next_is_oob, next_is_valid;
-wire backtrack_finished;
 
 // Queue variables
 wire signed [DATA_WIDTH-1:0] deq_x, deq_y; // Dequeue x and y from the queue
@@ -90,11 +90,11 @@ assign curr_is_start   = (curr_x == 0 && curr_y == 0);
 assign next_is_start   = (next_x == 0 && next_y == 0); // Check if the next cell is the starting point
 assign next_is_visited = ((!next_is_oob && prev_dirs[next_x][next_y] != 7) || next_is_start); // 7 means not visited
 assign next_is_valid   = (!next_is_oob && !next_is_visited && !next_is_wall);
-assign backtrack_finished = (curr_state == S_BACK && curr_is_start);
 assign enq_data = {next_x, next_y}; // Concatenate x and y for enqueue
 assign {deq_x, deq_y} = deq_data; // Dequeue x and y from the queue
 assign enq_valid = (next_is_valid && !q_full); // Enqueue only if the next cell is valid and the queue is not full
 assign deq_ready = (curr_dir == UP && !q_empty); // Dequeue only if the current direction is UP and the queue is not empty
+assign out = backtrack_dirs[backtrack_idx];
 
 //****************************************************************//
 // Module Declaration
@@ -299,6 +299,27 @@ always@(posedge clk or negedge rst_n) begin
     end
 end
 
+// assign backtrack_finished = (curr_state == S_BACK && curr_is_start);
+always@(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        backtrack_finished <= 0;
+    end
+    else begin
+        case (curr_state)
+            S_BACK: begin
+                if ((next_is_start)) begin
+                    backtrack_finished <= 1;
+                end
+            end
+            S_OUTPUT: begin
+                if (next_state == S_RESET) begin
+                    backtrack_finished <= 0; // Reset backtrack_finished when outputting the result
+                end
+            end
+        endcase
+    end
+end
+
 always@(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         for (i = 0; i < MAX_STEPS; i = i + 1) begin
@@ -312,9 +333,13 @@ always@(posedge clk or negedge rst_n) begin
                     backtrack_dirs[backtrack_idx] <= curr_dir;
                 end
             end
-            // default: begin
-            //     backtrack_dirs <= 0;
-            // end
+            S_OUTPUT: begin
+                if (next_state == S_RESET) begin
+                    for (i = 0; i < MAX_STEPS; i = i + 1) begin
+                        backtrack_dirs[i] <= 0;
+                    end
+                end
+            end
         endcase
     end
 end
@@ -326,13 +351,18 @@ always@(posedge clk or negedge rst_n) begin
     else begin
         case (curr_state)
             S_BACK: begin
-                if (!backtrack_finished) begin
+                if (!next_is_start && !backtrack_finished) begin
                     backtrack_idx <= backtrack_idx + 1;
                 end
             end
-            // default: begin
-            //     backtrack_idx <= 0;
-            // end
+            S_OUTPUT: begin
+                // if (next_state == S_RESET) begin
+                //     backtrack_idx <= 0; // Reset backtrack_idx when outputting the result
+                // end
+                // else begin
+                // end
+                backtrack_idx <= (backtrack_idx > 0) ? backtrack_idx - 1 : 0; // Decrement backtrack_idx when outputting the result
+            end
         endcase
     end
 end
@@ -343,19 +373,43 @@ end
 always@(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         out_valid <= 0;
-        out <= 0;
     end
     else begin
-        // if (curr_state == S_OUTPUT) begin
-        //     out_valid <= 1;
-        //     out <= prev_dirs[curr_x][curr_y];
-        // end
-        // else begin
-        //     out_valid <= 0;
-        //     out <= 0;
-        // end
+        case (curr_state)
+            S_BACK: begin
+                if (next_state == S_OUTPUT) begin
+                    out_valid <= 1; // pull up out_valid as FSM goes in S_OUTPUT
+                end
+            end
+            S_OUTPUT: begin 
+                // if (backtrack_idx > 0) begin
+                //     out_valid <= 1;
+                // end
+                if (backtrack_idx == 0) begin
+                    out_valid <= 0;
+                end
+            end
+        endcase
     end
 end
+
+// always@(posedge clk or negedge rst_n) begin
+//     if (!rst_n) begin
+//         out <= 0;
+//     end
+//     else begin
+//         case (curr_state)
+//             S_OUTPUT: begin
+//                 out <= backtrack_dirs[backtrack_idx]; 
+//                 // if (backtrack_idx >= 0) begin
+//                 // end
+//                 // else (next_state == S_RESET) begin
+//                 //     out <= 0;
+//                 // end
+//             end
+//         endcase
+//     end
+// end
 
 //******************************************//
 // FSM 
@@ -397,12 +451,12 @@ always@(*) begin
             end
         end
         S_BACK: begin
-            // if (backtrack_finished) begin
-            //     next_state = S_OUTPUT;
-            // end
-            // else begin
-            // end
-            next_state = S_BACK;
+            if (backtrack_finished) begin
+                next_state = S_OUTPUT;
+            end
+            else begin
+                next_state = S_BACK;
+            end
         end
         S_OUTPUT: begin
             if (out_valid) begin
