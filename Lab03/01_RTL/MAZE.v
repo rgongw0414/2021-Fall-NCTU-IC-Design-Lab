@@ -15,23 +15,24 @@ module MAZE (
 // Parameter Declaration
 //****************************************************************//
 parameter DIR_WIDTH  = 2;
-parameter DATA_WIDTH = 5; // 5 bits for x and y (0 to 31)
+parameter DATA_WIDTH = 6; // 6 signed bits for x and y (-32 to 31)
 parameter MAZE_WIDTH = 17; // 17x17 maze
 parameter MAZE_SIZE  = MAZE_WIDTH * MAZE_WIDTH; // The maze consists of 289 (17x17) cells
-parameter STATE_WIDTH = 2; // 2 bits for the FSM state
+parameter STATE_WIDTH = 3; // For FSM state
 parameter QUEUE_DEPTH = 16; // The depth of the queue
 
 // Primary FSM States
-parameter S_RESET  = 2'd0;
-parameter S_INPUT  = 2'd1;
-parameter S_WALK   = 2'd2;
-parameter S_OUTPUT = 2'd3;
+parameter [STATE_WIDTH-1:0] S_RESET  = 'd0;
+parameter [STATE_WIDTH-1:0] S_INPUT  = 'd1;
+parameter [STATE_WIDTH-1:0] S_WALK   = 'd2;
+parameter [STATE_WIDTH-1:0] S_BACK   = 'd3;
+parameter [STATE_WIDTH-1:0] S_OUTPUT = 'd4;
 
 // Directions
-parameter RIGHT    = 2'd0;
-parameter DOWN     = 2'd1;
-parameter LEFT     = 2'd2;
-parameter UP       = 2'd3;
+parameter [DIR_WIDTH-1:0] RIGHT    = 2'd0;
+parameter [DIR_WIDTH-1:0] DOWN     = 2'd1;
+parameter [DIR_WIDTH-1:0] LEFT     = 2'd2;
+parameter [DIR_WIDTH-1:0] UP       = 2'd3;
 
 //****************************************************************//
 // Input/Output Declaration
@@ -43,32 +44,33 @@ output reg [DIR_WIDTH-1:0] out;
 //*****************************************************************//
 // Regs
 //****************************************************************//
-reg [MAZE_WIDTH-1:0]  maze      [MAZE_WIDTH-1:0];   // 17x17 maze
-reg [DIR_WIDTH:0]     prev_dirs [MAZE_WIDTH-1:0][MAZE_WIDTH-1:0]; // The parents array storing the dir to the previous cell in the BFS walk
-reg [DATA_WIDTH-1:0]  curr_x, curr_y; // Current position in the maze
-reg [STATE_WIDTH-1:0] curr_state, next_state;
-reg [DIR_WIDTH-1:0]   curr_dir, next_dir; // Current direction in the maze
-reg [1:0]             offset_x, offset_y; // Offset for the next cell in the maze
+reg signed [DATA_WIDTH-1:0] curr_x, curr_y; // Current position in the maze
+reg signed [1:0]            offset_x, offset_y; // Offset for the next cell in the maze
+reg [MAZE_WIDTH-1:0]        maze      [MAZE_WIDTH-1:0];   // 17x17 maze
+reg [DIR_WIDTH:0]           prev_dirs [MAZE_WIDTH-1:0][MAZE_WIDTH-1:0]; // The parents array storing the dir to the previous cell in the BFS walk
+reg [STATE_WIDTH-1:0]       curr_state, next_state;
+reg [DIR_WIDTH-1:0]         curr_dir, next_dir; // Current direction in the maze
 
 // Loop variables
 reg [$clog2(MAZE_WIDTH)-1:0] i, j; // Index for maze
 
 // Queue variables
-reg enq_valid, deq_ready;
 
 //*****************************************************************//
 // Wires
 //****************************************************************//
 wire walk_finished;
-wire [DATA_WIDTH-1:0] next_x, next_y;
+wire signed [DATA_WIDTH-1:0] next_x, next_y;
+wire next_is_start;
 wire curr_y_reached_N;
 wire next_is_wall, next_is_visited, next_is_oob, next_is_valid;
 wire backtrack_finished;
 
 // Queue variables
+wire signed [DATA_WIDTH-1:0] deq_x, deq_y; // Dequeue x and y from the queue
+wire [(DATA_WIDTH)*2-1:0]    enq_data, deq_data; // Concatenation of x and y for the queue
 wire q_full, q_empty;
-wire [(DATA_WIDTH)*2-1:0] enq_data, deq_data; // Concatenation of x and y for the queue
-wire [DATA_WIDTH-1:0] deq_x, deq_y; // Dequeue x and y from the queue
+wire enq_valid, deq_ready;
 
 //*****************************************************************//
 // Assigns
@@ -78,12 +80,15 @@ assign curr_y_reached_N = (curr_y == MAZE_WIDTH - 1);
 assign next_x = curr_x + offset_x;
 assign next_y = curr_y + offset_y;
 assign next_is_oob     = (next_x < 0 || next_x >= MAZE_WIDTH || next_y < 0 || next_y >= MAZE_WIDTH);
-assign next_is_wall    = (maze[next_x][next_y] == 0);
-assign next_is_visited = (prev_dirs[next_x][next_y] != 7); // 7 means not visited
-assign next_is_valid   = !next_is_oob && !next_is_visited && !next_is_wall;
-assign backtrack_finished = (next_x == 0 && next_y == 0);
+assign next_is_wall    = (!next_is_oob && maze[next_x][next_y] == 0);
+assign next_is_start   = (next_x == 0 && next_y == 0); // Check if the next cell is the starting point
+assign next_is_visited = ((!next_is_oob && prev_dirs[next_x][next_y] != 7) || next_is_start); // 7 means not visited
+assign next_is_valid   = (!next_is_oob && !next_is_visited && !next_is_wall);
+assign backtrack_finished = (curr_state == S_BACK && next_is_start);
 assign enq_data = {next_x, next_y}; // Concatenate x and y for enqueue
 assign {deq_x, deq_y} = deq_data; // Dequeue x and y from the queue
+assign enq_valid = (next_is_valid && !q_full); // Enqueue only if the next cell is valid and the queue is not full
+assign deq_ready = (curr_dir == UP && !q_empty); // Dequeue only if the current direction is UP and the queue is not empty
 
 //****************************************************************//
 // Module Declaration
@@ -165,6 +170,11 @@ always@(posedge clk or negedge rst_n) begin
                 end
             end
         end
+        S_WALK: begin
+            if (deq_ready) begin
+                curr_x <= deq_x;
+            end
+        end
         endcase
     end
 end
@@ -185,11 +195,11 @@ always@(posedge clk or negedge rst_n) begin
                 curr_y <= (curr_y_reached_N) ? 0 : curr_y + 1;
             end
         end
-        // S_WALK: begin
-        //     if (walk_finished) begin
-        //         next_state = S_OUTPUT;
-        //     end
-        // end
+        S_WALK: begin
+            if (deq_ready) begin
+                curr_y <= deq_y;
+            end
+        end
         endcase
     end
 end
@@ -309,11 +319,19 @@ always@(*) begin
             end
         end
         S_WALK: begin
+            if (walk_finished) begin
+                next_state = S_BACK;
+            end
+            else begin
+                next_state = S_WALK;
+            end
+        end
+        S_BACK: begin
             if (backtrack_finished) begin
                 next_state = S_OUTPUT;
             end
             else begin
-                next_state = S_WALK;
+                next_state = S_BACK;
             end
         end
         S_OUTPUT: begin
