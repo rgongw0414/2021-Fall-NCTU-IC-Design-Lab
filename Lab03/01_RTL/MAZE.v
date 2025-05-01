@@ -49,7 +49,7 @@ reg signed [1:0]            offset_x, offset_y; // Offset for the next cell in t
 reg [MAZE_WIDTH-1:0]        maze      [MAZE_WIDTH-1:0];   // 17x17 maze
 reg [DIR_WIDTH:0]           prev_dirs [MAZE_WIDTH-1:0][MAZE_WIDTH-1:0]; // The parents array storing the dir to the previous cell in the BFS walk
 reg [STATE_WIDTH-1:0]       curr_state, next_state;
-reg [DIR_WIDTH-1:0]         curr_dir, next_dir; // Current direction in the maze
+reg [DIR_WIDTH-1:0]         curr_dir; // Current direction in the maze
 
 // Loop variables
 reg [$clog2(MAZE_WIDTH)-1:0] i, j; // Index for maze
@@ -116,25 +116,49 @@ QUEUE #(
 // 1. Direction Logic
 //******************************************//
 always@(*) begin
-    if (curr_dir == RIGHT) begin
-        offset_x = 0;
-        offset_y = 1;
+    if (curr_state == S_WALK) begin
+        if (curr_dir == RIGHT) begin
+            offset_x = 0;
+            offset_y = 1;
+        end
+        else if (curr_dir == DOWN) begin
+            offset_x = 1;
+            offset_y = 0;
+        end
+        else if (curr_dir == LEFT) begin
+            offset_x = 0;
+            offset_y = -1;
+        end
+        else if (curr_dir == UP) begin
+            offset_x = -1;
+            offset_y = 0;
+        end
+        else begin // should not happen, because curr_dir is 2-bit long
+            offset_x = 0;
+            offset_y = 0;
+        end
     end
-    else if (curr_dir == DOWN) begin
-        offset_x = 1;
-        offset_y = 0;
-    end
-    else if (curr_dir == LEFT) begin
-        offset_x = 0;
-        offset_y = -1;
-    end
-    else if (curr_dir == UP) begin
-        offset_x = -1;
-        offset_y = 0;
-    end
-    else begin // should not happen, because curr_dir is 2-bit long
-        offset_x = 0;
-        offset_y = 0;
+    else begin
+        if (curr_dir == RIGHT) begin
+            offset_x = 0;
+            offset_y = -1;
+        end
+        else if (curr_dir == DOWN) begin
+            offset_x = -1;
+            offset_y = 0;
+        end
+        else if (curr_dir == LEFT) begin
+            offset_x = 0;
+            offset_y = 1;
+        end
+        else if (curr_dir == UP) begin
+            offset_x = 1;
+            offset_y = 0;
+        end
+        else begin // should not happen, because curr_dir is 2-bit long
+            offset_x = 0;
+            offset_y = 0;
+        end
     end
 end
 
@@ -175,6 +199,14 @@ always@(posedge clk or negedge rst_n) begin
                 curr_x <= deq_x;
             end
         end
+        S_BACK: begin
+            if (backtrack_finished) begin
+                curr_x <= 0;
+            end
+            else begin
+                curr_x <= next_x;
+            end
+        end
         endcase
     end
 end
@@ -200,6 +232,14 @@ always@(posedge clk or negedge rst_n) begin
                 curr_y <= deq_y;
             end
         end
+        S_BACK: begin
+            if (backtrack_finished) begin
+                curr_y <= 0;
+            end
+            else begin
+                curr_y <= next_y;
+            end
+        end
         endcase
     end
 end
@@ -214,39 +254,19 @@ always@(posedge clk or negedge rst_n) begin // RIGHT: 0, DOWN: 1, LEFT: 2, UP: 3
     else begin
         case (curr_state)
         S_WALK: begin
-            curr_dir <= curr_dir + 1;
-            // if (next_is_valid) begin
-            //     curr_dir <= next_dir;
-            // end
-            // else begin
-            //     curr_dir <= curr_dir;
-            // end
+            if (next_state == S_BACK) begin
+                curr_dir <= prev_dirs[MAZE_WIDTH-1][MAZE_WIDTH-1]; // Set curr_dir to the direction of the last cell in the maze
+            end
+            else begin
+                curr_dir <= curr_dir + 1;
+            end
+        end
+        S_BACK: begin
+            curr_dir <= prev_dirs[curr_x][curr_y]; // Set to the dir of the parent cell of the current cell
         end
         endcase
     end
 end
-
-// always@(*) begin // RIGHT: 0, DOWN: 1, LEFT: 2, UP: 3
-//     // TODO: Optimization by skipping the parent direction
-//     // if (!next_is_valid) begin
-//     //     next_dir = DOWN;
-//     // end
-//     if (curr_dir == RIGHT) begin
-//         next_dir = DOWN;
-//     end
-//     else if (curr_dir == DOWN) begin
-//         next_dir = LEFT;
-//     end
-//     else if (curr_dir == LEFT) begin
-//         next_dir = UP;
-//     end
-//     else if (curr_dir == UP) begin
-//         next_dir = RIGHT;
-//     end
-//     else begin // should not happen, because curr_dir is 2-bit long
-//         next_dir = RIGHT;
-//     end
-// end
 
 always@(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
