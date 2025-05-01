@@ -24,7 +24,8 @@ module QUEUE #(
     reg [ADDR_WIDTH-1:0] head;
     reg [ADDR_WIDTH-1:0] tail;
     reg [ADDR_WIDTH:0]   count;
-    reg [ADDR_WIDTH-1:0] i; // Loop variable idx
+    // reg [ADDR_WIDTH-1:0] i; // Loop variable idx
+    integer i;
 
     // Assign output flags
     assign full  = (count == DEPTH);

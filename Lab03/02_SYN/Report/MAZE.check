@@ -3,7 +3,7 @@ Warning: Design 'MAZE' has '1' unresolved references. For more detailed informat
 ****************************************
 check_design summary:
 Version:     S-2021.06-SP2
-Date:        Thu May  1 23:50:00 2025
+Date:        Fri May  2 01:38:09 2025
 ****************************************
 
                    Name                                            Total
@@ -18,16 +18,16 @@ Tristate                                                           14
     A tristate bus has a non tri-state driver (LINT-34)            14
 --------------------------------------------------------------------------------
 
-Warning: In design 'MAZE', cell 'C16280' does not drive any nets. (LINT-1)
-Warning: In design 'MAZE', cell 'C16307' does not drive any nets. (LINT-1)
-Warning: In design 'MAZE', cell 'C16311' does not drive any nets. (LINT-1)
-Warning: In design 'MAZE', cell 'C16331' does not drive any nets. (LINT-1)
-Warning: In design 'MAZE', cell 'C16781' does not drive any nets. (LINT-1)
-Warning: In design 'MAZE', cell 'C16785' does not drive any nets. (LINT-1)
+Warning: In design 'MAZE', cell 'C16296' does not drive any nets. (LINT-1)
+Warning: In design 'MAZE', cell 'C16323' does not drive any nets. (LINT-1)
+Warning: In design 'MAZE', cell 'C16327' does not drive any nets. (LINT-1)
+Warning: In design 'MAZE', cell 'C16347' does not drive any nets. (LINT-1)
+Warning: In design 'MAZE', cell 'C16797' does not drive any nets. (LINT-1)
+Warning: In design 'MAZE', cell 'C16801' does not drive any nets. (LINT-1)
 Warning: In design 'MAZE', input port 'clk' drives wired logic; the port direction may have been specified incorrectly. (LINT-6)
 Warning: In design 'MAZE', input port 'rst_n' drives wired logic; the port direction may have been specified incorrectly. (LINT-6)
-Warning: In design 'MAZE', three-state bus 'deq_ready' has non three-state driver 'C15938/Z'. (LINT-34)
-Warning: In design 'MAZE', three-state bus 'enq_valid' has non three-state driver 'C15936/Z'. (LINT-34)
+Warning: In design 'MAZE', three-state bus 'deq_ready' has non three-state driver 'C15952/Z'. (LINT-34)
+Warning: In design 'MAZE', three-state bus 'enq_valid' has non three-state driver 'C15949/Z'. (LINT-34)
 Warning: In design 'MAZE', three-state bus 'next_y[0]' has non three-state driver 'add_86/Z_0'. (LINT-34)
 Warning: In design 'MAZE', three-state bus 'next_y[1]' has non three-state driver 'add_86/Z_1'. (LINT-34)
 Warning: In design 'MAZE', three-state bus 'next_y[2]' has non three-state driver 'add_86/Z_2'. (LINT-34)

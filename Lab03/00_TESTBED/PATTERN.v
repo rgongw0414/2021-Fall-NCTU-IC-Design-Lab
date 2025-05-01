@@ -17,7 +17,7 @@
 `endif
 `ifdef GATE
 	`timescale 1ns/10ps
-	`include "MAZE_SYN.v"
+	`include "../02_SYN/Netlist/MAZE_SYN.v"
 	`define CYCLE_TIME 10.0
 `endif
 

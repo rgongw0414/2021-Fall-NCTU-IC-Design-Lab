@@ -13,7 +13,7 @@ Report : timing
         -max_paths 1
 Design : MAZE
 Version: S-2021.06-SP2
-Date   : Thu May  1 23:51:00 2025
+Date   : Fri May  2 01:40:28 2025
 ****************************************
 
  # A fanout number of 1000 was used for high fanout net computations.
@@ -21,9 +21,9 @@ Date   : Thu May  1 23:51:00 2025
 Operating Conditions: slow   Library: slow
 Wire Load Model Mode: top
 
-  Startpoint: curr_y_reg[0]
+  Startpoint: curr_y_reg[2]
               (rising edge-triggered flip-flop clocked by clk)
-  Endpoint: prev_dirs_reg[7][3][1]
+  Endpoint: prev_dirs_reg[13][2][0]
             (rising edge-triggered flip-flop clocked by clk)
   Path Group: clk
   Path Type: max
@@ -32,50 +32,52 @@ Wire Load Model Mode: top
   -----------------------------------------------------------
   clock clk (rise edge)                    0.00       0.00
   clock network delay (ideal)              0.00       0.00
-  curr_y_reg[0]/CK (DFFSX1)                0.00 #     0.00 r
-  curr_y_reg[0]/Q (DFFSX1)                 0.63       0.63 r
-  U5812/Y (NAND2XL)                        0.13       0.76 f
-  U5813/Y (INVXL)                          0.14       0.90 r
-  U5815/Y (NAND2X2)                        0.09       0.98 f
-  U5816/Y (NOR3X4)                         0.23       1.22 r
-  U4001/Y (NAND4X2)                        0.15       1.37 f
-  U4274/Y (AOI21X1)                        0.22       1.59 r
-  U4273/Y (XNOR2XL)                        0.30       1.89 f
-  U4283/Y (NOR2X1)                         0.43       2.32 r
-  add_x_1/U6/CO (ADDFX1)                   0.56       2.88 r
-  add_x_1/U5/CO (ADDFX1)                   0.29       3.18 r
-  add_x_1/U4/CO (ADDFX2)                   0.30       3.48 r
-  add_x_1/U3/S (ADDFX2)                    0.31       3.80 f
-  U4209/Y (NOR2X1)                         0.24       4.04 r
-  U8433/Y (NAND2X1)                        0.14       4.18 f
-  U5377/Y (NOR2X1)                         1.86       6.04 r
-  U3983/Y (INVXL)                          0.04       6.08 f
-  U5501/Y (INVX1)                          0.43       6.51 r
-  U4122/Y (AOI22XL)                        0.21       6.72 f
-  U5514/Y (NAND4XL)                        0.23       6.95 r
-  U5518/Y (OAI21XL)                        0.11       7.06 f
-  U5519/Y (AND4X2)                         0.28       7.34 f
-  U5554/Y (NAND3XL)                        0.14       7.48 r
-  U4286/Y (NAND3X1)                        0.10       7.58 f
-  U4284/Y (NOR2X1)                         0.30       7.88 r
-  U6649/Y (NAND2X4)                        0.18       8.06 f
-  U6946/Y (NOR2XL)                         0.87       8.93 r
-  U7242/Y (NAND2XL)                        0.18       9.11 f
-  U7673/Y (NAND2XL)                        0.27       9.38 r
-  U5224/Y (MXI2XL)                         0.29       9.67 f
-  prev_dirs_reg[7][3][1]/D (DFFSX1)        0.00       9.67 f
-  data arrival time                                   9.67
+  curr_y_reg[2]/CK (DFFSHQX4)              0.00 #     0.00 r
+  curr_y_reg[2]/Q (DFFSHQX4)               0.28       0.28 r
+  U5682/Y (INVX4)                          0.05       0.33 f
+  U6466/Y (NOR2X4)                         0.10       0.43 r
+  U5667/Y (NAND4BX2)                       0.14       0.57 f
+  U5639/Y (CLKINVX4)                       0.07       0.64 r
+  U4976/Y (NAND2X4)                        0.06       0.70 f
+  U4975/Y (NAND2X2)                        0.10       0.79 r
+  U4972/Y (NAND3X4)                        0.10       0.90 f
+  U4971/Y (NAND2X4)                        0.09       0.99 r
+  U6494/Y (NOR2X4)                         0.08       1.07 f
+  add_x_1/U6/CO (ADDFHX2)                  0.43       1.50 f
+  add_x_1/U5/CO (ADDFHX2)                  0.22       1.73 f
+  add_x_1/U4/CO (ADDFHX2)                  0.22       1.95 f
+  add_x_1/U3/S (ADDFX2)                    0.39       2.34 r
+  U5709/Y (BUFX16)                         0.21       2.55 r
+  U6704/Y (NAND2BX4)                       0.21       2.76 r
+  U6603/Y (INVX8)                          0.12       2.88 f
+  U5720/Y (AOI22X2)                        0.21       3.09 r
+  U6609/Y (NAND4X2)                        0.11       3.19 f
+  U4394/Y (NOR2X2)                         0.16       3.36 r
+  U5374/Y (AOI21X4)                        0.09       3.44 f
+  U5377/Y (AOI2BB2X2)                      0.16       3.60 r
+  U6758/Y (NAND4X2)                        0.11       3.71 f
+  U5326/Y (CLKINVX4)                       0.07       3.79 r
+  U6834/Y (NAND3X4)                        0.09       3.87 f
+  U6596/Y (NAND4X4)                        0.12       3.99 r
+  U4393/Y (INVX8)                          0.09       4.08 f
+  U5691/Y (INVX4)                          0.14       4.23 r
+  U5177/Y (INVX8)                          0.10       4.32 f
+  U6701/Y (NAND2X1)                        0.12       4.45 r
+  U4982/Y (AND2X4)                         0.15       4.60 r
+  U4981/Y (MXI2X1)                         0.15       4.75 f
+  prev_dirs_reg[13][2][0]/D (DFFSX1)       0.00       4.75 f
+  data arrival time                                   4.75
 
-  clock clk (rise edge)                   10.00      10.00
-  clock network delay (ideal)              0.00      10.00
-  prev_dirs_reg[7][3][1]/CK (DFFSX1)       0.00      10.00 r
-  library setup time                      -0.33       9.67
-  data required time                                  9.67
+  clock clk (rise edge)                    5.00       5.00
+  clock network delay (ideal)              0.00       5.00
+  prev_dirs_reg[13][2][0]/CK (DFFSX1)      0.00       5.00 r
+  library setup time                      -0.27       4.73
+  data required time                                  4.73
   -----------------------------------------------------------
-  data required time                                  9.67
-  data arrival time                                  -9.67
+  data required time                                  4.73
+  data arrival time                                  -4.75
   -----------------------------------------------------------
-  slack (MET)                                         0.00
+  slack (VIOLATED)                                   -0.02
 
 
 1

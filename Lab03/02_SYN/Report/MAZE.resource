@@ -4,7 +4,7 @@ Warning: Design 'MAZE' has '1' unresolved references. For more detailed informat
 Report : resources
 Design : MAZE
 Version: S-2021.06-SP2
-Date   : Thu May  1 23:51:00 2025
+Date   : Fri May  2 01:40:28 2025
 ****************************************
 
 
@@ -17,11 +17,11 @@ Resource Report for this hierarchy in file
 | add_x_2        | DW01_add       | width=6    | add_86 (MAZE.v:86)         |
 | gte_x_4        | DW_cmp         | width=6    | gte_87 (MAZE.v:87)         |
 | gte_x_6        | DW_cmp         | width=6    | gte_87_2 (MAZE.v:87)       |
-| add_x_12       | DW01_inc       | width=6    | add_199 (MAZE.v:199)       |
-| add_x_25       | DW01_inc       | width=2    | add_267 (MAZE.v:267)       |
-| gt_x_38        | DW_cmp         | width=8    | gt_376 (MAZE.v:376)        |
-| add_x_19       | DW01_inc       | width=6    | add_228 (MAZE.v:228)       |
-|                |                |            | add_233 (MAZE.v:233)       |
+| add_x_12       | DW01_inc       | width=6    | add_200 (MAZE.v:200)       |
+| add_x_25       | DW01_inc       | width=2    | add_268 (MAZE.v:268)       |
+| gt_x_38        | DW_cmp         | width=8    | gt_377 (MAZE.v:377)        |
+| add_x_19       | DW01_inc       | width=6    | add_229 (MAZE.v:229)       |
+|                |                |            | add_234 (MAZE.v:234)       |
 | DP_OP_1652J1_122_6527           |            |                            |
 |                | DP_OP_1652J1_122_6527 |     |                            |
 =============================================================================
@@ -30,7 +30,7 @@ Datapath Report for DP_OP_1652J1_122_6527
 ==============================================================================
 | Cell                 | Contained Operations                                |
 ==============================================================================
-| DP_OP_1652J1_122_6527 | sub_376 (MAZE.v:376) add_367 (MAZE.v:367)          |
+| DP_OP_1652J1_122_6527 | sub_377 (MAZE.v:377) add_368 (MAZE.v:368)          |
 ==============================================================================
 
 ==============================================================================
@@ -39,7 +39,7 @@ Datapath Report for DP_OP_1652J1_122_6527
 ==============================================================================
 | I1    | PI   | Signed   | 8     |                                          |
 | I2    | PI   | Unsigned | 1     |                                          |
-| O1    | PO   | Signed   | 8     | addsub(I1,1,I2) ( MAZE.v:367 MAZE.v:376 ) |
+| O1    | PO   | Signed   | 8     | addsub(I1,1,I2) ( MAZE.v:368 MAZE.v:377 ) |
 ==============================================================================
 
 

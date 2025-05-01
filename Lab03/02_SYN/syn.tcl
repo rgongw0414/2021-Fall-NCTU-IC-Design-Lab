@@ -32,6 +32,10 @@ set OUT_DLY [expr 0.5*$clk_period]
 read_sverilog "$DESIGN\.v"
 current_design $DESIGN
 
+# Link and check unresolved modules
+# link
+# report_reference -unresolved > Report/$DESIGN.unresolved
+
 #======================================================
 #  Global Setting
 #======================================================
