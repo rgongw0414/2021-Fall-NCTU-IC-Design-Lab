@@ -276,6 +276,9 @@ always@(posedge clk or negedge rst_n) begin // RIGHT: 0, DOWN: 1, LEFT: 2, UP: 3
                 curr_dir <= prev_dirs[next_x][next_y]; // Set to the dir of the parent cell of the current cell
             end
         end
+        default: begin
+            curr_dir <= RIGHT; 
+        end
         endcase
     end
 end
@@ -293,6 +296,15 @@ always@(posedge clk or negedge rst_n) begin
             S_WALK: begin
                 if (next_is_valid) begin
                     prev_dirs[next_x][next_y] <= curr_dir;
+                end
+            end
+            S_OUTPUT: begin
+                if (next_state == S_RESET) begin
+                    for (i = 0; i < MAZE_WIDTH; i = i + 1) begin
+                        for (j = 0; j < MAZE_WIDTH; j = j + 1) begin
+                            prev_dirs[i][j] <= 7; // Initialize all directions to 7 (not visited before)
+                        end
+                    end
                 end
             end
         endcase
@@ -382,9 +394,6 @@ always@(posedge clk or negedge rst_n) begin
                 end
             end
             S_OUTPUT: begin 
-                // if (backtrack_idx > 0) begin
-                //     out_valid <= 1;
-                // end
                 if (backtrack_idx == 0) begin
                     out_valid <= 0;
                 end
@@ -392,24 +401,6 @@ always@(posedge clk or negedge rst_n) begin
         endcase
     end
 end
-
-// always@(posedge clk or negedge rst_n) begin
-//     if (!rst_n) begin
-//         out <= 0;
-//     end
-//     else begin
-//         case (curr_state)
-//             S_OUTPUT: begin
-//                 out <= backtrack_dirs[backtrack_idx]; 
-//                 // if (backtrack_idx >= 0) begin
-//                 // end
-//                 // else (next_state == S_RESET) begin
-//                 //     out <= 0;
-//                 // end
-//             end
-//         endcase
-//     end
-// end
 
 //******************************************//
 // FSM 
