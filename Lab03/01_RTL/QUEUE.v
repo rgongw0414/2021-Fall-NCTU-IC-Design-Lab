@@ -24,8 +24,7 @@ module QUEUE #(
     reg [ADDR_WIDTH-1:0] head;
     reg [ADDR_WIDTH-1:0] tail;
     reg [ADDR_WIDTH:0]   count;
-    // reg [ADDR_WIDTH-1:0] i; // Loop variable idx
-    integer i;
+    reg [ADDR_WIDTH:0]   i; // Loop variable idx; // width must be able to accommodate i == DEPTH, otherwise DC will report exceeding loop limit
 
     // Assign output flags
     assign full  = (count == DEPTH);
@@ -35,13 +34,20 @@ module QUEUE #(
     // Enqueue logic
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            for (i = 0; i < DEPTH; i = i + 1) begin
+            for (i = 0; i < DEPTH; i = i + 1) begin // width must be able to accommodate i == DEPTH, otherwise DC will report exceeding loop limit
                 mem[i] <= {DATA_WIDTH{1'b0}};
             end
-            tail <= 0;
         end 
         else if (enq_valid && !full) begin
             mem[tail] <= enq_data;
+        end
+    end
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            tail <= 0;
+        end 
+        else if (enq_valid && !full) begin
             tail <= tail + 1;
         end
     end

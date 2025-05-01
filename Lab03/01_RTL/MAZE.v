@@ -74,7 +74,7 @@ wire next_is_wall, next_is_visited, next_is_oob, next_is_valid;
 // Queue variables
 wire signed [DATA_WIDTH-1:0] deq_x, deq_y; // Dequeue x and y from the queue
 wire [(DATA_WIDTH)*2-1:0]    enq_data, deq_data; // Concatenation of x and y for the queue
-wire q_full, q_empty;
+wire full, empty;
 wire enq_valid, deq_ready;
 
 //*****************************************************************//
@@ -92,9 +92,9 @@ assign next_is_visited = ((!next_is_oob && prev_dirs[next_x][next_y] != 7) || ne
 assign next_is_valid   = (!next_is_oob && !next_is_visited && !next_is_wall);
 assign enq_data = {next_x, next_y}; // Concatenate x and y for enqueue
 assign {deq_x, deq_y} = deq_data; // Dequeue x and y from the queue
-assign enq_valid = (curr_state == S_WALK && next_is_valid && !q_full); // Enqueue only if the next cell is valid and the queue is not full
+assign enq_valid = (curr_state == S_WALK && next_is_valid && !full); // Enqueue only if the next cell is valid and the queue is not full
 // Clean up the queue after the BFS is finished
-assign deq_ready = (curr_state == S_WALK && curr_dir == UP && !q_empty) || (curr_state == S_BACK && 1'b1); // Dequeue only if the current direction is UP and the queue is not empty
+assign deq_ready = (curr_state == S_WALK && curr_dir == UP && !empty) || (curr_state == S_BACK && 1'b1); // Dequeue only if the current direction is UP and the queue is not empty
 assign out = backtrack_dirs[backtrack_idx];
 
 //****************************************************************//
@@ -102,17 +102,17 @@ assign out = backtrack_dirs[backtrack_idx];
 //****************************************************************//
 QUEUE #(
     .DATA_WIDTH(DATA_WIDTH*2), // 2*DATA_WIDTH for the concatenation of x and y
-    .DEPTH(QUEUE_DEPTH),
-    .ADDR_WIDTH($clog2(QUEUE_DEPTH))
+    .DEPTH(QUEUE_DEPTH)
+    // .ADDR_WIDTH($clog2(QUEUE_DEPTH))
 ) Q (
     .clk(clk),
     .rst_n(rst_n),
     .enq_valid(enq_valid),
     .enq_data(enq_data),
-    .full(q_full),
+    .full(full),
     .deq_ready(deq_ready),
     .deq_data(deq_data),
-    .empty(q_empty)
+    .empty(empty)
 );
 
 //*****************************************************************//

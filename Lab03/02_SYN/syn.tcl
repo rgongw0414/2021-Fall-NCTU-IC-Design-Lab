@@ -15,6 +15,12 @@ set search_path "./../01_RTL \
 set synthetic_library "dw_foundation.sldb"
 set link_library "* dw_foundation.sldb standard.sldb slow.db"
 set target_library "slow.db"       
+set host
+
+#======================================================
+# Use Multiple Cores
+#======================================================
+set_host_options -max_cores 8
 
 #======================================================
 #  Global Parameters
