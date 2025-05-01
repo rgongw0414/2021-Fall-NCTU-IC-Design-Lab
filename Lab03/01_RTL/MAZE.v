@@ -14,10 +14,10 @@ module MAZE (
 //****************************************************************//
 // Parameter Declaration
 //****************************************************************//
-parameter DIR_WIDTH  = 2;
-parameter DATA_WIDTH = 6; // 6 signed bits for x and y (-32 to 31)
-parameter MAZE_WIDTH = 17; // 17x17 maze
-parameter MAZE_SIZE  = MAZE_WIDTH * MAZE_WIDTH; // The maze consists of 289 (17x17) cells
+parameter DIR_WIDTH   = 2;
+parameter DATA_WIDTH  = 6; // 6 signed bits for x and y (-32 to 31)
+parameter MAZE_WIDTH  = 17; // 17x17 maze
+parameter MAZE_SIZE   = MAZE_WIDTH * MAZE_WIDTH; // The maze consists of 289 (17x17) cells
 parameter STATE_WIDTH = 3; // For FSM state
 parameter QUEUE_DEPTH = 16; // The depth of the queue
 
@@ -33,6 +33,9 @@ parameter [DIR_WIDTH-1:0] RIGHT    = 2'd0;
 parameter [DIR_WIDTH-1:0] DOWN     = 2'd1;
 parameter [DIR_WIDTH-1:0] LEFT     = 2'd2;
 parameter [DIR_WIDTH-1:0] UP       = 2'd3;
+
+// Backtracking variables
+parameter MAX_STEPS = 150; // Maximum number of steps taken to reach the goal (16,16); for PATTERN_NUM of 500, this is enough
 
 //****************************************************************//
 // Input/Output Declaration
@@ -52,16 +55,18 @@ reg [STATE_WIDTH-1:0]       curr_state, next_state;
 reg [DIR_WIDTH-1:0]         curr_dir; // Current direction in the maze
 
 // Loop variables
-reg [$clog2(MAZE_WIDTH)-1:0] i, j; // Index for maze
+reg [$clog2(MAX_STEPS)-1:0] i, j; // Index for maze
 
-// Queue variables
+// Backtracking variables
+reg [DIR_WIDTH-1:0]         backtrack_dirs [MAX_STEPS-1:0];
+reg [$clog2(MAX_STEPS)-1:0] backtrack_idx; // Index for saving the backtrack directions
 
 //*****************************************************************//
 // Wires
 //****************************************************************//
 wire walk_finished;
 wire signed [DATA_WIDTH-1:0] next_x, next_y;
-wire next_is_start;
+wire curr_is_start, next_is_start;
 wire curr_y_reached_N;
 wire next_is_wall, next_is_visited, next_is_oob, next_is_valid;
 wire backtrack_finished;
@@ -81,10 +86,11 @@ assign next_x = curr_x + offset_x;
 assign next_y = curr_y + offset_y;
 assign next_is_oob     = (next_x < 0 || next_x >= MAZE_WIDTH || next_y < 0 || next_y >= MAZE_WIDTH);
 assign next_is_wall    = (!next_is_oob && maze[next_x][next_y] == 0);
+assign curr_is_start   = (curr_x == 0 && curr_y == 0);
 assign next_is_start   = (next_x == 0 && next_y == 0); // Check if the next cell is the starting point
 assign next_is_visited = ((!next_is_oob && prev_dirs[next_x][next_y] != 7) || next_is_start); // 7 means not visited
 assign next_is_valid   = (!next_is_oob && !next_is_visited && !next_is_wall);
-assign backtrack_finished = (curr_state == S_BACK && next_is_start);
+assign backtrack_finished = (curr_state == S_BACK && curr_is_start);
 assign enq_data = {next_x, next_y}; // Concatenate x and y for enqueue
 assign {deq_x, deq_y} = deq_data; // Dequeue x and y from the queue
 assign enq_valid = (next_is_valid && !q_full); // Enqueue only if the next cell is valid and the queue is not full
@@ -262,14 +268,13 @@ always@(posedge clk or negedge rst_n) begin // RIGHT: 0, DOWN: 1, LEFT: 2, UP: 3
             end
         end
         S_BACK: begin
-            $display("curr_x: %d, curr_y: %d, curr_dir: %d", curr_x, curr_y, curr_dir);
+            // $display("curr_x: %d, curr_y: %d, curr_dir: %d", curr_x, curr_y, curr_dir);
             if (next_is_start) begin
                 curr_dir <= 0; // Reset to the initial direction when backtracking to the start
             end
             else begin
                 curr_dir <= prev_dirs[next_x][next_y]; // Set to the dir of the parent cell of the current cell
             end
-            // curr_dir <= prev_dirs[next_x][next_y]; // Set to the dir of the parent cell of the current cell
         end
         endcase
     end
@@ -290,6 +295,44 @@ always@(posedge clk or negedge rst_n) begin
                     prev_dirs[next_x][next_y] <= curr_dir;
                 end
             end
+        endcase
+    end
+end
+
+always@(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        for (i = 0; i < MAX_STEPS; i = i + 1) begin
+            backtrack_dirs[i] <= 0;
+        end
+    end
+    else begin
+        case (curr_state)
+            S_BACK: begin
+                if (!backtrack_finished) begin
+                    backtrack_dirs[backtrack_idx] <= curr_dir;
+                end
+            end
+            // default: begin
+            //     backtrack_dirs <= 0;
+            // end
+        endcase
+    end
+end
+
+always@(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        backtrack_idx <= 0;
+    end
+    else begin
+        case (curr_state)
+            S_BACK: begin
+                if (!backtrack_finished) begin
+                    backtrack_idx <= backtrack_idx + 1;
+                end
+            end
+            // default: begin
+            //     backtrack_idx <= 0;
+            // end
         endcase
     end
 end

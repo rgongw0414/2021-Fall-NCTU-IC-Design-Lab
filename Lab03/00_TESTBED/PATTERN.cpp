@@ -177,6 +177,7 @@ int main() {
         {'<', 2}, 
         {'>', 0}
     };
+    int max_steps = 0;
     while (found < PATTERN_NUM) {
         // cout << "Pattern " << _ + 1 << ":" << endl;
         vector<vector<int>> maze(N, vector<int>(N, 0)); // 0 = Wall, 1 = Path
@@ -197,6 +198,7 @@ int main() {
             printMaze(maze);
             int steps = path.size();
             test_out << steps << endl;
+            max_steps = max(max_steps, steps);
             for (const auto &p : path) {
                 int dx = p.first - parents[p.first][p.second].first; 
                 int dy = p.second - parents[p.first][p.second].second;
@@ -208,6 +210,7 @@ int main() {
             found++;
         }
     }
+    cout << "Max taken steps of all mazes: " << max_steps << endl; 
     cout << "Queue max size of all cases Q_MAX_DEPTH = " << Q_MAX_DEPTH << endl;
     cout << "The DEPTH (#entries) of the queue should be at least $clog2(Q_MAX_DEPTH) = " << ceil(log2(Q_MAX_DEPTH)) << endl;
     return 0;
