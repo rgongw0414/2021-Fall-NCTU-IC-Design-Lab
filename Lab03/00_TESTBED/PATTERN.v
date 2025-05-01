@@ -88,7 +88,7 @@ initial begin
 	// end
     @(negedge clk);
 
-	for (patcount = 0; patcount < PATNUM; patcount = patcount + 1) begin
+	for (patcount = 1; patcount <= PATNUM; patcount = patcount + 1) begin
 		input_data;
 		wait_out_valid;
 		check_ans;
