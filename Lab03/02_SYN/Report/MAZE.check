@@ -1,0 +1,43 @@
+Warning: Design 'MAZE' has '1' unresolved references. For more detailed information, use the "link" command. (UID-341)
+ 
+****************************************
+check_design summary:
+Version:     S-2021.06-SP2
+Date:        Thu May  1 23:50:00 2025
+****************************************
+
+                   Name                                            Total
+--------------------------------------------------------------------------------
+Inputs/Outputs                                                      2
+    Multiply driven inputs (LINT-6)                                 2
+
+Cells                                                               6
+    Cells do not drive (LINT-1)                                     6
+
+Tristate                                                           14
+    A tristate bus has a non tri-state driver (LINT-34)            14
+--------------------------------------------------------------------------------
+
+Warning: In design 'MAZE', cell 'C16280' does not drive any nets. (LINT-1)
+Warning: In design 'MAZE', cell 'C16307' does not drive any nets. (LINT-1)
+Warning: In design 'MAZE', cell 'C16311' does not drive any nets. (LINT-1)
+Warning: In design 'MAZE', cell 'C16331' does not drive any nets. (LINT-1)
+Warning: In design 'MAZE', cell 'C16781' does not drive any nets. (LINT-1)
+Warning: In design 'MAZE', cell 'C16785' does not drive any nets. (LINT-1)
+Warning: In design 'MAZE', input port 'clk' drives wired logic; the port direction may have been specified incorrectly. (LINT-6)
+Warning: In design 'MAZE', input port 'rst_n' drives wired logic; the port direction may have been specified incorrectly. (LINT-6)
+Warning: In design 'MAZE', three-state bus 'deq_ready' has non three-state driver 'C15938/Z'. (LINT-34)
+Warning: In design 'MAZE', three-state bus 'enq_valid' has non three-state driver 'C15936/Z'. (LINT-34)
+Warning: In design 'MAZE', three-state bus 'next_y[0]' has non three-state driver 'add_86/Z_0'. (LINT-34)
+Warning: In design 'MAZE', three-state bus 'next_y[1]' has non three-state driver 'add_86/Z_1'. (LINT-34)
+Warning: In design 'MAZE', three-state bus 'next_y[2]' has non three-state driver 'add_86/Z_2'. (LINT-34)
+Warning: In design 'MAZE', three-state bus 'next_y[3]' has non three-state driver 'add_86/Z_3'. (LINT-34)
+Warning: In design 'MAZE', three-state bus 'next_y[4]' has non three-state driver 'add_86/Z_4'. (LINT-34)
+Warning: In design 'MAZE', three-state bus 'next_y[5]' has non three-state driver 'add_86/Z_5'. (LINT-34)
+Warning: In design 'MAZE', three-state bus 'next_x[0]' has non three-state driver 'add_85/Z_0'. (LINT-34)
+Warning: In design 'MAZE', three-state bus 'next_x[1]' has non three-state driver 'add_85/Z_1'. (LINT-34)
+Warning: In design 'MAZE', three-state bus 'next_x[2]' has non three-state driver 'add_85/Z_2'. (LINT-34)
+Warning: In design 'MAZE', three-state bus 'next_x[3]' has non three-state driver 'add_85/Z_3'. (LINT-34)
+Warning: In design 'MAZE', three-state bus 'next_x[4]' has non three-state driver 'add_85/Z_4'. (LINT-34)
+Warning: In design 'MAZE', three-state bus 'next_x[5]' has non three-state driver 'add_85/Z_5'. (LINT-34)
+1
