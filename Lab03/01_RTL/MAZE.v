@@ -1,3 +1,5 @@
+`include "QUEUE.v" // Include the QUEUE module for BFS implementation
+
 module MAZE (
     // Input
 	clk,
@@ -41,11 +43,11 @@ output reg [DIR_WIDTH-1:0] out;
 //*****************************************************************//
 // Regs
 //****************************************************************//
-reg [MAZE_WIDTH-1:0]  maze   [MAZE_WIDTH-1:0];   // 17x17 maze
-reg [DIR_WIDTH-1:0]   prev_x [MAZE_WIDTH-1:0][MAZE_WIDTH-1:0]; // The parents array storing the dir to the previous cell in the BFS walk
+reg [MAZE_WIDTH-1:0]  maze      [MAZE_WIDTH-1:0];   // 17x17 maze
+reg [DIR_WIDTH:0]     prev_dirs [MAZE_WIDTH-1:0][MAZE_WIDTH-1:0]; // The parents array storing the dir to the previous cell in the BFS walk
 reg [DATA_WIDTH-1:0]  curr_x, curr_y; // Current position in the maze
 reg [STATE_WIDTH-1:0] curr_state, next_state;
-reg [DIR_WIDTH-1:0]   curr_dir; // Current direction in the maze
+reg [DIR_WIDTH-1:0]   curr_dir, next_dir; // Current direction in the maze
 reg [1:0]             offset_x, offset_y; // Offset for the next cell in the maze
 
 // Loop variables
@@ -59,8 +61,9 @@ reg enq_valid, deq_ready;
 //****************************************************************//
 wire walk_finished;
 wire [DATA_WIDTH-1:0] next_x, next_y;
-wire [DIR_WIDTH-1:0]  next_dir;
 wire curr_y_reached_N;
+wire next_is_wall, next_is_visited, next_is_oob, next_is_valid;
+wire backtrack_finished;
 
 // Queue variables
 wire q_full, q_empty;
@@ -70,17 +73,21 @@ wire [DATA_WIDTH-1:0] deq_x, deq_y; // Dequeue x and y from the queue
 //*****************************************************************//
 // Assigns
 //****************************************************************//
-assign walk_finished = (curr_x == MAZE_WIDTH - 1 && curr_y == MAZE_WIDTH - 1);
+assign walk_finished    = (curr_x == MAZE_WIDTH - 1 && curr_y == MAZE_WIDTH - 1); // TODO: This might better be a register to indicate now is backtracking
+assign curr_y_reached_N = (curr_y == MAZE_WIDTH - 1);
 assign next_x = curr_x + offset_x;
 assign next_y = curr_y + offset_y;
-assign curr_y_reached_N = (curr_y == MAZE_WIDTH - 1);
+assign next_is_oob     = (next_x < 0 || next_x >= MAZE_WIDTH || next_y < 0 || next_y >= MAZE_WIDTH);
+assign next_is_wall    = (maze[next_x][next_y] == 0);
+assign next_is_visited = (prev_dirs[next_x][next_y] != 7); // 7 means not visited
+assign next_is_valid   = !next_is_oob && !next_is_visited && !next_is_wall;
+assign backtrack_finished = (next_x == 0 && next_y == 0);
 assign enq_data = {next_x, next_y}; // Concatenate x and y for enqueue
 assign {deq_x, deq_y} = deq_data; // Dequeue x and y from the queue
 
 //****************************************************************//
 // Module Declaration
 //****************************************************************//
-`include "QUEUE.v" // Include the QUEUE module for BFS implementation
 QUEUE #(
     .DATA_WIDTH(DATA_WIDTH*2), // 2*DATA_WIDTH for the concatenation of x and y
     .DEPTH(QUEUE_DEPTH),
@@ -197,32 +204,56 @@ always@(posedge clk or negedge rst_n) begin // RIGHT: 0, DOWN: 1, LEFT: 2, UP: 3
     else begin
         case (curr_state)
         S_WALK: begin
-            if (walk_finished) begin
-                curr_dir <= RIGHT;
-            end
-            else begin
-                curr_dir <= next_dir;
-            end
+            curr_dir <= curr_dir + 1;
+            // if (next_is_valid) begin
+            //     curr_dir <= next_dir;
+            // end
+            // else begin
+            //     curr_dir <= curr_dir;
+            // end
         end
         endcase
     end
 end
 
-always@(*) begin // RIGHT: 0, DOWN: 1, LEFT: 2, UP: 3
-    if (curr_dir == RIGHT) begin
-        next_dir = DOWN;
+// always@(*) begin // RIGHT: 0, DOWN: 1, LEFT: 2, UP: 3
+//     // TODO: Optimization by skipping the parent direction
+//     // if (!next_is_valid) begin
+//     //     next_dir = DOWN;
+//     // end
+//     if (curr_dir == RIGHT) begin
+//         next_dir = DOWN;
+//     end
+//     else if (curr_dir == DOWN) begin
+//         next_dir = LEFT;
+//     end
+//     else if (curr_dir == LEFT) begin
+//         next_dir = UP;
+//     end
+//     else if (curr_dir == UP) begin
+//         next_dir = RIGHT;
+//     end
+//     else begin // should not happen, because curr_dir is 2-bit long
+//         next_dir = RIGHT;
+//     end
+// end
+
+always@(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        for (i = 0; i < MAZE_WIDTH; i = i + 1) begin
+            for (j = 0; j < MAZE_WIDTH; j = j + 1) begin
+                prev_dirs[i][j] <= 7; // Initialize all directions to 7 (not visited before)
+            end
+        end
     end
-    else if (curr_dir == DOWN) begin
-        next_dir = LEFT;
-    end
-    else if (curr_dir == LEFT) begin
-        next_dir = UP;
-    end
-    else if (curr_dir == UP) begin
-        next_dir = RIGHT;
-    end
-    else begin // should not happen, because curr_dir is 2-bit long
-        next_dir = RIGHT;
+    else begin
+        case (curr_state) 
+            S_WALK: begin
+                if (next_is_valid) begin
+                    prev_dirs[next_x][next_y] <= curr_dir;
+                end
+            end
+        endcase
     end
 end
 
@@ -237,7 +268,7 @@ always@(posedge clk or negedge rst_n) begin
     else begin
         if (curr_state == S_OUTPUT) begin
             out_valid <= 1;
-            out <= prev_x[curr_x][curr_y];
+            out <= prev_dirs[curr_x][curr_y];
         end
         else begin
             out_valid <= 0;
@@ -278,7 +309,7 @@ always@(*) begin
             end
         end
         S_WALK: begin
-            if (walk_finished) begin
+            if (backtrack_finished) begin
                 next_state = S_OUTPUT;
             end
             else begin
