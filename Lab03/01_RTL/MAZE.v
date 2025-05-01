@@ -116,21 +116,21 @@ QUEUE #(
 // 1. Direction Logic
 //******************************************//
 always@(*) begin
-    if (curr_state == S_WALK) begin
-        if (curr_dir == RIGHT) begin
+    if (next_state == S_BACK) begin // When going back, the offsets are reversed
+        if (curr_dir == RIGHT) begin 
             offset_x = 0;
-            offset_y = 1;
+            offset_y = -1;
         end
         else if (curr_dir == DOWN) begin
-            offset_x = 1;
+            offset_x = -1;
             offset_y = 0;
         end
         else if (curr_dir == LEFT) begin
             offset_x = 0;
-            offset_y = -1;
+            offset_y = 1;
         end
         else if (curr_dir == UP) begin
-            offset_x = -1;
+            offset_x = 1;
             offset_y = 0;
         end
         else begin // should not happen, because curr_dir is 2-bit long
@@ -138,21 +138,21 @@ always@(*) begin
             offset_y = 0;
         end
     end
-    else begin
+    else begin // When solving the maze, the offsets are as normal
         if (curr_dir == RIGHT) begin
             offset_x = 0;
-            offset_y = -1;
+            offset_y = 1;
         end
         else if (curr_dir == DOWN) begin
-            offset_x = -1;
+            offset_x = 1;
             offset_y = 0;
         end
         else if (curr_dir == LEFT) begin
             offset_x = 0;
-            offset_y = 1;
+            offset_y = -1;
         end
         else if (curr_dir == UP) begin
-            offset_x = 1;
+            offset_x = -1;
             offset_y = 0;
         end
         else begin // should not happen, because curr_dir is 2-bit long
@@ -262,7 +262,14 @@ always@(posedge clk or negedge rst_n) begin // RIGHT: 0, DOWN: 1, LEFT: 2, UP: 3
             end
         end
         S_BACK: begin
-            curr_dir <= prev_dirs[curr_x][curr_y]; // Set to the dir of the parent cell of the current cell
+            $display("curr_x: %d, curr_y: %d, curr_dir: %d", curr_x, curr_y, curr_dir);
+            if (next_is_start) begin
+                curr_dir <= 0; // Reset to the initial direction when backtracking to the start
+            end
+            else begin
+                curr_dir <= prev_dirs[next_x][next_y]; // Set to the dir of the parent cell of the current cell
+            end
+            // curr_dir <= prev_dirs[next_x][next_y]; // Set to the dir of the parent cell of the current cell
         end
         endcase
     end
@@ -296,14 +303,14 @@ always@(posedge clk or negedge rst_n) begin
         out <= 0;
     end
     else begin
-        if (curr_state == S_OUTPUT) begin
-            out_valid <= 1;
-            out <= prev_dirs[curr_x][curr_y];
-        end
-        else begin
-            out_valid <= 0;
-            out <= 0;
-        end
+        // if (curr_state == S_OUTPUT) begin
+        //     out_valid <= 1;
+        //     out <= prev_dirs[curr_x][curr_y];
+        // end
+        // else begin
+        //     out_valid <= 0;
+        //     out <= 0;
+        // end
     end
 end
 
@@ -347,12 +354,12 @@ always@(*) begin
             end
         end
         S_BACK: begin
-            if (backtrack_finished) begin
-                next_state = S_OUTPUT;
-            end
-            else begin
-                next_state = S_BACK;
-            end
+            // if (backtrack_finished) begin
+            //     next_state = S_OUTPUT;
+            // end
+            // else begin
+            // end
+            next_state = S_BACK;
         end
         S_OUTPUT: begin
             if (out_valid) begin
