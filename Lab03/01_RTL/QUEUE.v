@@ -24,6 +24,7 @@ module QUEUE #(
     reg [ADDR_WIDTH-1:0] head;
     reg [ADDR_WIDTH-1:0] tail;
     reg [ADDR_WIDTH:0]   count;
+    reg [ADDR_WIDTH-1:0] i; // Loop variable idx
 
     // Assign output flags
     assign full  = (count == DEPTH);
@@ -31,8 +32,11 @@ module QUEUE #(
     assign deq_data = mem[head];
 
     // Enqueue logic
-    always @(posedge clk or rst_n) begin
+    always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
+            for (i = 0; i < DEPTH; i = i + 1) begin
+                mem[i] <= {DATA_WIDTH{1'b0}};
+            end
             tail <= 0;
         end 
         else if (enq_valid && !full) begin
@@ -42,7 +46,7 @@ module QUEUE #(
     end
 
     // Dequeue logic
-    always @(posedge clk or rst_n) begin
+    always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             head <= 0;
         end 
@@ -52,7 +56,7 @@ module QUEUE #(
     end
 
     // Count logic
-    always @(posedge clk or rst_n) begin
+    always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             count <= 0;
         end 
