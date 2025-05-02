@@ -2,6 +2,7 @@
 test.*
 TEST.*
 Netlist/
+WORK/
 # input.txt
 default.svf
 *.svf
