@@ -195,7 +195,7 @@ endgenerate
 //******************************************//
 always@(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-        curr_x <= 0;
+        curr_x <= 0; // If we do it reversely by starting from (16,16), we can save time as outputing the dirs while backtracking
     end
     else begin
         case (curr_state)
