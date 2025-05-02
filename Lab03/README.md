@@ -10,7 +10,7 @@
   
 ## Gate-level Result
 
-  ![alt text](03_GATE/post-sim.png)
+![alt text](./03_GATE/post-sim.png)
 
 * Timing Report
 ```
