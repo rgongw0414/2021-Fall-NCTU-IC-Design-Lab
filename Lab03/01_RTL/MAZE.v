@@ -174,16 +174,16 @@ always@(*) begin
 end
 
 // Store input data (0 for wall, 1 for path) into maze
-genvar i_maze, j_maze;
+genvar i, j;
 generate
-    for (i_maze = 0; i_maze < MAZE_WIDTH; i_maze = i_maze + 1) begin : gen_maze_i
-        for (j_maze = 0; j_maze < MAZE_WIDTH; j_maze = j_maze + 1) begin : gen_maze_j
+    for (i = 0; i < MAZE_WIDTH; i = i + 1) begin : gen_maze_i
+        for (j = 0; j < MAZE_WIDTH; j = j + 1) begin : gen_maze_j
             always@(posedge clk or negedge rst_n) begin
                 if (!rst_n) begin
-                    maze[i_maze][j_maze] <= 0; // Initialize the maze to all walls (0)
+                    maze[i][j] <= 0; // Initialize the maze to all walls (0)
                 end
-                else if (in_valid && curr_x == i_maze && curr_y == j_maze) begin
-                    maze[i_maze][j_maze] <= in; // Store the input data into the maze
+                else if (in_valid && curr_x == i && curr_y == j) begin
+                    maze[i][j] <= in; // Store the input data into the maze
                 end
             end
         end
@@ -293,22 +293,21 @@ end
 //****************************************************//
 // 2. Forward Logic - Save the dirs to the parent cell
 //****************************************************//
-genvar i_p_dirs, j_p_dirs;
 generate
-    for (i_p_dirs = 0; i_p_dirs < MAZE_WIDTH; i_p_dirs = i_p_dirs + 1) begin : gen_prev_dirs_i
-        for (j_p_dirs = 0; j_p_dirs < MAZE_WIDTH; j_p_dirs = j_p_dirs + 1) begin : gen_prev_dirs_j
+    for (i = 0; i < MAZE_WIDTH; i = i + 1) begin : gen_prev_dirs_i
+        for (j = 0; j < MAZE_WIDTH; j = j + 1) begin : gen_prev_dirs_j
             always@(posedge clk or negedge rst_n) begin
                 if (!rst_n) begin
-                    prev_dirs[i_p_dirs][j_p_dirs] <= 7; // Initialize all directions to 7 (not visited before)
+                    prev_dirs[i][j] <= 7; // Initialize all directions to 7 (not visited before)
                 end
                 else if (curr_state == S_WALK) begin
-                    if (next_is_valid && next_x == i_p_dirs && next_y == j_p_dirs) begin
-                        prev_dirs[i_p_dirs][j_p_dirs] <= {1'b0, curr_dir}; // Save the direction to the parent cell
+                    if (next_is_valid && next_x == i && next_y == j) begin
+                        prev_dirs[i][j] <= {1'b0, curr_dir}; // Save the direction to the parent cell
                     end
                 end
                 else if (curr_state == S_OUTPUT) begin
                     if (next_state == S_RESET) begin
-                        prev_dirs[i_p_dirs][j_p_dirs] <= 7; // Initialize all directions to 7 (not visited before)
+                        prev_dirs[i][j] <= 7; // Initialize all directions to 7 (not visited before)
                     end
                 end
             end
@@ -342,18 +341,17 @@ end
 //****************************************************//
 // 3-2. Backtrack: Save the dirs from (16,16) to (0,0)
 //****************************************************//
-genvar i_b_dirs;
 generate
-    for (i_b_dirs = 0; i_b_dirs < MAX_STEPS; i_b_dirs = i_b_dirs + 1) begin : gen_backtrack_dirs
+    for (i = 0; i < MAX_STEPS; i = i + 1) begin : gen_backtrack_dirs
         always@(posedge clk or negedge rst_n) begin
             if (!rst_n) begin
-                backtrack_dirs[i_b_dirs] <= 0;
+                backtrack_dirs[i] <= 0;
             end
-            else if (curr_state == S_BACK && !backtrack_finished && backtrack_idx == i_b_dirs) begin
-                backtrack_dirs[i_b_dirs] <= curr_dir;
+            else if (curr_state == S_BACK && !backtrack_finished && backtrack_idx == i) begin
+                backtrack_dirs[i] <= curr_dir;
             end
             else if (curr_state == S_OUTPUT && next_state == S_RESET) begin
-                backtrack_dirs[i_b_dirs] <= 0; // Reset backtrack_dirs when outputting the result
+                backtrack_dirs[i] <= 0; // Reset backtrack_dirs when outputting the result
             end
         end
     end
