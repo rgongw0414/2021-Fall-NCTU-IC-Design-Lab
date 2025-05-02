@@ -36,8 +36,8 @@ parameter [DIR_WIDTH-1:0] UP       = 2'd3;
 
 // Backtracking variables
 parameter QUEUE_DATA_WIDTH = DATA_WIDTH * 2; // 2*DATA_WIDTH for the concatenation of x and y
-parameter MAX_STEPS   = 150; // Maximum number of steps taken to reach the goal (16,16); for PATTERN_NUM of 500, this is enough
-parameter QUEUE_DEPTH = 16;  // The depth (max size) of the queue
+parameter MAX_STEPS        = 150; // Maximum number of steps taken to reach the goal (16,16); for PATTERN_NUM of 500, this is enough
+parameter QUEUE_DEPTH      = 16;  // The depth (max size) of the queue
 
 //****************************************************************//
 // Input/Output Declaration
@@ -85,7 +85,7 @@ wire enq_valid, deq_ready;
 // Current cell logic
 assign walk_finished    = (curr_x == MAZE_WIDTH - 1 && curr_y == MAZE_WIDTH - 1);
 assign curr_y_reached_N = (curr_y == MAZE_WIDTH - 1);
-assign curr_is_start   = (curr_x == 0 && curr_y == 0);
+assign curr_is_start    = (curr_x == 0 && curr_y == 0);
 
 // Next cell logic
 assign next_x = curr_x + offset_x;
@@ -101,9 +101,9 @@ assign {deq_x, deq_y} = deq_data; // Dequeue x and y from the queue
 /* 1. Dequeue only if curr_dir is UP and the queue is not empty
  * 2. Clean up the queue while backtracking  */
 assign deq_ready = (curr_state == S_WALK && curr_dir == UP && !empty) || (curr_state == S_BACK && 1'b1); 
-assign enq_data = {next_x, next_y}; // Concatenate x and y for enqueue
+assign enq_data  = {next_x, next_y}; // Concatenate x and y for enqueue
 assign enq_valid = (curr_state == S_WALK && next_is_valid && !full); // Enqueue only if the next cell is valid and the queue is not full
-assign out = backtrack_dirs[backtrack_idx];
+assign out       = backtrack_dirs[backtrack_idx];
 
 //****************************************************************//
 // Module Declaration
@@ -308,7 +308,6 @@ always@(posedge clk or negedge rst_n) begin
             S_WALK: begin
                 if (next_is_valid) begin
                     prev_dirs[next_x][next_y] <= {1'b0, curr_dir};
-                    // prev_dirs[next_x][next_y] <= curr_dir;
                 end
             end
             S_OUTPUT: begin
