@@ -8,7 +8,7 @@ Report : timing
         -max_paths 1
 Design : MAZE
 Version: S-2021.06-SP2
-Date   : Fri May  2 22:37:18 2025
+Date   : Fri May  2 23:53:00 2025
 ****************************************
 
  # A fanout number of 1000 was used for high fanout net computations.

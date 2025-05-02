@@ -117,7 +117,7 @@ compile_ultra
 #  Output Reports
 #======================================================
 report_timing            >  Report/$my_toplevel\.timing
-report_area              >  Report/$my_toplevel\.area
+report_area -designware  >  Report/$my_toplevel\.area 
 report_resource          >  Report/$my_toplevel\.resource
 
 

@@ -3,7 +3,7 @@
 Report : area
 Design : MAZE
 Version: S-2021.06-SP2
-Date   : Fri May  2 22:37:18 2025
+Date   : Fri May  2 23:53:00 2025
 ****************************************
 
 Library(s) Used:
@@ -27,4 +27,26 @@ Net Interconnect area:      undefined  (No wire load specified)
 
 Total cell area:                166273.429319
 Total area:                 undefined
+
+Area of detected synthetic parts
+--------------------------------
+  No DW parts to report!
+
+Estimated area of ungrouped synthetic parts
+-------------------------------------------
+                                        Estimated  Perc. of
+  Module                Implem.  Count       Area cell area
+  --------------------- -------  ----- ---------- ---------
+  DP_OP_3096J1_122_2117     str      1   332.3253      0.2%
+  DW01_add              apparch      2   738.4608      0.4%
+  DW01_dec              apparch      1   103.7550      0.1%
+  DW01_inc              apparch      6   399.1023      0.2%
+  DW_cmp                apparch      3    95.1350      0.1%
+  --------------------- -------  ----- ---------- ---------
+  DP_OP Subtotal:                    1   332.3253      0.2%
+  Total:                            13  1668.7785      1.0%
+
+Subtotal of datapath(DP_OP) cell area:  332.3253  0.2%  (estimated)
+Total synthetic cell area:              1668.7785  1.0%  (estimated)
+
 1
