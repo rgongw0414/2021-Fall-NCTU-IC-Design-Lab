@@ -1,12 +1,34 @@
 # 17x17 MAZE Solving
 * Start: (0, 0) -> Target: (16, 16)
 * Given a 17x17 maze, return the directions along the path from start to target cell
+* Note:
+  * Instead of pure `for` loops, using `generate` blocks helps reducing some area, and improve time slack from 0.00 to 0.03!
+  * If the design contains more than one modules, the given syn.tcl can't be used as it's for single-module designs
+    * For Multiple-module designs, syn.tcl should use
+      ```
+      analyze -f verilog $my_verilog_files
+      elaborate $my_toplevel
+      current_design $my_toplevel
+      link
+      ```
   
 ## Components
 * FIFO Memory (Queue)
 * 2-d Memory for saving the maze (0 for wall, 1 for path)
 * 2-d Memory for saving the parent direction of each cell
 * 1-d Memory for saving the directions from the target to the start cell
+
+## Method
+### Test Patterns Generation
+* [PATTERN.cpp](00_TESTBED/PATTERN.cpp):
+  * Maze Generation: Backtracking (DFS)
+    1. Generate mazes of walls
+    2. Start from `(0,0)`, randomly break the walls around the current cell
+    3. Repeat the process 'till `(16,16)` reached
+  * Maze Solving:
+    1. BFS from `(0,0)` to `(16,16)` and store the direction from next cells to its parent cell
+    2. Backtrack to `(0,0)` according to the stored directions
+
   
 ## Gate-level Result
 
