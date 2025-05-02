@@ -1,3 +1,18 @@
+# 17x17 MAZE Solving
+* Start: (0, 0) -> Target: (16, 16)
+* Given a 17x17 maze, return the directions along the path from start to target cell
+  
+## Components
+* FIFO Memory (Queue)
+* 2-d Memory for saving the maze (0 for wall, 1 for path)
+* 2-d Memory for saving the parent direction of each cell
+* 1-d Memory for saving the directions from the target to the start cell
+  
+## Gate-level Result
+  ![alt text](03_GATE/post-sim.png)
+
+* Timing Report
+```
 Information: Updating design information... (UID-85)
 Warning: Design 'MAZE' contains 2 high-fanout nets. A fanout number of 1000 will be used for delay calculations involving these nets. (TIM-134)
  
@@ -71,3 +86,39 @@ Wire Load Model Mode: top
 
 
 1
+```
+
+* Area Report
+```
+ 
+****************************************
+Report : area
+Design : MAZE
+Version: S-2021.06-SP2
+Date   : Fri May  2 21:07:34 2025
+****************************************
+
+Library(s) Used:
+
+    slow (File: /home/eric/CBDK018_TSMC_Artisan/CIC/SynopsysDC/slow.db)
+
+Number of ports:                            7
+Number of nets:                          6664
+Number of cells:                         6609
+Number of combinational cells:           4957
+Number of sequential cells:              1652
+Number of macros/black boxes:               0
+Number of buf/inv:                        624
+Number of references:                      73
+
+Combinational area:              76756.680584
+Buf/Inv area:                     4523.904063
+Noncombinational area:          104409.041748
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (No wire load specified)
+
+Total cell area:                181165.722332
+Total area:                 undefined
+1
+
+```

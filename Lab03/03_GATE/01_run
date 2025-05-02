@@ -1,3 +1,1 @@
-# xrun -timescale 1ns/1fs -override_precision -sdf_precision 1fs TESTBED.v ../01_RTL/QUEUE.v -define GATE -debug -v ~/CBDK018_TSMC_Artisan/CIC/Verilog/tsmc18_neg.v -incdir /usr/cad/synopsys/synthesis/cur/dw/sim_ver/ -nontcglitch
 xrun -timescale 1ns/1fs -override_precision -sdf_precision 1fs TESTBED.v -define GATE -debug -v ~/CBDK018_TSMC_Artisan/CIC/Verilog/tsmc18_neg.v -incdir /usr/cad/synopsys/synthesis/cur/dw/sim_ver/ -nontcglitch
-# xrun  TESTBED.v -define GATE -debug -v ~/CBDK018_TSMC_Artisan/CIC/Verilog/tsmc18_neg.v -incdir /usr/cad/synopsys/synthesis/cur/dw/sim_ver/ -nontcglitch

@@ -83,7 +83,7 @@ wire enq_valid, deq_ready;
 // Assigns
 //****************************************************************//
 // Current cell logic
-assign walk_finished    = (curr_x == MAZE_WIDTH - 1 && curr_y == MAZE_WIDTH - 1); // TODO: This might better be a register to indicate now is backtracking
+assign walk_finished    = (curr_x == MAZE_WIDTH - 1 && curr_y == MAZE_WIDTH - 1);
 assign curr_y_reached_N = (curr_y == MAZE_WIDTH - 1);
 assign curr_is_start   = (curr_x == 0 && curr_y == 0);
 
