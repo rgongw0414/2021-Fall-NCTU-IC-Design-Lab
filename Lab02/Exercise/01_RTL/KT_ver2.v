@@ -212,10 +212,6 @@ always@(posedge clk or negedge rst_n) begin
 			prev_x <= curr_x;
 			prev_y <= curr_y;
 		end
-		else begin
-			prev_x <= prev_x;
-			prev_y <= prev_y;
-		end
 	end
 end
 
@@ -231,10 +227,6 @@ always@(posedge clk or negedge rst_n) begin
 				curr_x <= {1'b0, in_x};
 				curr_y <= {1'b0, in_y};
 			end
-			else begin
-				curr_x <= curr_x;
-				curr_y <= curr_y;
-			end
 		end
 		S_INPUT: begin
 			if (next_state == S_WALK) begin
@@ -249,10 +241,6 @@ always@(posedge clk or negedge rst_n) begin
 					curr_y <= {1'b0, in_y};
 				end
 			end
-			else begin
-				curr_x <= curr_x;
-				curr_y <= curr_y;
-			end
 		end
 		S_WALK: begin
 			if (backtrack_f) begin
@@ -260,18 +248,10 @@ always@(posedge clk or negedge rst_n) begin
 				curr_y <= (i_th_step - 2 < 0) ? curr_y : y[CELL_WIDTH*(i_th_step-2) +: CELL_WIDTH];
 			end
 			else if (next_cell_found) begin
-				if (next_x == x[CELL_WIDTH*(prev_i-1) +: CELL_WIDTH] && next_y == y[CELL_WIDTH*(prev_i-1) +: CELL_WIDTH]) begin
-					curr_x <= curr_x;
-					curr_y <= curr_y;
-				end
-				else begin
+				if (!(next_x == x[CELL_WIDTH*(prev_i-1) +: CELL_WIDTH] && next_y == y[CELL_WIDTH*(prev_i-1) +: CELL_WIDTH])) begin
 					curr_x <= next_x;
 					curr_y <= next_y;
 				end
-			end
-			else begin
-				curr_x <= curr_x;
-				curr_y <= curr_y;
 			end
 		end
 		S_OUTPUT: begin
@@ -279,14 +259,6 @@ always@(posedge clk or negedge rst_n) begin
 				curr_x <= 0;
 				curr_y <= 0;
 			end
-			else begin
-				curr_x <= curr_x;
-				curr_y <= curr_y;
-			end
-		end
-		default: begin
-			curr_x <= curr_x;
-			curr_y <= curr_y;
 		end
 		endcase
 	end
@@ -305,35 +277,19 @@ always@(posedge clk or negedge rst_n) begin
 				x[CELL_WIDTH*i_th_step +: CELL_WIDTH] <= {1'b0, in_x};
 				y[CELL_WIDTH*i_th_step +: CELL_WIDTH] <= {1'b0, in_y};
 			end
-			else begin
-				x <= x;
-				y <= y;
-			end
 		end
 		S_INPUT	: begin
 			if (in_valid) begin
 				x[CELL_WIDTH*i_th_step +: CELL_WIDTH] <= {1'b0, in_x};
 				y[CELL_WIDTH*i_th_step +: CELL_WIDTH] <= {1'b0, in_y};
 			end
-			else begin
-				x <= x;
-				y <= y;
-			end
 		end
 		S_WALK	: begin
 			if (next_cell_found) begin
-				if (next_x == x[CELL_WIDTH*(prev_i-1) +: CELL_WIDTH] && next_y == y[CELL_WIDTH*(prev_i-1) +: CELL_WIDTH]) begin
-					x <= x;
-					y <= y;
-				end
-				else begin
+				if (!(next_x == x[CELL_WIDTH*(prev_i-1) +: CELL_WIDTH] && next_y == y[CELL_WIDTH*(prev_i-1) +: CELL_WIDTH])) begin
 					x[CELL_WIDTH*i_th_step +: CELL_WIDTH] <= next_x;
 					y[CELL_WIDTH*i_th_step +: CELL_WIDTH] <= next_y;
 				end
-			end
-			else begin
-				x <= x;
-				y <= y;
 			end
 		end
 		S_OUTPUT: begin
@@ -341,15 +297,7 @@ always@(posedge clk or negedge rst_n) begin
 				x <= 0;
 				y <= 0;
 			end
-			else begin
-				x <= x;
-				y <= y;
-			end
 		end
-		default: begin
-			x <= x;
-			y <= y;
-		end 
 		endcase
 	end
 end
@@ -366,24 +314,12 @@ always @(posedge clk or negedge rst_n) begin
 					move_num_r <= move_num;
 					priority_num_r <= priority_num;
 				end
-				else begin
-					move_num_r <= move_num_r;
-					priority_num_r <= priority_num_r;
-				end
 			end
 			S_OUTPUT: begin
 				if (next_state == S_RESET) begin
 					move_num_r <= 0;
 					priority_num_r <= 0;
 				end
-				else begin
-					move_num_r <= move_num_r;
-					priority_num_r <= priority_num_r;
-				end
-			end
-			default: begin
-				move_num_r <= move_num_r;
-				priority_num_r <= priority_num_r;
 			end
 		endcase
 	end
@@ -441,9 +377,6 @@ always@(posedge clk or negedge rst_n) begin
 				// if (next_state == S_WALK) i_th_step <= i_th_step;
 				i_th_step <= i_th_step + 1;
 			end
-			else begin
-				i_th_step <= i_th_step;
-			end
 		end
 		S_WALK	: begin
 			if (backtrack_f) begin
@@ -464,11 +397,7 @@ always@(posedge clk or negedge rst_n) begin
 			if (next_state == S_RESET) begin
 				i_th_step <= 0;
 			end
-			else begin
-				i_th_step <= i_th_step;
-			end
 		end
-		default: i_th_step <= i_th_step;
 		endcase
 	end
 end
@@ -481,20 +410,11 @@ always@(posedge clk or negedge rst_n) begin
 			if (backtrack_f || next_cell_found) begin
 				prev_i <= i_th_step;
 			end
-			else begin
-				prev_i <= prev_i;
-			end
 		end
 		else if (current_state == S_OUTPUT) begin
 			if (next_state == S_RESET) begin
 				prev_i <= 0;
 			end
-			else begin
-				prev_i <= prev_i;
-			end
-		end
-		else begin
-			prev_i <= prev_i;
 		end
 	end
 end
@@ -506,11 +426,9 @@ always@(posedge clk or negedge rst_n) begin
 		case (current_state)
 		S_RESET: begin
 			if (next_state == S_INPUT)  cell_walked[in_x*5 + in_y] <= 1'b1;
-			else                        cell_walked <= cell_walked;
 		end
 		S_INPUT	: begin
 			if (in_valid) cell_walked[in_x*5 + in_y] <= 1'b1;
-			else          cell_walked <= cell_walked;
 		end
 		S_WALK	: begin
 			if (backtrack_f) begin
@@ -528,15 +446,10 @@ always@(posedge clk or negedge rst_n) begin
 			if (next_state == S_RESET) begin
 				cell_walked <= 0;
 			end
-			else begin
-				cell_walked <= cell_walked;
-			end
 		end
-		default: cell_walked <= cell_walked;
 		endcase
 	end
 end
-
 
 //***************************************************//
 //Finite State Machine (FSM)
@@ -591,10 +504,6 @@ always@(posedge clk or negedge rst_n) begin
 				out_x <= x[0+:(CELL_WIDTH-1)];  // x[0+:(4-1)] for not taking the sign bit
 				out_y <= y[0+:(CELL_WIDTH-1)];
 			end
-			else begin
-				out_x <= out_x;
-				out_y <= out_y;
-			end
 		end
 		S_OUTPUT: begin
 			if (out_valid) begin
@@ -604,10 +513,6 @@ always@(posedge clk or negedge rst_n) begin
 			else if (next_state == S_RESET) begin
 				out_x <= 0;
 				out_y <= 0;
-			end
-			else begin
-				out_x <= out_x;
-				out_y <= out_y;
 			end
 		end
 		default: begin
@@ -630,9 +535,6 @@ always@(posedge clk or negedge rst_n) begin
 			out_valid <= 1;
 		end
 	end
-	else begin
-		out_valid <= out_valid;
-	end
 end
 
 always@(posedge clk or negedge rst_n) begin
@@ -652,14 +554,3 @@ always@(posedge clk or negedge rst_n) begin
 	end
 end
 endmodule
-
-// Says priority_num_r = 1, i_th_step = 1, start from (1,2), where the prev cell of (1,2) is (0,0)
-// i_th_step: 0      1          2                   2        ...       2			2             2               0
-// time: 0,11      1,10         2                   3        ...       8            9             10              11
-// dir:          1        1                   2            3      7            0            1 (all 8 dirs failed, so step back to (0,0)!)
-//      (0,0)   -> (1,2) -> attempt_0: (2,4) -> attempt_1 -> ... -> attempt_6 -> attempt_7 -> attempt_8 (1,2) -> (0,0)
-//              -> (2,1) -> ...
-// dir:          2 
-// time:             12     ...
-// i_th_step: 0      1
-// Now i_th_step is on the backtracked cell (0,0), where the 8 dirs walking starting from (1,2) failed, so step back to (0,0)
