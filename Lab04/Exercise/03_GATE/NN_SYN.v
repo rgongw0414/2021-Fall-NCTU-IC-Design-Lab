@@ -1,0 +1,1 @@
+../02_SYN/Netlist/NN_SYN.v
