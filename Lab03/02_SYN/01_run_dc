@@ -1,3 +1,4 @@
 mkdir -p Netlist
 mkdir -p Report
+mkdir -p WORK
 dc_shell-t -f syn.tcl | tee syn.log

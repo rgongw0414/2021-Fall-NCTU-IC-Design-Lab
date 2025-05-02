@@ -24,7 +24,7 @@ module QUEUE #(
     reg [ADDR_WIDTH-1:0] head;
     reg [ADDR_WIDTH-1:0] tail;
     reg [ADDR_WIDTH:0]   count;
-    reg [ADDR_WIDTH:0]   i; // Loop variable idx; // width must be able to accommodate i == DEPTH, otherwise DC will report exceeding loop limit
+    reg [ADDR_WIDTH:0]   i; // Loop variable idx; width must be able to accommodate i == DEPTH, otherwise DC will report exceeding loop limit
 
     // Assign output flags
     assign full  = (count == DEPTH);
@@ -69,8 +69,8 @@ module QUEUE #(
         end 
         else begin
             case ({enq_valid && !full, deq_ready && !empty})
-                2'b10: count <= count + 1; // Enqueue only
-                2'b01: count <= count - 1; // Dequeue only
+                2'b10:   count <= count + 1; // Enqueue only
+                2'b01:   count <= count - 1; // Dequeue only
                 default: count <= count;   // No change or both enq_valid and deq_ready asserted
             endcase
         end

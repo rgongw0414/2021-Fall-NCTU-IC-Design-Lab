@@ -1,10 +1,9 @@
-Warning: Design 'MAZE' has '1' unresolved references. For more detailed information, use the "link" command. (UID-341)
  
 ****************************************
 Report : area
 Design : MAZE
 Version: S-2021.06-SP2
-Date   : Fri May  2 02:59:43 2025
+Date   : Fri May  2 20:09:33 2025
 ****************************************
 
 Library(s) Used:
@@ -12,22 +11,20 @@ Library(s) Used:
     slow (File: /home/eric/CBDK018_TSMC_Artisan/CIC/SynopsysDC/slow.db)
 
 Number of ports:                            7
-Number of nets:                          6570
-Number of cells:                         5743
-Number of combinational cells:           4263
-Number of sequential cells:              1480
+Number of nets:                          6664
+Number of cells:                         6609
+Number of combinational cells:           4957
+Number of sequential cells:              1652
 Number of macros/black boxes:               0
-Number of buf/inv:                        372
-Number of references:                      79
+Number of buf/inv:                        624
+Number of references:                      73
 
-Combinational area:              67831.948968
-Buf/Inv area:                     3316.420835
-Noncombinational area:           93475.165100
+Combinational area:              76756.680584
+Buf/Inv area:                     4523.904063
+Noncombinational area:          104409.041748
 Macro/Black Box area:                0.000000
 Net Interconnect area:      undefined  (No wire load specified)
 
-Total cell area:                161307.114068
+Total cell area:                181165.722332
 Total area:                 undefined
-
-Information: This design contains black box (unknown) components. (RPT-8)
 1
