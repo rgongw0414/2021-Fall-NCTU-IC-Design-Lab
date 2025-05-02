@@ -2,7 +2,7 @@
 ****************************************
 check_design summary:
 Version:     S-2021.06-SP2
-Date:        Fri May  2 21:06:41 2025
+Date:        Fri May  2 22:36:26 2025
 ****************************************
 
                    Name                                            Total
@@ -11,14 +11,14 @@ Cells                                                              10
     Cells do not drive (LINT-1)                                    10
 --------------------------------------------------------------------------------
 
-Warning: In design 'MAZE', cell 'C16488' does not drive any nets. (LINT-1)
-Warning: In design 'MAZE', cell 'C16515' does not drive any nets. (LINT-1)
-Warning: In design 'MAZE', cell 'C16519' does not drive any nets. (LINT-1)
-Warning: In design 'MAZE', cell 'C16539' does not drive any nets. (LINT-1)
-Warning: In design 'MAZE', cell 'C16989' does not drive any nets. (LINT-1)
-Warning: In design 'MAZE', cell 'C16993' does not drive any nets. (LINT-1)
-Warning: In design 'QUEUE_DATA_WIDTH12_DEPTH16', cell 'C954' does not drive any nets. (LINT-1)
-Warning: In design 'QUEUE_DATA_WIDTH12_DEPTH16', cell 'C958' does not drive any nets. (LINT-1)
-Warning: In design 'QUEUE_DATA_WIDTH12_DEPTH16', cell 'C967' does not drive any nets. (LINT-1)
-Warning: In design 'QUEUE_DATA_WIDTH12_DEPTH16', cell 'C968' does not drive any nets. (LINT-1)
+Warning: In design 'MAZE', cell 'C41515' does not drive any nets. (LINT-1)
+Warning: In design 'MAZE', cell 'C41542' does not drive any nets. (LINT-1)
+Warning: In design 'MAZE', cell 'C41546' does not drive any nets. (LINT-1)
+Warning: In design 'MAZE', cell 'C41566' does not drive any nets. (LINT-1)
+Warning: In design 'MAZE', cell 'C45648' does not drive any nets. (LINT-1)
+Warning: In design 'MAZE', cell 'C45652' does not drive any nets. (LINT-1)
+Warning: In design 'QUEUE_DATA_WIDTH12_DEPTH16', cell 'C1231' does not drive any nets. (LINT-1)
+Warning: In design 'QUEUE_DATA_WIDTH12_DEPTH16', cell 'C1235' does not drive any nets. (LINT-1)
+Warning: In design 'QUEUE_DATA_WIDTH12_DEPTH16', cell 'C1244' does not drive any nets. (LINT-1)
+Warning: In design 'QUEUE_DATA_WIDTH12_DEPTH16', cell 'C1245' does not drive any nets. (LINT-1)
 1

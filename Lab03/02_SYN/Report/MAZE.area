@@ -3,7 +3,7 @@
 Report : area
 Design : MAZE
 Version: S-2021.06-SP2
-Date   : Fri May  2 21:07:34 2025
+Date   : Fri May  2 22:37:18 2025
 ****************************************
 
 Library(s) Used:
@@ -11,20 +11,20 @@ Library(s) Used:
     slow (File: /home/eric/CBDK018_TSMC_Artisan/CIC/SynopsysDC/slow.db)
 
 Number of ports:                            7
-Number of nets:                          6664
-Number of cells:                         6609
-Number of combinational cells:           4957
+Number of nets:                          6752
+Number of cells:                         5844
+Number of combinational cells:           4192
 Number of sequential cells:              1652
 Number of macros/black boxes:               0
-Number of buf/inv:                        624
-Number of references:                      73
+Number of buf/inv:                        236
+Number of references:                      58
 
-Combinational area:              76756.680584
-Buf/Inv area:                     4523.904063
+Combinational area:              61864.387571
+Buf/Inv area:                     1613.304021
 Noncombinational area:          104409.041748
 Macro/Black Box area:                0.000000
 Net Interconnect area:      undefined  (No wire load specified)
 
-Total cell area:                181165.722332
+Total cell area:                166273.429319
 Total area:                 undefined
 1
