@@ -9,6 +9,7 @@
 * 1-d Memory for saving the directions from the target to the start cell
   
 ## Gate-level Result
+
   ![alt text](03_GATE/post-sim.png)
 
 * Timing Report
