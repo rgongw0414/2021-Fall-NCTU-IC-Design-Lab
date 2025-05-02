@@ -3,12 +3,11 @@
 Report : resources
 Design : SMC
 Version: S-2021.06-SP2
-Date   : Fri May  2 01:39:59 2025
+Date   : Fri May  2 20:24:16 2025
 ****************************************
 
 
-Resource Report for this hierarchy in file
-        /home/eric/2021-Fall-NCTU-IC-Design-Lab/Lab01/Exercise/01_RTL/SMC.v
+Resource Report for this hierarchy in file ./../01_RTL/SMC.v
 =============================================================================
 | Cell           | Module         | Parameters | Contained Operations       |
 =============================================================================
@@ -124,7 +123,7 @@ Resource Report for Ungrouped Hierarchy ID_Gm_calculator0/div_2
 
 
 Resource Report for Ungrouped Hierarchy ID_Gm_calculator0 in file
-        /home/eric/2021-Fall-NCTU-IC-Design-Lab/Lab01/Exercise/01_RTL/SMC.v
+        ./../01_RTL/SMC.v
 =============================================================================
 | Cell           | Module         | Parameters | Contained Operations       |
 =============================================================================
@@ -191,7 +190,7 @@ Resource Report for Ungrouped Hierarchy ID_Gm_calculator3/div_4
 
 
 Resource Report for Ungrouped Hierarchy ID_Gm_calculator3 in file
-        /home/eric/2021-Fall-NCTU-IC-Design-Lab/Lab01/Exercise/01_RTL/SMC.v
+        ./../01_RTL/SMC.v
 =============================================================================
 | Cell           | Module         | Parameters | Contained Operations       |
 =============================================================================
@@ -251,7 +250,7 @@ Resource Report for Ungrouped Hierarchy ID_Gm_calculator2/div_2
 
 
 Resource Report for Ungrouped Hierarchy ID_Gm_calculator2 in file
-        /home/eric/2021-Fall-NCTU-IC-Design-Lab/Lab01/Exercise/01_RTL/SMC.v
+        ./../01_RTL/SMC.v
 =============================================================================
 | Cell           | Module         | Parameters | Contained Operations       |
 =============================================================================
@@ -311,7 +310,7 @@ Resource Report for Ungrouped Hierarchy ID_Gm_calculator1/div_2
 
 
 Resource Report for Ungrouped Hierarchy ID_Gm_calculator1 in file
-        /home/eric/2021-Fall-NCTU-IC-Design-Lab/Lab01/Exercise/01_RTL/SMC.v
+        ./../01_RTL/SMC.v
 =============================================================================
 | Cell           | Module         | Parameters | Contained Operations       |
 =============================================================================

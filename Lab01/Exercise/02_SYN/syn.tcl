@@ -5,31 +5,59 @@
 #======================================================
 
 #======================================================
+# User Defined Parameters
+# You need to change this parameters to fit your own design
+#======================================================
+# Give the list of your verilog files
+# If you have single file in your design, then
+set my_verilog_files [list SMC.v sort.v]
+
+# Set the top module of your design
+set my_toplevel SMC
+
+#======================================================
 #  Set Libraries
 #======================================================
 set search_path "./../01_RTL \
                    /usr/cad/synopsys/synthesis/cur/libraries/syn \
                    /home/eric/CBDK018_TSMC_Artisan/CIC/SynopsysDC"
 
-#                    ~iclabta01/umc018/Synthesis \
-
 set synthetic_library "dw_foundation.sldb"
 set link_library "* dw_foundation.sldb standard.sldb slow.db"
-set target_library "slow.db"
+set target_library "slow.db"   
+
+# Directory where DC placed intermediate files
+define_design_lib WORK -path ./WORK
 
 # set_host_options -max_cores 16
 
 #======================================================
 #  Global Parameters
 #======================================================
-set DESIGN "SMC"
+# set my_toplevel "SMC"
 set MAX_Delay 20
 
 #======================================================
 #  Read RTL Code
 #======================================================
-read_sverilog "$DESIGN\.v"
-current_design $DESIGN
+# read_sverilog "my_toplevel\.v"
+# current_design $my_toplevel
+
+# This command does the same work of analyze+elaborate
+# read_verilog $my_verilog_files   
+
+# Translates HDL to intermediate format
+# analyze -f sverilog $my_verilog_files
+analyze -f verilog $my_verilog_files
+
+# Builds generic technology database
+elaborate $my_toplevel
+
+# Designate the design to synthesize
+current_design $my_toplevel
+
+# used when you are translating some netlist from one technology to another
+link
 
 #======================================================
 #  Global Setting
@@ -51,9 +79,9 @@ compile_ultra
 #======================================================
 #  Output Reports 
 #======================================================
-report_timing >  Report/$DESIGN\.timing
-report_area >  Report/$DESIGN\.area
-report_resource >  Report/$DESIGN\.resource
+report_timing >  Report/$my_toplevel\.timing
+report_area >  Report/$my_toplevel\.area
+report_resource >  Report/$my_toplevel\.resource
 
 #======================================================
 #  Change Naming Rule
@@ -74,8 +102,8 @@ change_names -hierarchy -rules name_rule
 #  Output Results
 #======================================================
 set verilogout_higher_designs_first true
-write -format verilog -output Netlist/$DESIGN\_SYN.v -hierarchy
-write_sdf -version 3.0 -context verilog -load_delay cell Netlist/$DESIGN\_SYN.sdf -significant_digits 6
+write -format verilog -output Netlist/$my_toplevel\_SYN.v -hierarchy
+write_sdf -version 3.0 -context verilog -load_delay cell Netlist/$my_toplevel\_SYN.sdf -significant_digits 6
 #======================================================
 #  Finish and Quit
 #======================================================
