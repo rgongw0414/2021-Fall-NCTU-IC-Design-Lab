@@ -5,7 +5,7 @@
 `endif
 `ifdef GATE
 	`timescale 1ns/10ps
-	`include "NN_SYN.v"
+	`include "../02_SYN/Netlist/NN_SYN.v"
 	`define CYCLE_TIME 20.0
 `endif
 
