@@ -1,0 +1,58 @@
+Forward:
+    Input data 
+    S = [s0,s1,s2,s3] 1x4 mat
+
+    Input weights 
+    w'1 = [[w'0,w'4,w'8], 4x3 mat
+           [w'1,w'5,w'9],
+           [w'2,w'6,w'10],
+           [w'3,w'7,w'11]]
+    Input Layer Output (Hidden Layer Input)
+    S*w'1 = [[s0*w'0 + s1*w'1 + s2*w'2  + s3*w'3],T  = [[h10],T = [h10 h11 h12]  1x3 mat
+             [s0*w'4 + s1*w'5 + s2*w'6  + s3*w'7],      [h11],
+             [s0*w'8 + s1*w'9 + s2*w'10 + s3*w'11]]     [h12]]
+    h10 = s0*w'0 + s1*w'1 + s2*w'2  + s3*w'3
+    h11 = s0*w'4 + s1*w'5 + s2*w'6  + s3*w'7
+    h12 = s0*w'8 + s1*w'9 + s2*w'10 + s3*w'11
+
+    Activation function
+    y10 = ReLU(h10) = ReLU(s0*w'0 + s1*w'1 + s2*w'2  + s3*w'3)
+    y11 = ReLU(h11) = ReLU(s0*w'4 + s1*w'5 + s2*w'6  + s3*w'7)
+    y12 = ReLU(h12) = ReLU(s0*w'8 + s1*w'9 + s2*w'10 + s3*w'11)
+
+    Output Layer
+    y20 = y10*w''0 + y11*w''1 + y12*w''2 = h20
+        = (ReLU(s0*w'0 + s1*w'1 + s2*w'2  + s3*w'3)  * w''0 + 
+           ReLU(s0*w'4 + s1*w'5 + s2*w'6  + s3*w'7)  * w''1 + 
+           ReLU(s0*w'8 + s1*w'9 + s2*w'10 + s3*w'11) * w''2)
+
+Backward:
+    Output Layer Loss
+    d20 = y20 - t0
+
+    Hidden Layer Loss
+    d10 = ReLU(h10)' * w''0 * d20
+    d11 = ReLU(h11)' * w''1 * d21
+    d12 = ReLU(h12)' * w''2 * d22
+
+Update:
+    Hidden Layer
+    w''0 = w''0 - LR * d20 * y10
+    w''1 = w''1 - LR * d21 * y11
+    w''2 = w''2 - LR * d22 * y12
+
+    Input Layer
+    w'0 = w'0 - LR * d10 * s0
+    w'1 = w'1 - LR * d10 * s1
+    w'2 = w'2 - LR * d10 * s2
+    w'3 = w'3 - LR * d10 * s3
+
+    w'4 = w'4 - LR * d11 * s0
+    w'5 = w'5 - LR * d11 * s1
+    w'6 = w'6 - LR * d11 * s2
+    w'7 = w'7 - LR * d11 * s3
+
+    w'8  = w'8  - LR * d12 * s0
+    w'9  = w'9  - LR * d12 * s1
+    w'10 = w'10 - LR * d12 * s2
+    w'11 = w'11 - LR * d12 * s3
