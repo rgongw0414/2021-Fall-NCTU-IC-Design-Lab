@@ -1,1 +1,1 @@
-irun TESTBENCH.v -define RTL -debug -incdir /usr/cad/synopsys/synthesis/cur/dw/sim_ver/
+xrun TESTBENCH.v -define RTL -debug -incdir /usr/cad/synopsys/synthesis/cur/dw/sim_ver/

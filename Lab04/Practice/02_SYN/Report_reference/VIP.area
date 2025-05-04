@@ -1,0 +1,49 @@
+ 
+****************************************
+Report : area
+Design : VIP
+Version: S-2021.06-SP2
+Date   : Mon May  5 02:03:32 2025
+****************************************
+
+Library(s) Used:
+
+    slow (File: /home/eric/CBDK018_TSMC_Artisan/CIC/SynopsysDC/slow.db)
+
+Number of ports:                          100
+Number of nets:                          4050
+Number of cells:                         3589
+Number of combinational cells:           3256
+Number of sequential cells:               333
+Number of macros/black boxes:               0
+Number of buf/inv:                        350
+Number of references:                      83
+
+Combinational area:              65726.338527
+Buf/Inv area:                     2558.001633
+Noncombinational area:           21149.250923
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (No wire load specified)
+
+Total cell area:                 86875.589450
+Total area:                 undefined
+
+Area of detected synthetic parts
+--------------------------------
+  No DW parts to report!
+
+Estimated area of ungrouped synthetic parts
+-------------------------------------------
+                              Estimated  Perc. of
+  Module     Implem.  Count        Area cell area
+  ---------- -------  ----- ----------- ---------
+  DW01_inc   apparch      1    319.3344      0.4%
+  DW_cmp     apparch      1     59.8752      0.1%
+  DW_fp_add      rtl      1  14153.7363     16.3%
+  DW_fp_mult     rtl      1  32512.1406     37.4%
+  ---------- -------  ----- ----------- ---------
+  Total:                  4  47045.0865     54.2%
+
+Total synthetic cell area:              47045.0865  54.2%  (estimated)
+
+1

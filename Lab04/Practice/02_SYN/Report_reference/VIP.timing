@@ -1,0 +1,84 @@
+Information: Updating design information... (UID-85)
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : VIP
+Version: S-2021.06-SP2
+Date   : Mon May  5 02:03:32 2025
+****************************************
+
+Operating Conditions: slow   Library: slow
+Wire Load Model Mode: top
+
+  Startpoint: mult_a_reg[15]
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: add_b_reg[21]
+            (rising edge-triggered flip-flop clocked by clk)
+  Path Group: clk
+  Path Type: max
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  clock clk (rise edge)                    0.00       0.00
+  clock network delay (ideal)              0.00       0.00
+  mult_a_reg[15]/CK (DFFSX2)               0.00       0.00 r
+  mult_a_reg[15]/QN (DFFSX2)               0.93       0.93 r
+  U2182/Y (XNOR2X1)                        1.11       2.04 r
+  U1200/Y (NAND2X4)                        0.28       2.32 f
+  U1488/Y (OAI22XL)                        0.26       2.58 r
+  U1137/S (ADDFX1)                         0.51       3.09 r
+  U1009/CO (ADDFX1)                        0.57       3.66 r
+  U2939/CO (ADDFX1)                        0.58       4.23 r
+  U2928/CO (ADDFX1)                        0.56       4.79 r
+  U375/Y (OR2XL)                           0.20       4.99 r
+  U918/Y (NAND2XL)                         0.10       5.09 f
+  U3103/Y (OAI21XL)                        0.20       5.29 r
+  U476/Y (AOI21X1)                         0.09       5.38 f
+  U3105/Y (OAI21XL)                        0.27       5.65 r
+  U1356/Y (INVX1)                          0.16       5.81 f
+  U898/Y (OAI21XL)                         0.23       6.04 r
+  U386/Y (XNOR2XL)                         0.36       6.40 r
+  U3212/Y (INVXL)                          0.08       6.48 f
+  U889/Y (NOR2X1)                          0.13       6.61 r
+  U3214/Y (NAND2XL)                        0.11       6.71 f
+  U3215/Y (NOR2X1)                         0.15       6.87 r
+  U878/Y (NAND2XL)                         0.11       6.97 f
+  U3216/Y (NOR2X1)                         0.15       7.13 r
+  U859/Y (NAND2XL)                         0.11       7.23 f
+  U3217/Y (NOR2X1)                         0.15       7.38 r
+  U809/Y (NAND2XL)                         0.11       7.49 f
+  U3218/Y (NOR2X1)                         0.15       7.64 r
+  U794/Y (NAND2XL)                         0.11       7.75 f
+  U3219/Y (NOR2X1)                         0.15       7.90 r
+  U779/Y (NAND2XL)                         0.11       8.01 f
+  U3220/Y (NOR2X1)                         0.15       8.17 r
+  U776/Y (NAND2XL)                         0.11       8.27 f
+  U3221/Y (NOR2X1)                         0.15       8.42 r
+  U772/Y (NAND2XL)                         0.11       8.53 f
+  U3222/Y (NOR2X1)                         0.15       8.68 r
+  U3223/Y (NAND2XL)                        0.11       8.79 f
+  U766/Y (INVXL)                           0.09       8.87 r
+  U762/Y (NAND2XL)                         0.09       8.97 f
+  U390/Y (XOR2XL)                          0.34       9.31 r
+  U754/Y (AOI21XL)                         0.10       9.41 f
+  U753/Y (OAI2BB1XL)                       0.20       9.61 r
+  U3521/Y (OAI21XL)                        0.10       9.71 f
+  add_b_reg[21]/D (DFFSX1)                 0.00       9.71 f
+  data arrival time                                   9.71
+
+  clock clk (rise edge)                   10.00      10.00
+  clock network delay (ideal)              0.00      10.00
+  add_b_reg[21]/CK (DFFSX1)                0.00      10.00 r
+  library setup time                      -0.29       9.71
+  data required time                                  9.71
+  -----------------------------------------------------------
+  data required time                                  9.71
+  data arrival time                                  -9.71
+  -----------------------------------------------------------
+  slack (MET)                                         0.00
+
+
+1
