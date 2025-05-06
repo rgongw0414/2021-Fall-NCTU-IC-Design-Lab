@@ -2,12 +2,12 @@
 ![ANN Structure](ANN.png)
 
 * Input layer weights
-  * {$w^1_0$, $w^1_1$, $w^1_2$, $w^1_3$}: Weights for $h^1_0$ (Hidden layer neurons)
-  * {$w^1_4$, $w^1_5$, $w^1_6$, $w^1_7$}: Weights for $h^1_1$
-  * {$w^1_8$, $w^1_9$, $w^1_{10}$, $w^1_{11}$}: Weights for $h^1_2$
+  * { $w^1_0$, $w^1_1$, $w^1_2$, $w^1_3$ }: Weights for $h^1_0$ (Hidden layer neurons)
+  * { $w^1_4$, $w^1_5$, $w^1_6$, $w^1_7$ }: Weights for $h^1_1$
+  * { $w^1_8$, $w^1_9$, $w^1_{10}$, $w^1_{11}$ }: Weights for $h^1_2$
 
 * Hidden layer weights
-  * {$w^2_0$, $w^2_1$, $w^2_2$}: Weights for $h^2_0$ (Output layer neuron)
+  * { $w^2_0$, $w^2_1$, $w^2_2$ }: Weights for $h^2_0$ (Output layer neuron)
 
 * Errors (loss or distance b/w target and neuron)
   * $\delta^2_0$: Output layer error, aka, loss
