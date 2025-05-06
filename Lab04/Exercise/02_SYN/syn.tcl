@@ -45,7 +45,7 @@ set_host_options -max_cores 8
 #======================================================
 #  Global Parameters
 #======================================================
-set CLK_period 20.0
+set CYCLE_TIME 20.0
 
 #======================================================
 #  Read RTL Code
@@ -70,9 +70,9 @@ link
 #======================================================
 #  Set Design Constraints
 #======================================================
-create_clock -name "clk" -period $CLK_period clk 
-set_input_delay  [ expr $CLK_period*0.5 ] -clock clk [all_inputs]
-set_output_delay [ expr $CLK_period*0.5 ] -clock clk [all_outputs]
+create_clock -name "clk" -period $CYCLE_TIME clk 
+set_input_delay  [ expr $CYCLE_TIME*0.5 ] -clock clk [all_inputs]
+set_output_delay [ expr $CYCLE_TIME*0.5 ] -clock clk [all_outputs]
 set_input_delay 0 -clock clk clk
 set_input_delay 0 -clock clk rst_n
 set_load 0.05 [all_outputs]
