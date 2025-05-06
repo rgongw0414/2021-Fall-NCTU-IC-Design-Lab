@@ -3,7 +3,7 @@
 
 $S = [s_0,s_1,s_2,s_3]$, which is a 1x4 matrix
 
-* Input weights $W^1$, where
+* Input weights $W^1, where$
 
 $$ W^1 = 
 \left[ \begin{matrix}
