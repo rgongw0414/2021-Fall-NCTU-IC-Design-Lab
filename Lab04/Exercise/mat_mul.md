@@ -6,14 +6,12 @@ $S = [s_0,s_1,s_2,s_3]$, which is a 1x4 matrix
 * Input weights $W^1, where$
 
 $$ W^1 = 
-\left[ 
-\begin{matrix}
-w^1_0 & w^1_4 & w^1_8    \\
-w^1_1 & w^1_5 & w^1_9    \\
-w^1_2 & w^1_6 & w^1_{10} \\
+\left[ \begin{matrix}
+w^1_0 & w^1_4 & w^1_8    \\\
+w^1_1 & w^1_5 & w^1_9    \\\
+w^1_2 & w^1_6 & w^1_{10} \\\
 w^1_3 & w^1_7 & w^1_{11}
-\end{matrix} 
-\right]_{4\times3} \tag{1} $$
+\end{matrix} \right]_{4\times3} \tag{1} $$
 
 * Input Layer Output (Hidden Layer Input)
 
