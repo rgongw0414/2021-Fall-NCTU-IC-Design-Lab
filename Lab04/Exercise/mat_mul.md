@@ -6,28 +6,28 @@ $S = [s_0,s_1,s_2,s_3]$, which is a 1x4 matrix
 * Input weights $W^1, where$
 
 $$ W^1 = 
-\left[ \begin{matrix}
+\begin{bmatrix}
 w^1_0 & w^1_4 & w^1_8    \\\
 w^1_1 & w^1_5 & w^1_9    \\\
 w^1_2 & w^1_6 & w^1_{10} \\\
 w^1_3 & w^1_7 & w^1_{11}
-\end{matrix} \right]_{4\times3} \tag{1} $$
+\end{bmatrix}_{4\times3} \tag{1} $$
 
 * Input Layer Output (Hidden Layer Input)
 
 $$ S*W^1 = 
-\left[ \begin{matrix}
+\begin{bmatrix}
         s0*w^1_0 + s1*w^1_1 \ + s2*w^1_2 + s3*w^1_3   \\  
         s0*w^1_4 + s1*w^1_5 \ + s2*w^1_6 + s3*w^1_7   \\
-\ \ \ \ s0*w^1_8   \ + s1*w^1_9 + s2*w^1_{10} + s3*w^1_{11}  \end{matrix} \right]^T_{3\times4} = 
-    \left[ \begin{matrix} 
+\ \ \ \ s0*w^1_8   \ + s1*w^1_9 + s2*w^1_{10} + s3*w^1_{11}  \end{bmatrix}^T_{3\times4} = 
+    \begin{bmatrix} 
     h^1_0 \\
     h^1_1 \\ 
     h^1_2 \\
-    \end{matrix} \right]^T_{3\times1} = 
-        \left[ \begin{matrix} 
+    \end{bmatrix}^T_{3\times1} = 
+        \begin{bmatrix} 
         h^1_0 & h^1_1 & h^1_2
-        \end{matrix} \right]_{1\times3}, where $$
+        \end{bmatrix}_{1\times3}, where $$
 
 $$  h^1_0 = s0*w^1_0 + s1*w^1_1 \ + s2*w^1_2 + s3*w^1_3 \\
     h^1_1 = s0*w^1_4 + s1*w^1_5 \ + s2*w^1_6 + s3*w^1_7 \\
