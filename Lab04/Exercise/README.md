@@ -138,7 +138,7 @@ $$  \delta^2_0 = y^2_0 - t_0 $$
 
 #### Input Layer
 
-* $C^{curr/next}_i$ (The $i_{th}$ cycle of current/next iteration)
+* $C^{curr/next}_i$: The i-th cycle of current/next iteration
 
 ##### For $h^1_0$ in next iteration
 
