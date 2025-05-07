@@ -144,7 +144,7 @@ $$  \delta^2_0 = y^2_0 - t_0 $$
 
 * $w^1_{0} = w^1_{0} - (LR * s_0) * \delta^1_0$ 
   * $(LR * s_0)$: Done at $C^{curr}_1$
-  * $w^1_{0} - (LR * s_0) * \delta^1_0$ : Done at $C^{*curr*}_7$ then update at $C^{next}_1$ 
+  * $w^1_{0} - (LR * s_0) * \delta^1_0$ : Done at $C^{\*curr\*}_7$ then update at $C^{next}_1$ 
 * $w^1_{1} = w^1_{1} - (LR * s_1) * \delta^1_0$
   * $(LR * s_1)$: Done at $C^{curr}_2$
   * $w^1_{1} - (LR * s_1) * \delta^1_0$ : Done at $C^{next}_1$ then update at $C^{next}_2$ 
