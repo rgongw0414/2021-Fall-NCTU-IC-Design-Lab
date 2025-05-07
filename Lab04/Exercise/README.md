@@ -1,3 +1,11 @@
+# Lab04: Training ANNs
+* [ANN Structure](#ann-structure)
+* [Stage Breakdown](#forward)
+   1. [Forward Pass](#forward)
+   2. [Backward Pass](#backward)
+   3. [Weights Update](#update)
+ * [Components (DesignWare)](#designware)
+      
 ## ANN Structure
 ![ANN Structure](ANN.png)
 
@@ -132,3 +140,4 @@ $$  \delta^2_0 = y^2_0 - t_0 $$
 \end{array}
 ```
 
+## DesignWare
