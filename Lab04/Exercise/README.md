@@ -4,26 +4,30 @@
    1. [Forward Pass](#forward)
    2. [Backward Pass](#backward)
    3. [Weights Update](#update)
- * [Components (DesignWare)](#designware)
+ * [DesignWare](#designware)
       
 ## ANN Structure
 ![ANN Structure](ANN.png)
 
-* Input layer weights
-  * { $w^1_0$, $w^1_1$, $w^1_2$, $w^1_3$ }: Weights for $h^1_0$ (Hidden layer neurons)
-  * { $w^1_4$, $w^1_5$, $w^1_6$, $w^1_7$ }: Weights for $h^1_1$
-  * { $w^1_8$, $w^1_9$, $w^1_{10}$, $w^1_{11}$ }: Weights for $h^1_2$
+* Activation Function: $ReLU(x)=x,\ if (x>0),\ otherwise\ 0.$ 
+  * Only applied in the hidden layer
 
-* Hidden layer weights
-  * { $w^2_0$, $w^2_1$, $w^2_2$ }: Weights for $h^2_0$ (Output layer neuron)
+* Hidden layer weights $W^1$
+  * { $w^1_0$, $w^1_1$, $w^1_2$, $w^1_3$ }: For calculating $h^1_0$
+  * { $w^1_4$, $w^1_5$, $w^1_6$, $w^1_7$ }: For calculating $h^1_1$
+  * { $w^1_8$, $w^1_9$, $w^1_{10}$, $w^1_{11}$ }: For calculating $h^1_2$
 
-* Errors (loss or distance b/w target and neuron)
+* Output layer weights $W^2$
+  * { $w^2_0$, $w^2_1$, $w^2_2$ }: For calculating $h^2_0$ (Final output)
+
+* Loss b/w prediction and target
   * $\delta^2_0$: Output layer error, aka, loss
+  * Loss Function: $L(y_{pred})=y_{pred}-y_{gold}$
 
 ## Forward
 * Input data $S = [s_0,s_1,s_2,s_3]_{1\times4}$
 
-* Input weights $W^1, where$
+* Hidden layer weights $W^1, where$
 
 ```math
 W^1 = 
@@ -35,7 +39,8 @@ w^1_3 & w^1_7 & w^1_{11}
 \end{bmatrix}_{4\times3}
 ```
 
-* Input Layer Output (Hidden Layer Input)
+* Hidden Layer Output (Hidden Layer Input)
+  * Using three Multiply-and-Adders (`DW_fp_mac`, `MAC0` to `MAC2`), $S*W^1$ can be done in 4 cycles ($C_1\ to\ C_4$)
 
 ```math
  S*W^1 = 
@@ -72,6 +77,8 @@ h^1_0 = s_0*w^1_0 + s_1*w^1_1 \ + s_2*w^1_2 + s_3*w^1_3 \\
 ```
 
 * Output Layer
+  * For less cycles, using three `DW_fp_mult`, one `DW_fp_sum3`, and a `DW_fp_sub`, $\{h^2_0, y^2_0\}$  takes just 1 cycle ($C_5$)
+  * For less area (not using `DW_fp_sum3`), using the original three MACs (`MAC0` to `MAC2`) can have it done with 3 cycles ($C_5\ to\ C_7$)
 
 ```math 
 y^2_0 = (y^1_0*w^2_{0} + y^1_1*w^2_{1} + y^1_2*w^2_{2}) = h^2_0 
