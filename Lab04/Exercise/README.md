@@ -1,4 +1,5 @@
 # Lab04: Training ANNs
+
 * [ANN Structure](#ann-structure)
 * [Stage Breakdown](#forward)
    1. [Forward Pass](#forward)
@@ -7,6 +8,7 @@
  * [DesignWare](#designware)
       
 ## ANN Structure
+
 ![ANN Structure](ANN.png)
 
 * Activation Function: $ReLU(x)=x,\ if (x>0),\ otherwise\ 0.$ 
@@ -24,7 +26,10 @@
   * $\delta^2_0$: Output layer error, aka, loss
   * Loss Function: $L(y_{pred})=y_{pred}-y_{gold}$
 
+* Cycle Time $T_{cycle}$: Regardless of P&R, approximately equals to the delay of a `DW_fp_mac`
+
 ## Forward
+
 * Input data $S = [s_0,s_1,s_2,s_3]_{1\times4}$
 
 * Hidden layer weights $W^1, where$
@@ -39,8 +44,9 @@ w^1_3 & w^1_7 & w^1_{11}
 \end{bmatrix}_{4\times3}
 ```
 
-* Hidden Layer Output (Hidden Layer Input)
-  * Using three Multiply-and-Adders (`DW_fp_mac`, `MAC0` to `MAC2`), $S*W^1$ can be done in 4 cycles ($C_1\ to\ C_4$)
+#### Hidden Layer Output (Hidden Layer Input)
+
+* Using three Multiply-and-Adders (`DW_fp_mac`, `MAC1` to `MAC3`), $S*W^1$ can be done in 4 cycles ($C_1\ to\ C_4$)
 
 ```math
  S*W^1 = 
@@ -55,7 +61,7 @@ w^1_3 & w^1_7 & w^1_{11}
     \end{bmatrix}^T_{3\times1} = 
         \begin{bmatrix} 
         h^1_0 & h^1_1 & h^1_2
-        \end{bmatrix}_{1\times3}, where 
+        \end{bmatrix}_{1\times3},\ where 
 ```
 
 ```math
@@ -66,7 +72,10 @@ h^1_0 = s_0*w^1_0 + s_1*w^1_1 \ + s_2*w^1_2 + s_3*w^1_3 \\
 \end{array}
 ```
 
-* Activation function
+#### Activation function
+
+* With a comparator `DW_fp_cmp` (`CMP1`), done at $C_4$
+* $y^1_i=(h^1_i>0)\ ?\ h^1_i\ :\ 0$
 
 ```math
 \begin{array}{c}
@@ -76,9 +85,10 @@ h^1_0 = s_0*w^1_0 + s_1*w^1_1 \ + s_2*w^1_2 + s_3*w^1_3 \\
 \end{array}
 ```
 
-* Output Layer
-  * For less cycles, using three `DW_fp_mult`, one `DW_fp_sum3`, and a `DW_fp_sub`, $\{h^2_0, y^2_0\}$  takes just 1 cycle ($C_5$)
-  * For less area (not using `DW_fp_sum3`), using the original three MACs (`MAC0` to `MAC2`) can have it done with 3 cycles ($C_5\ to\ C_7$)
+#### Output Layer
+
+* For less cycles, using three `DW_fp_mult` (`MULT1` to `MULT3`), one `DW_fp_sum3` (`SUM1`), and a `DW_fp_sub` (`SUB1`), $\{h^2_0, y^2_0\}$  takes just 1 cycle ($C_5$)
+* For less area (not using `DW_fp_sum3`), re-using the original three MACs (`MAC1` to `MAC3`) can have it done with 3 cycles ($C_5\ to\ C_7$)
 
 ```math 
 y^2_0 = (y^1_0*w^2_{0} + y^1_1*w^2_{1} + y^1_2*w^2_{2}) = h^2_0 
@@ -93,11 +103,15 @@ y^2_0 = ReLU(s_0*w^1_{0} + s_1*w^1_{1} + s_2*w^1_{2}  + s_3*w^1_{3})  * w^2_{0} 
 ```
 
 ## Backward
+
 * Output Layer Loss
+  * Done at $C_5$ with a `DW_fp_sub` (`SUB1`)
 
 $$  \delta^2_0 = y^2_0 - t_0 $$
 
 * Hidden Layer Loss
+  * With `CMP1`, and `MULT1` to `MULT3`, done at $C_6$
+  * $\delta^1_i=(h^1_i>0)\ ? \ (w^2_{i}*\delta^2_i)\ :\ 0$
 
 ```math
 \begin{array}{c}
@@ -108,7 +122,10 @@ $$  \delta^2_0 = y^2_0 - t_0 $$
 ```
 
 ## Update
-* Hidden Layer
+
+#### Hidden Layer
+
+* Done at $C_4$ of next round
 
 ```math
 \begin{array}{c}
@@ -118,33 +135,81 @@ $$  \delta^2_0 = y^2_0 - t_0 $$
 \end{array}
 ```
 
-* Input Layer
 
-```math
-\begin{array}{c}
-    w^1_{0} = w^1_{0} - LR * \delta^1_0 * s_0 \\
-    w^1_{1} = w^1_{1} - LR * \delta^1_0 * s_1 \\
-    w^1_{2} = w^1_{2} - LR * \delta^1_0 * s_2 \\
-    w^1_{3} = w^1_{3} - LR * \delta^1_0 * s_3  
-\end{array}
-```
+#### Input Layer
 
-```math
-\begin{array}{c}
-    w^1_{4} = w^1_{4} - LR * \delta^1_1 * s_0 \\
-    w^1_{5} = w^1_{5} - LR * \delta^1_1 * s_1 \\
-    w^1_{6} = w^1_{6} - LR * \delta^1_1 * s_2 \\
-    w^1_{7} = w^1_{7} - LR * \delta^1_1 * s_3  
-\end{array}
-```
+* $C^{curr/next}_i$ (The $i_{th}$ cycle of current/next iteration)
 
-```math
+##### For $h^1_0$ in next iteration
+
+* $w^1_{0} = w^1_{0} - (LR * s_0) * \delta^1_0$ 
+  * $(LR * s_0)$: Done at $C^{curr}_1$
+  * $w^1_{0} - (LR * s_0) * \delta^1_0$ : Done at $C^{*curr*}_7$ then update at $C^{next}_1$ 
+* $w^1_{1} = w^1_{1} - (LR * s_1) * \delta^1_0$
+  * $(LR * s_1)$: Done at $C^{curr}_2$
+  * $w^1_{1} - (LR * s_1) * \delta^1_0$ : Done at $C^{next}_1$ then update at $C^{next}_2$ 
+* $w^1_{2} = w^1_{2} - (LR * s_2) * \delta^1_0$
+  * $(LR * s_2)$: Done at $C^{curr}_3$
+  * $w^1_{2} - (LR * s_2) * \delta^1_0$ : Done at $C^{next}_2$ then update at $C^{next}_3$ 
+* $w^1_{3} = w^1_{3} - (LR * s_3) * \delta^1_0$
+  * $(LR * s_3)$: Done at $C^{curr}_4$
+  * $w^1_{3} - (LR * s_3) * \delta^1_0$ : Done at $C^{next}_3$ then update at $C^{next}_4$ 
+
+<!-- ```math
 \begin{array}{c}
-    w^1_{8}  = w^1_{8}  - LR * \delta^1_2 * s_0 \\
-    w^1_{9}  = w^1_{9}  - LR * \delta^1_2 * s_1 \\
-    w^1_{10} = w^1_{10} - LR * \delta^1_2 * s_2 \\
-    w^1_{11} = w^1_{11} - LR * \delta^1_2 * s_3 
+    w^1_{0} = w^1_{0} - (LR * s_0) * \delta^1_0 \\
+    w^1_{1} = w^1_{1} - (LR * s_1) * \delta^1_0 \\
+    w^1_{2} = w^1_{2} - (LR * s_2) * \delta^1_0 \\
+    w^1_{3} = w^1_{3} - (LR * s_3) * \delta^1_0  
 \end{array}
-```
+``` -->
+
+##### For $h^1_1$ in next iteration
+
+  * $w^1_{4} = w^1_{4} - (LR * s_0) * \delta^1_1$ 
+    * $(LR * s_0)$: Done at $C^{curr}_1$
+    * $w^1_{4} - (LR * s_0) * \delta^1_1$ : Done at $C^{*curr*}_7$ then update at $C^{next}_1$ 
+  * $w^1_{5} = w^1_{5} - (LR * s_1) * \delta^1_1$
+    * $(LR * s_1)$: Done at $C^{curr}_2$
+    * $w^1_{5} - (LR * s_1) * \delta^1_1$ : Done at $C^{next}_1$ then update at $C^{next}_2$ 
+  * $w^1_{6} = w^1_{6} - (LR * s_2) * \delta^1_1$
+    * $(LR * s_2)$: Done at $C^{curr}_3$
+    * $w^1_{6} - (LR * s_2) * \delta^1_1$ : Done at $C^{next}_2$ then update at $C^{next}_3$ 
+  * $w^1_{7} = w^1_{7} - (LR * s_3) * \delta^1_1$
+    * $(LR * s_3)$: Done at $C^{curr}_4$
+    * $w^1_{7} - (LR * s_3) * \delta^1_1$ : Done at $C^{next}_3$ then update at $C^{next}_4$ 
+
+<!-- ```math
+\begin{array}{c}
+    w^1_{4} = w^1_{4} - (LR * s_0) * \delta^1_1 \\
+    w^1_{5} = w^1_{5} - (LR * s_1) * \delta^1_1 \\
+    w^1_{6} = w^1_{6} - (LR * s_2) * \delta^1_1 \\
+    w^1_{7} = w^1_{7} - (LR * s_3) * \delta^1_1  
+\end{array}
+``` -->
+
+##### For $h^1_2$ in next iteration
+
+  * $w^1_{8}  = w^1_{8}  - (LR * s_0) * \delta^1_2$ 
+    * $(LR * s_0)$: Done at $C^{curr}_1$
+    * $w^1_{8} - (LR * s_0) * \delta^1_2$ : Done at $C^{*curr*}_7$ then update at $C^{next}_1$ 
+  * $w^1_{9}  = w^1_{9}  - (LR * s_1) * \delta^1_2$
+    * $(LR * s_1)$: Done at $C^{curr}_2$
+    * $w^1_{9} - (LR * s_1) * \delta^1_2$ : Done at $C^{next}_1$ then update at $C^{next}_2$ 
+  * $w^1_{10} = w^1_{10} - (LR * s_2) * \delta^1_2$
+    * $(LR * s_2)$: Done at $C^{curr}_3$
+    * $w^1_{10} - (LR * s_2) * \delta^1_2$ : Done at $C^{next}_2$ then update at $C^{next}_3$ 
+  * $w^1_{11} = w^1_{11} - (LR * s_3) * \delta^1_2$
+    * $(LR * s_3)$: Done at $C^{curr}_4$
+    * $w^1_{11} - (LR * s_3) * \delta^1_2$ : Done at $C^{next}_3$ then update at $C^{next}_4$ 
+
+<!-- ```math
+\begin{array}{c}
+    w^1_{8}  = w^1_{8}  - (LR * s_0) * \delta^1_2 \\
+    w^1_{9}  = w^1_{9}  - (LR * s_1) * \delta^1_2 \\
+    w^1_{10} = w^1_{10} - (LR * s_2) * \delta^1_2 \\
+    w^1_{11} = w^1_{11} - (LR * s_3) * \delta^1_2 
+\end{array}
+``` -->
 
 ## DesignWare
