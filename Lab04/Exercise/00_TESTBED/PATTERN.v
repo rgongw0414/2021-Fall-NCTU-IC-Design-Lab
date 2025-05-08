@@ -9,6 +9,13 @@
 	`define CYCLE_TIME 20.0
 `endif
 
+//synopsys translate_off
+`include "/usr/cad/synopsys/synthesis/cur/dw/sim_ver/DW_fp_mac.v"
+`include "/usr/cad/synopsys/synthesis/cur/dw/sim_ver/DW_fp_mult.v"
+`include "/usr/cad/synopsys/synthesis/cur/dw/sim_ver/DW_fp_sub.v"
+`include "/usr/cad/synopsys/synthesis/cur/dw/sim_ver/DW_fp_sum3.v"
+`include "/usr/cad/synopsys/synthesis/cur/dw/sim_ver/DW_fp_cmp.v"
+//synopsys translate_on
 
 module PATTERN(
 	// Output signals

@@ -1,9 +1,9 @@
 `timescale 1ns/1ps
 `include "PATTERN.v"
 `ifdef RTL
-`include "NN.v"
+	`include "NN.v"
 `elsif GATE
-`include "NN_SYN.v"
+	`include "../02_SYN/Netlist/NN_SYN.v"
 `endif
 
 module TESTBED();
@@ -21,11 +21,11 @@ module TESTBED();
 initial begin
 	`ifdef RTL
 		$fsdbDumpfile("NN.fsdb");
-		$fsdbDumpvars(0,"+mda");
+		$fsdbDumpvars(0, "+mda");
 	`elsif GATE
 		$fsdbDumpfile("NN_SYN.fsdb");
-		$sdf_annotate("NN_SYN.sdf",I_NN);      
-		$fsdbDumpvars(0,"+mda");
+		$sdf_annotate("../02_SYN/Netlist/NN_SYN.sdf", I_NN);      
+		$fsdbDumpvars(0, "+mda");
 	`endif
 end
 

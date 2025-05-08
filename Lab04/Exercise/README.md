@@ -129,7 +129,7 @@ $$  \delta^2_0 = y^2_0 - t_0 $$
 
 ### Update
 
-#### Hidden Layer
+#### Output Layer
 
 * $w^2_{i} = w^2_{i} - LR * \delta^2_0 * y^1_i$
   * $(LR * \delta^2_0)$: `MUL4` at $C^{curr}_6$
@@ -143,8 +143,7 @@ $$  \delta^2_0 = y^2_0 - t_0 $$
 \end{array}
 ```
 
-
-#### Input Layer
+#### Hidden Layer
 
 ##### For $h^1_0$ in next iteration
 
