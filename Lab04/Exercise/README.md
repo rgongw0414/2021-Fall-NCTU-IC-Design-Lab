@@ -30,6 +30,8 @@
 
 ## Forward
 
+![ANN Pipeline Stage](./ANN%20Pipeline%20Stage.png)
+
 * Input data $S = [s_0,s_1,s_2,s_3]_{1\times4}$
 
 * Hidden layer weights $W^1, where$
