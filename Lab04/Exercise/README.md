@@ -211,7 +211,7 @@ $$  \delta^2_0 = y^2_0 - t_0 $$
   * $w^1_{9} - (LR * s_1) * \delta^1_2$: `MUL3` at $C^{next}_1$ then update at $C^{next}_2$ with `SUB3` 
 * $w^1_{10} = w^1_{10} - (LR * s_2) * \delta^1_2$
   * $(LR * s_2)$: `MUL4` at $C^{curr}_3$
-  $w^1_{10} - (LR * s_2) * \delta^1_2$: `MUL3` at $C^{next}_2$ then update at $C^{next}_3$ with `SUB3` 
+  * $w^1_{10} - (LR * s_2) * \delta^1_2$: `MUL3` at $C^{next}_2$ then update at $C^{next}_3$ with `SUB3` 
 * $w^1_{11} = w^1_{11} - (LR * s_3) * \delta^1_2$
   * $(LR * s_3)$: `MUL4` at $C^{curr}_4$
   * $w^1_{11} - (LR * s_3) * \delta^1_2$: `MUL3` at $C^{next}_3$ then update at $C^{next}_4$ with `SUB3` 
