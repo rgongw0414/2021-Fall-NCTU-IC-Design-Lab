@@ -16,7 +16,7 @@ module TESTBED();
 	wire [inst_sig_width+inst_exp_width:0] data_point, target;
 	wire [inst_sig_width+inst_exp_width:0] weight1, weight2;
 	wire out_valid;
-	wire [inst_sig_width+inst_exp_width:0]out;	
+	wire [inst_sig_width+inst_exp_width:0] out;	
 
 initial begin
 	`ifdef RTL

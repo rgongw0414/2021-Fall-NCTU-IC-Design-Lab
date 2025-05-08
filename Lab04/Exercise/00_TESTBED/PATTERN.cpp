@@ -71,7 +71,8 @@ void backward(float pred, float y, const float x[INPUT_DIM],
 
 ofstream fin("input_ignore.txt");
 ofstream ft("target_ignore.txt");
-ofstream fw("weight_ignore.txt");
+ofstream fw1("weight1_ignore.txt");
+ofstream fw2("weight2_ignore.txt");
 ofstream fout("output_ignore.txt");
 
 int main() {
@@ -92,8 +93,8 @@ int main() {
         float w2[HIDDEN_DIM];
         for (int i = 0; i < HIDDEN_DIM; i++) {
             for (int j = 0; j < INPUT_DIM; j++)
-                fw << (w1[i][j] = ((float)rand() / RAND_MAX) * 0.01f) << endl; // [-0.01, 0.01]
-            fw << (w2[i] = ((float)rand() / RAND_MAX) * 0.01f) << endl; // [-0.01, 0.01]
+                fw1 << (w1[i][j] = ((float)rand() / RAND_MAX) * 0.01f) << endl; // [-0.01, 0.01]
+            fw2 << (w2[i] = ((float)rand() / RAND_MAX) * 0.01f) << endl; // [-0.01, 0.01]
         }
 
         // Training
