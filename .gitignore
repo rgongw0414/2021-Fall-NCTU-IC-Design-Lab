@@ -1,6 +1,6 @@
 References/
 *_ignore*
-test.*
+test*.*
 TEST.*
 Netlist/
 WORK/
