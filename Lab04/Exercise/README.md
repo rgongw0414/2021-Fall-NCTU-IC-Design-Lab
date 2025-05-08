@@ -1,7 +1,7 @@
 # Lab04: Training ANNs
 
 * [ANN Structure](#ann-structure)
-* [Stage Breakdown](#forward)
+* [Stage Breakdown](#stage-breakdown)
    1. [Forward Pass](#forward)
    2. [Backward Pass](#backward)
    3. [Weights Update](#update)
@@ -28,7 +28,7 @@
 
 * Cycle Time $T_{cycle}$: Regardless of P&R, approximately equals to the delay of a `DW_fp_mac`
 
-## Forward
+## Stage Breakdown
 
 ![ANN Pipeline Stage](./ANN%20Pipeline%20Stage.png)
 
@@ -45,6 +45,8 @@ w^1_2 & w^1_6 & w^1_{10} \\
 w^1_3 & w^1_7 & w^1_{11}
 \end{bmatrix}_{4\times3}
 ```
+
+### Forward
 
 #### Hidden Layer Output (Hidden Layer Input)
 
@@ -104,7 +106,7 @@ y^2_0 = ReLU(s_0*w^1_{0} + s_1*w^1_{1} + s_2*w^1_{2}  + s_3*w^1_{3})  * w^2_{0} 
 \end{array}
 ```
 
-## Backward
+### Backward
 
 * $C^{curr/next}_i$: The i-th cycle of current/next iteration
 
@@ -125,7 +127,7 @@ $$  \delta^2_0 = y^2_0 - t_0 $$
 \end{array}
 ```
 
-## Update
+### Update
 
 #### Hidden Layer
 
