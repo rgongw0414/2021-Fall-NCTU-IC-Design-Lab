@@ -104,14 +104,16 @@ y^2_0 = ReLU(s_0*w^1_{0} + s_1*w^1_{1} + s_2*w^1_{2}  + s_3*w^1_{3})  * w^2_{0} 
 
 ## Backward
 
+* $C^{curr/next}_i$: The i-th cycle of current/next iteration
+
 * Output Layer Loss
-  * Done at $C_5$ with a `DW_fp_sub` (`SUB1`)
+  * $y^2_0 - t_0 $: `DW_fp_sub` (`SUB1`) at $C^{curr}_5$ 
 
 $$  \delta^2_0 = y^2_0 - t_0 $$
 
 * Hidden Layer Loss
-  * With `CMP1`, and `MULT1` to `MULT3`, done at $C_6$
-  * $\delta^1_i=(h^1_i>0)\ ? \ (w^2_{i}*\delta^2_i)\ :\ 0$
+  * $\delta^1_i=(h^1_i>0)\ ? \ (w^2_{i}*\delta^2_i)\ :\ 0,\ where\ i\in\{0,1,2\}$
+    * $(w^2_{i}*\delta^2_i)$: `CMP1`, `MULTi`, at $C^{curr}_6$
 
 ```math
 \begin{array}{c}
@@ -125,7 +127,9 @@ $$  \delta^2_0 = y^2_0 - t_0 $$
 
 #### Hidden Layer
 
-* Done at $C_4$ of next round
+* $w^2_{i} = w^2_{i} - LR * \delta^2_0 * y^1_i$
+  * $(LR * \delta^2_0)$: `MUL4` at $C^{curr}_6$
+  * $w^2_{i} - (LR * \delta^2_0)*y^1_i$: `MULi`, `SUBi` at $C^{next}_4$ 
 
 ```math
 \begin{array}{c}
@@ -138,78 +142,78 @@ $$  \delta^2_0 = y^2_0 - t_0 $$
 
 #### Input Layer
 
-* $C^{curr/next}_i$: The i-th cycle of current/next iteration
-
 ##### For $h^1_0$ in next iteration
 
-* $w^1_{0} = w^1_{0} - (LR * s_0) * \delta^1_0$ 
-  * $(LR * s_0)$: Done at $C^{curr}_1$
-  * $w^1_{0} - (LR * s_0) * \delta^1_0$ : Done at $C^{\star curr \star}_7$ then update at $C^{next}_1$ 
-* $w^1_{1} = w^1_{1} - (LR * s_1) * \delta^1_0$
-  * $(LR * s_1)$: Done at $C^{curr}_2$
-  * $w^1_{1} - (LR * s_1) * \delta^1_0$ : Done at $C^{next}_1$ then update at $C^{next}_2$ 
-* $w^1_{2} = w^1_{2} - (LR * s_2) * \delta^1_0$
-  * $(LR * s_2)$: Done at $C^{curr}_3$
-  * $w^1_{2} - (LR * s_2) * \delta^1_0$ : Done at $C^{next}_2$ then update at $C^{next}_3$ 
-* $w^1_{3} = w^1_{3} - (LR * s_3) * \delta^1_0$
-  * $(LR * s_3)$: Done at $C^{curr}_4$
-  * $w^1_{3} - (LR * s_3) * \delta^1_0$ : Done at $C^{next}_3$ then update at $C^{next}_4$ 
-
-<!-- ```math
+```math
 \begin{array}{c}
     w^1_{0} = w^1_{0} - (LR * s_0) * \delta^1_0 \\
     w^1_{1} = w^1_{1} - (LR * s_1) * \delta^1_0 \\
     w^1_{2} = w^1_{2} - (LR * s_2) * \delta^1_0 \\
     w^1_{3} = w^1_{3} - (LR * s_3) * \delta^1_0  
 \end{array}
-``` -->
+```
+
+* $w^1_{0} = w^1_{0} - (LR * s_0) * \delta^1_0$ 
+  * $(LR * s_0)$: `MUL4` at $C^{curr}_1$
+  * $w^1_{0} - (LR * s_0) * \delta^1_0$: `MUL1` at $C^{\star curr \star}_7$ then update at $C^{next}_1$ with `SUB1`
+* $w^1_{1} = w^1_{1} - (LR * s_1) * \delta^1_0$
+  * $(LR * s_1)$: `MUL4` at $C^{curr}_2$
+  * $w^1_{1} - (LR * s_1) * \delta^1_0$: `MUL1` at $C^{next}_1$ then update at $C^{next}_2$ with `SUB1`
+* $w^1_{2} = w^1_{2} - (LR * s_2) * \delta^1_0$
+  * $(LR * s_2)$: `MUL4` at $C^{curr}_3$
+  * $w^1_{2} - (LR * s_2) * \delta^1_0$: `MUL1` at $C^{next}_2$ then update at $C^{next}_3$ with `SUB1` 
+* $w^1_{3} = w^1_{3} - (LR * s_3) * \delta^1_0$
+  * $(LR * s_3)$: `MUL4` at $C^{curr}_4$
+  * $w^1_{3} - (LR * s_3) * \delta^1_0$: `MUL1` at $C^{next}_3$ then update at $C^{next}_4$ with `SUB1` 
+
 
 ##### For $h^1_1$ in next iteration
 
-  * $w^1_{4} = w^1_{4} - (LR * s_0) * \delta^1_1$ 
-    * $(LR * s_0)$: Done at $C^{curr}_1$
-    * $w^1_{4} - (LR * s_0) * \delta^1_1$ : Done at $C^{\star curr \star}_7$ then update at $C^{next}_1$ 
-  * $w^1_{5} = w^1_{5} - (LR * s_1) * \delta^1_1$
-    * $(LR * s_1)$: Done at $C^{curr}_2$
-    * $w^1_{5} - (LR * s_1) * \delta^1_1$ : Done at $C^{next}_1$ then update at $C^{next}_2$ 
-  * $w^1_{6} = w^1_{6} - (LR * s_2) * \delta^1_1$
-    * $(LR * s_2)$: Done at $C^{curr}_3$
-    * $w^1_{6} - (LR * s_2) * \delta^1_1$ : Done at $C^{next}_2$ then update at $C^{next}_3$ 
-  * $w^1_{7} = w^1_{7} - (LR * s_3) * \delta^1_1$
-    * $(LR * s_3)$: Done at $C^{curr}_4$
-    * $w^1_{7} - (LR * s_3) * \delta^1_1$ : Done at $C^{next}_3$ then update at $C^{next}_4$ 
-
-<!-- ```math
+```math
 \begin{array}{c}
     w^1_{4} = w^1_{4} - (LR * s_0) * \delta^1_1 \\
     w^1_{5} = w^1_{5} - (LR * s_1) * \delta^1_1 \\
     w^1_{6} = w^1_{6} - (LR * s_2) * \delta^1_1 \\
     w^1_{7} = w^1_{7} - (LR * s_3) * \delta^1_1  
 \end{array}
-``` -->
+```
+
+* $w^1_{4} = w^1_{4} - (LR * s_0) * \delta^1_1$ 
+  * $(LR * s_0)$: `MUL4` at $C^{curr}_1$
+  * `MUL2` & `SUB2`: $w^1_{4} - (LR * s_0) * \delta^1_1$ : Done at $C^{\star curr \star}_7$ then update at $C^{next}_1$ 
+* $w^1_{5} = w^1_{5} - (LR * s_1) * \delta^1_1$
+  * $(LR * s_1)$: `MUL4` at $C^{curr}_2$
+  * $w^1_{5} - (LR * s_1) * \delta^1_1$: `MUL2` at $C^{next}_1$ then update at $C^{next}_2$ with `SUB2` 
+* $w^1_{6} = w^1_{6} - (LR * s_2) * \delta^1_1$
+  * $(LR * s_2)$: `MUL4` at $C^{curr}_3$
+  * $w^1_{6} - (LR * s_2) * \delta^1_1$: `MUL2` at $C^{next}_2$ then update at $C^{next}_3$ with `SUB2` 
+* $w^1_{7} = w^1_{7} - (LR * s_3) * \delta^1_1$
+  * $(LR * s_3)$: `MUL4` at $C^{curr}_4$
+  * $w^1_{7} - (LR * s_3) * \delta^1_1$: `MUL2` at $C^{next}_3$ then update at $C^{next}_4$ with `SUB2` 
+
 
 ##### For $h^1_2$ in next iteration
 
-  * $w^1_{8}  = w^1_{8}  - (LR * s_0) * \delta^1_2$ 
-    * $(LR * s_0)$: Done at $C^{curr}_1$
-    * $w^1_{8} - (LR * s_0) * \delta^1_2$ : Done at $C^{\star curr \star}_7$ then update at $C^{next}_1$ 
-  * $w^1_{9}  = w^1_{9}  - (LR * s_1) * \delta^1_2$
-    * $(LR * s_1)$: Done at $C^{curr}_2$
-    * $w^1_{9} - (LR * s_1) * \delta^1_2$ : Done at $C^{next}_1$ then update at $C^{next}_2$ 
-  * $w^1_{10} = w^1_{10} - (LR * s_2) * \delta^1_2$
-    * $(LR * s_2)$: Done at $C^{curr}_3$
-    * $w^1_{10} - (LR * s_2) * \delta^1_2$ : Done at $C^{next}_2$ then update at $C^{next}_3$ 
-  * $w^1_{11} = w^1_{11} - (LR * s_3) * \delta^1_2$
-    * $(LR * s_3)$: Done at $C^{curr}_4$
-    * $w^1_{11} - (LR * s_3) * \delta^1_2$ : Done at $C^{next}_3$ then update at $C^{next}_4$ 
-
-<!-- ```math
+```math
 \begin{array}{c}
     w^1_{8}  = w^1_{8}  - (LR * s_0) * \delta^1_2 \\
     w^1_{9}  = w^1_{9}  - (LR * s_1) * \delta^1_2 \\
     w^1_{10} = w^1_{10} - (LR * s_2) * \delta^1_2 \\
     w^1_{11} = w^1_{11} - (LR * s_3) * \delta^1_2 
 \end{array}
-``` -->
+```
+
+* $w^1_{8}  = w^1_{8}  - (LR * s_0) * \delta^1_2$ 
+  * $(LR * s_0)$: `MUL4` at $C^{curr}_1$
+  * `MUL3` & `SUB3`: $w^1_{8} - (LR * s_0) * \delta^1_2$ : Done at $C^{\star curr \star}_7$ then update at $C^{next}_1$ 
+* $w^1_{9}  = w^1_{9}  - (LR * s_1) * \delta^1_2$
+  * $(LR * s_1)$: `MUL4` at $C^{curr}_2$
+  * $w^1_{9} - (LR * s_1) * \delta^1_2$: `MUL3` at $C^{next}_1$ then update at $C^{next}_2$ with `SUB3` 
+* $w^1_{10} = w^1_{10} - (LR * s_2) * \delta^1_2$
+  * $(LR * s_2)$: `MUL4` at $C^{curr}_3$
+  $w^1_{10} - (LR * s_2) * \delta^1_2$: `MUL3` at $C^{next}_2$ then update at $C^{next}_3$ with `SUB3` 
+* $w^1_{11} = w^1_{11} - (LR * s_3) * \delta^1_2$
+  * $(LR * s_3)$: `MUL4` at $C^{curr}_4$
+  * $w^1_{11} - (LR * s_3) * \delta^1_2$: `MUL3` at $C^{next}_3$ then update at $C^{next}_4$ with `SUB3` 
 
 ## DesignWare
