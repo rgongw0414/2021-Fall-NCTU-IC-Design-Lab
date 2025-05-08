@@ -9,8 +9,6 @@
 	`define CYCLE_TIME 20.0
 `endif
 
-// `include "/usr/cad/synopsys/synthesis/cur/dw/sim_ver/"
-
 module PATTERN(
 	// Output signals
 	clk,
