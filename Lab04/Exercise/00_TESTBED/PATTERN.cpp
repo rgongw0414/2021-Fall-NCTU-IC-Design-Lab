@@ -116,7 +116,7 @@ int main() {
             Sample& s = data[i];
             for (int epoch = 0; epoch < EPOCHS; epoch++) {
                 float lr = INITIAL_LR * pow(0.5f, epoch / 4); // decay every 4 epochs
-
+                cout << "LR: " << lr << "hex: " << float_to_hex(lr) << endl;
                 float z1[HIDDEN_DIM], a1[HIDDEN_DIM];
                 float pred = forward(s.x, w1, w2, z1, a1);
                 fout << float_to_hex(pred) << endl;

@@ -196,8 +196,9 @@ task input_data; begin
 			$finish;
 		end
 
-		if (i == 1) begin
+		if (i >= 1) begin
 			in_valid_t = 'b0;
+			target = 'bx;
 		end
 		else begin
 			target_desc  = $fscanf(target_file, "%h", target);
@@ -206,13 +207,12 @@ task input_data; begin
 				$finish;
 			end
 		end
-		// $display("data_point = %h, target = %h", data_point, target);
+		$display("data_point = %h, target = %h", data_point, target);
 		@(negedge clk);
 	end
 	in_valid_d = 'b0;
 	in_valid_t = 'b0;
 	data_point = 'bx;
-	target = 'bx;
 end endtask
 
 task wait_out_valid; begin
