@@ -81,30 +81,40 @@ initial	clk = 0;
 // initial
 //================================================================
 initial begin
-	rst_n    = 1'b1;	
+	// Initialize input signals
+	rst_n        = 1'b1;
+	in_valid_w1  = 1'b0;
+	in_valid_w2  = 1'b0;
+	in_valid_d   = 1'b0;
+	in_valid_t   = 1'b0;
+	data_point   =  'dx;
+	target       =  'dx;
+	weight1      =  'dx;
+	weight2      =  'dx;
+
 	force clk    = 0;
 	total_cycles = 0;
 	reset_task;
 	
-	input_file  = $fopen("../00_TESTBED/input_ignore.txt","r");
-	target_file = $fopen("../00_TESTBED/target_ignore.txt","r");
-	weight1_file = $fopen("../00_TESTBED/weight1_ignore.txt","r");
-	weight2_file = $fopen("../00_TESTBED/weight2_ignore.txt","r");
-  	output_file = $fopen("../00_TESTBED/output_ignore.txt","r");
-	if (input_file == 0) begin
-		$display("Error: Cannot open input file!");
-		$finish;
-	end
-	if (target_file == 0) begin
-		$display("Error: Cannot open target file!");
-		$finish;
-	end
+	weight1_file = $fopen("../00_TESTBED/weight1_ignore.txt", "r");
+	weight2_file = $fopen("../00_TESTBED/weight2_ignore.txt", "r");
+	input_file   = $fopen("../00_TESTBED/input_ignore.txt", "r");
+	target_file  = $fopen("../00_TESTBED/target_ignore.txt", "r");
+  	output_file  = $fopen("../00_TESTBED/output_ignore.txt", "r");
 	if (weight1_file == 0) begin
 		$display("Error: Cannot open weight1 file!");
 		$finish;
 	end
 	if (weight2_file == 0) begin
 		$display("Error: Cannot open weight2 file!");
+		$finish;
+	end
+	if (input_file == 0) begin
+		$display("Error: Cannot open input file!");
+		$finish;
+	end
+	if (target_file == 0) begin
+		$display("Error: Cannot open target file!");
 		$finish;
 	end
 	if (output_file == 0) begin
@@ -152,19 +162,21 @@ task weights_task; begin
 	for (i = 0; i < INPUT_DIM*HIDDEN_DIM; i = i + 1) begin
 		weight1_desc = $fscanf(weight1_file, "%h", weight1);
 		if (weight1_desc == 0) begin
-			$display("Error: Failed to read weight input data!");
+			$display("Error: Failed to read weight1!");
 			$finish;
 		end
 		if (i < HIDDEN_DIM) begin
 			weight2_desc = $fscanf(weight2_file, "%h", weight2);
 			if (weight2_desc == 0) begin
-				$display("Error: Failed to read weight input data!");
+				$display("Error: Failed to read weight2!");
 				$finish;
 			end
 		end
 		else if (i == HIDDEN_DIM) begin
 			in_valid_w2 = 'b0;
+			weight2     = 'bx;
 		end
+		$display("weight1 = %h, weight2 = %h", weight1, weight2);
 		@(negedge clk);
 	end
 	in_valid_w1 = 'b0;
@@ -180,7 +192,7 @@ task input_data; begin
 	for (i = 0; i < INPUT_DIM; i = i + 1) begin
 		in_desc = $fscanf(input_file, "%h", data_point);
 		if (in_desc == 0) begin
-			$display("Error: Failed to read maze input data!");
+			$display("Error: Failed to read input layer data!");
 			$finish;
 		end
 
@@ -194,6 +206,7 @@ task input_data; begin
 				$finish;
 			end
 		end
+		// $display("data_point = %h, target = %h", data_point, target);
 		@(negedge clk);
 	end
 	in_valid_d = 'b0;
@@ -222,7 +235,7 @@ end endtask
 
 task check_ans; begin
     while (out_valid === 1) begin
-		out_desc = $fscanf(output_file, "%d", out_gold);
+		out_desc = $fscanf(output_file, "%h", out_gold);
 		if (out_desc == 0) begin
 			$display("Error: Failed to read maze output golden_step_num!");
 			$finish;

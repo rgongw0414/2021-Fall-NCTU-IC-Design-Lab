@@ -5,6 +5,11 @@
 #include <ctime>
 #include <fstream>
 #include <random>
+#include <iomanip>  // for std::setw and std::setfill
+#include <cstring>  // for std::memcpy
+#include <sstream>  // for std::stringstream
+#include <cstdint>  // for std::uint32_t
+#include <string>
 
 using namespace std;
 
@@ -75,6 +80,15 @@ ofstream fw1("weight1_ignore.txt");
 ofstream fw2("weight2_ignore.txt");
 ofstream fout("output_ignore.txt");
 
+// Convert float to IEEE-754 32-bit hex
+std::string float_to_hex(float f) {
+    uint32_t bits;
+    std::memcpy(&bits, &f, sizeof(bits));
+    std::stringstream ss;
+    ss << std::hex << std::setw(8) << std::setfill('0') << bits;
+    return ss.str();
+}
+
 int main() {
     srand(10531615); // Seed for reproducibility
     // srand(time(0)); // Random seed for different runs
@@ -84,8 +98,8 @@ int main() {
         vector<Sample> data(DATA_SIZE);
         for (int i = 0; i < DATA_SIZE; i++) {
             for (int j = 0; j < INPUT_DIM; j++) 
-                fin << (data[i].x[j] = ((float)rand() / RAND_MAX) * 2 - 1) << endl;  // [-1, 1]
-            ft << (data[i].y = ((float)rand() / RAND_MAX) * 2 - 1) << endl;  // [-1, 1]
+                fin << float_to_hex(data[i].x[j] = ((float)rand() / RAND_MAX) * 2 - 1) << endl;  // [-1, 1]
+            ft << float_to_hex(data[i].y = ((float)rand() / RAND_MAX) * 2 - 1) << endl;  // [-1, 1]
         }
 
         // Initialize weights
@@ -93,8 +107,8 @@ int main() {
         float w2[HIDDEN_DIM];
         for (int i = 0; i < HIDDEN_DIM; i++) {
             for (int j = 0; j < INPUT_DIM; j++)
-                fw1 << (w1[i][j] = ((float)rand() / RAND_MAX) * 0.01f) << endl; // [-0.01, 0.01]
-            fw2 << (w2[i] = ((float)rand() / RAND_MAX) * 0.01f) << endl; // [-0.01, 0.01]
+                fw1 << float_to_hex(w1[i][j] = ((float)rand() / RAND_MAX) * 0.01f) << endl; // [-0.01, 0.01]
+            fw2 << float_to_hex(w2[i] = ((float)rand() / RAND_MAX) * 0.01f) << endl; // [-0.01, 0.01]
         }
 
         // Training
@@ -105,12 +119,12 @@ int main() {
 
                 float z1[HIDDEN_DIM], a1[HIDDEN_DIM];
                 float pred = forward(s.x, w1, w2, z1, a1);
-                fout << pred << endl;
+                fout << float_to_hex(pred) << endl;
                 float error = pred - s.y;
 
-                cout << "Sample " << i << " Epoch " << epoch
-                    << " | Pred: " << pred
-                    << " | Error: " << error << endl;
+                // cout << "Sample " << i << " Epoch " << epoch
+                //     << " | Pred: " << pred
+                //     << " | Error: " << error << endl;
 
                 backward(pred, s.y, s.x, z1, a1, w1, w2, lr);
             }
