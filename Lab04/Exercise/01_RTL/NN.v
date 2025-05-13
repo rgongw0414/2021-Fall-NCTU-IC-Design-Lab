@@ -58,8 +58,9 @@ localparam EPOCH_WIDTH = $clog2(EPOCH_MAX);
 // Pipeline parameters
 localparam CNT_MAX     = 7;  // Each forward/backward/update takes 7 cycles, cnt_max = 7
 localparam CNT_WIDTH   = $clog2(CNT_MAX); 
+localparam FP_ZERO     = {inst_exp_width+inst_sig_width+1{1'b0}}; // 0.0 in IEEE 754 format 
+localparam LR_SIZE      = 7; // 7 learning rates for every 4 epochs
 
-parameter LR_SIZE     = 7; // 7 learning rates for every 4 epochs
 
 //---------------------------------------------------------------------
 //   INPUT AND OUTPUT DECLARATION
@@ -75,9 +76,15 @@ output reg [inst_sig_width+inst_exp_width:0] out;
 //---------------------------------------------------------------------
 wire [inst_sig_width+inst_exp_width:0] LR;
 reg  [$clog2(LR_SIZE)-1:0] LR_index; // index for learning rate
-reg  [inst_sig_width+inst_exp_width:0] delta2; // delta2 = y_pred - target
-reg  [inst_sig_width+inst_exp_width:0] LRs0, LRs1, LRs2, LRs3, LRdelta2; // LR*s0, LR*s1, LR*s2, LR*s3, LR*delta2
 reg update_en; // enable signal for update
+
+//------------------------
+// Registers for Pipeline
+//------------------------
+reg [inst_sig_width+inst_exp_width:0] LRs0, LRs1, LRs2, LRs3, LRdelta2; // LR*s0, LR*s1, LR*s2, LR*s3, LR*delta2
+reg [inst_sig_width+inst_exp_width:0] y0, y1, y2; // y^1_0, y^1_1, y^1_2
+reg [inst_sig_width+inst_exp_width:0] delta10, delta11, delta12; // delta^1_0, delta^1_1, delta^1_2
+reg [inst_sig_width+inst_exp_width:0] delta2; // delta2 = y_pred - target
 
 // registers for weight1, weight2, data_point, target
 // reg [inst_sig_width+inst_exp_width:0] weight1_arr  [WEIGHT1_WIDTH-1:0], weight2_arr [WEIGHT2_WIDTH-1:0]; // stores the 12 weights for weight1 and 3 weights for weight2
@@ -88,17 +95,14 @@ reg [inst_sig_width+inst_exp_width:0] w20, w21, w22; // stores the 3 weights for
 reg [inst_sig_width+inst_exp_width:0] s0, s1, s2, s3; // stores the 4 data for data_point
 reg [inst_sig_width+inst_exp_width:0] target_r; // stores the 1 data for target
 
+
 // DW_fp_mac parameters
 reg  [inst_sig_width+inst_exp_width:0] mac1_a, mac1_b, mac1_c, mac2_a, mac2_b, mac2_c, mac3_a, mac3_b, mac3_c;
 wire [inst_sig_width+inst_exp_width:0] mac1_out, mac2_out, mac3_out;
-reg  [inst_sig_width+inst_exp_width:0] mac1_out_r, mac2_out_r, mac3_out_r; // registers for safely connecting the output to the input of other modules
 
 // DW_fp_mult parameters
-reg  [inst_sig_width+inst_exp_width:0] mult1_a, mult1_b, mult2_a, mult2_b, mult3_a, mult3_b, mult4_b;
+reg  [inst_sig_width+inst_exp_width:0] mult1_a, mult1_b, mult2_a, mult2_b, mult3_a, mult3_b, mult4_a, mult4_b;
 wire [inst_sig_width+inst_exp_width:0] mult1_out, mult2_out, mult3_out, mult4_out;
-// reg  [inst_sig_width+inst_exp_width:0] mult1_out_r, mult2_out_r, mult3_out_r, mult4_out_r;
-wire [inst_sig_width+inst_exp_width:0] mult4_a;
-wire LR_half; // flag for dividing LR by 2
 
 // DW_fp_sub parameters
 reg  [inst_sig_width+inst_exp_width:0] sub1_a, sub1_b, sub2_a, sub2_b, sub3_a, sub3_b;
@@ -122,9 +126,9 @@ reg  [CNT_WIDTH-1:0]   cnt; // cnt for pipeline stage
 //---------------------------------------------------------------------
 //   DesignWare
 //---------------------------------------------------------------------
-DW_fp_mac  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MAC1 (.a(mac1_a), .b(mac1_b), .c(mac1_out_r), .rnd(3'b000), .z(mac1_out), .status());
-DW_fp_mac  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MAC2 (.a(mac2_a), .b(mac2_b), .c(mac2_out_r), .rnd(3'b000), .z(mac2_out), .status());
-DW_fp_mac  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MAC3 (.a(mac3_a), .b(mac3_b), .c(mac3_out_r), .rnd(3'b000), .z(mac3_out), .status());
+DW_fp_mac  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MAC1 (.a(mac1_a), .b(mac1_b), .c(mac1_c), .rnd(3'b000), .z(mac1_out), .status());
+DW_fp_mac  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MAC2 (.a(mac2_a), .b(mac2_b), .c(mac2_c), .rnd(3'b000), .z(mac2_out), .status());
+DW_fp_mac  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MAC3 (.a(mac3_a), .b(mac3_b), .c(mac3_c), .rnd(3'b000), .z(mac3_out), .status());
 DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL1 (.a(mult1_a), .b(mult1_b), .rnd(3'b000), .z(mult1_out), .status());
 DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL2 (.a(mult2_a), .b(mult2_b), .rnd(3'b000), .z(mult2_out), .status());
 DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL3 (.a(mult3_a), .b(mult3_b), .rnd(3'b000), .z(mult3_out), .status());
@@ -132,12 +136,12 @@ DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL4 (.a(mult
 DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB1 (.a(sub1_a), .b(sub1_b), .rnd(3'b000), .z(sub1_out), .status());
 DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB2 (.a(sub2_a), .b(sub2_b), .rnd(3'b000), .z(sub2_out), .status());
 DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB3 (.a(sub3_a), .b(sub3_b), .rnd(3'b000), .z(sub3_out), .status());
-DW_fp_sum3 #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUM3 (.a(sum3_a), .b(sum3_b), .c(sum3_c), .rnd(3'b000), .z(sum3_out), .status());
+DW_fp_sum3 #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUM1 (.a(sum3_a), .b(sum3_b), .c(sum3_c), .rnd(3'b000), .z(sum3_out), .status());
 
 // compare mac1_out, mac2_out, mac3_out with 0.0 to check if they are positive or negative
-DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP1 (.a(mac1_out), .b(0), .altb(), .agtb(h0_is_pos), .aeqb(), .unordered(), .status0(), .status1(), .zctr(0));
-DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP2 (.a(mac2_out), .b(0), .altb(), .agtb(h1_is_pos), .aeqb(), .unordered(), .status0(), .status1(), .zctr(0));
-DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP3 (.a(mac3_out), .b(0), .altb(), .agtb(h2_is_pos), .aeqb(), .unordered(), .status0(), .status1(), .zctr(0));
+DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP1 (.a(mac1_out), .b(FP_ZERO), .altb(), .agtb(h0_is_pos), .aeqb(), .unordered(), .status0(), .status1(), .zctr(0));
+DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP2 (.a(mac2_out), .b(FP_ZERO), .altb(), .agtb(h1_is_pos), .aeqb(), .unordered(), .status0(), .status1(), .zctr(0));
+DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP3 (.a(mac3_out), .b(FP_ZERO), .altb(), .agtb(h2_is_pos), .aeqb(), .unordered(), .status0(), .status1(), .zctr(0));
 
 // synopsys dc_script_begin
 //
@@ -152,13 +156,12 @@ DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP3 (.a(mac3
 //----------------------------------------------------------------------
 // Module declaration 
 //---------------------------------------------------------------------
-CURRENT_LR #(.inst_sig_width(inst_sig_width), .inst_exp_width(inst_exp_width), .LR_SIZE(LR_SIZE)) CURR_LR (.clk(clk), .rst_n(rst_n),	.LR_index(LR_index),. LR(LR));
+CURRENT_LR #(.inst_sig_width(inst_sig_width), .inst_exp_width(inst_exp_width), .LR_SIZE(LR_SIZE)) CURR_LR (.rst_n(rst_n), .LR_index(LR_index), .LR(mult4_a));
 
 //---------------------------------------------------------------------
 // Assignments
 //---------------------------------------------------------------------
-assign mult4_a = LR;
-// assign LR_half = (epoch % 4 == 0 && cnt > 0) ? 1 : 0; // divide LR by 2 every 4 epochs
+// assign mult4_a = LR;
 
 //---------------------------------------------------------------------
 // Always block
@@ -261,15 +264,12 @@ always@(posedge clk or negedge rst_n) begin
 		mac1_a <= 0;
 		mac1_b <= 0;
 		mac1_c <= 0;
-		mac1_out_r <= 0;
 		mac2_a <= 0;
 		mac2_b <= 0;
 		mac2_c <= 0;
-		mac2_out_r <= 0;
 		mac3_a <= 0;
 		mac3_b <= 0;
 		mac3_c <= 0;
-		mac3_out_r <= 0;
 	end
 	else begin
 		case (curr_state) 
@@ -278,11 +278,9 @@ always@(posedge clk or negedge rst_n) begin
 					mac1_a <= s0; // s^1_0
 					mac1_b <= w0; // w^1_0
 					mac1_c <= 0; // MAC1 output register
-
 					mac2_a <= s0; 
 					mac2_b <= w4; // w^1_4
 					mac2_c <= 0; // MAC2 output register
-
 					mac3_a <= s0; 
 					mac3_b <= w8; // w^1_8
 					mac3_c <= 0; // MAC3 output register
@@ -293,57 +291,52 @@ always@(posedge clk or negedge rst_n) begin
 					1: begin
 						mac1_a <= s1; // s^1_0
 						mac1_b <= w1; // w^1_0
-						mac1_c <= 0;
-						mac1_out_r <= mac1_out; // MAC output register
-
+						mac1_c <= mac1_out;
 						mac2_a <= s1; // s^1_1
 						mac2_b <= w5; // w^1_5
-						mac2_c <= 0;
-						mac2_out_r <= mac2_out; // MAC output register
-
+						mac2_c <= mac2_out;
 						mac3_a <= s1; // s^1_2
 						mac3_b <= w9; // w^1_9
-						mac3_c <= 0;
-						mac3_out_r <= mac3_out; // MAC output register
+						mac3_c <= mac3_out;
 					end
 					2: begin
 						mac1_a <= s2; // s^1_1
 						mac1_b <= w2; // w^1_4
-						mac1_c <= mac1_out_r; 
-						mac1_out_r <= mac1_out; 
-
+						mac1_c <= mac1_out; 
 						mac2_a <= s2; // s^1_2
 						mac2_b <= w6; // w^1_5
-						mac2_c <= mac2_out_r; 
-						mac2_out_r <= mac2_out; 
-
+						mac2_c <= mac2_out; 
 						mac3_a <= s2; // s^1_2
 						mac3_b <= w10; // w^1_10
-						mac3_c <= mac3_out_r;
-						mac3_out_r <= mac3_out; 
+						mac3_c <= mac3_out;
 					end
 					3: begin
 						mac1_a <= s3; // s^1_2
 						mac1_b <= w3; // w^1_8
-						mac1_c <= mac1_out_r;
-						mac1_out_r <= mac1_out; 
-
+						mac1_c <= mac1_out;
 						mac2_a <= s3; // s^1_3
 						mac2_b <= w7; // w^1_9
-						mac2_c <= mac2_out_r; 
-						mac2_out_r <= mac2_out; 
-
+						mac2_c <= mac2_out; 
 						mac3_a <= s3; // s^1_3
 						mac3_b <= w11; // w^1_10
-						mac3_c <= mac3_out_r; 
-						mac3_out_r <= mac3_out; 
-					end
-					4: begin
-						
+						mac3_c <= mac3_out; 
 					end
 				endcase
 			end
 		endcase
+	end
+end
+
+always@(posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		y0 <= 0;
+		y1 <= 0;
+		y2 <= 0;
+	end
+	else if (curr_state == S_CALCULATE && cnt == 4) begin
+		y0 <= (h0_is_pos) ? mac1_out : FP_ZERO; // y^1_0 = ReLU(h^1_0)
+		y1 <= (h1_is_pos) ? mac2_out : FP_ZERO; // y^1_1 = ReLU(h^1_1)
+		y2 <= (h2_is_pos) ? mac3_out : FP_ZERO; // y^1_2 = ReLU(h^1_2)
 	end
 end
 
@@ -364,20 +357,16 @@ always@(posedge clk or negedge rst_n) begin
 					4: begin
 						mult1_a <= mac1_out; 
 						mult1_b <= w20; // w^2_0
-
 						mult2_a <= mac2_out;
 						mult2_b <= w21; // w^2_1
-
 						mult3_a <= mac3_out;
 						mult3_b <= w22; // w^2_2
 					end
 					5: begin
 						mult1_a <= delta2; 
 						mult1_b <= w20; // w^2_0
-
 						mult2_a <= delta2;
 						mult2_b <= w21; // w^2_1
-
 						mult3_a <= delta2;
 						mult3_b <= w22; // w^2_2
 					end
@@ -479,43 +468,43 @@ end
 //------------------------------------------
 // FSM
 //------------------------------------------
-// always @(posedge clk or negedge rst_n) begin
-// 	if (!rst_n) begin
-// 		curr_state <= S_RESET;
-// 	end else begin
-// 		curr_state <= next_state;
-// 	end
-// end
+always @(posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		curr_state <= S_RESET;
+	end else begin
+		curr_state <= next_state;
+	end
+end
 
-// always @(*) begin
-// 	case (curr_state)
-// 		S_RESET: begin
-// 			if (in_valid_w1 || in_valid_d) begin
-// 				next_state = S_INPUT;
-// 			end 
-// 			else begin
-// 				next_state = S_RESET;
-// 			end
-// 		end
-// 		S_INPUT: begin
-// 			if (cnt == CNT_MAX) begin
-// 				next_state = S_CALCULATE;
-// 			end 
-// 			else begin
-// 				next_state = S_INPUT;
-// 			end
-// 		end
-// 		S_CALCULATE: begin
-// 			if (epoch == EPOCH_MAX) begin
-// 				next_state = S_INPUT;
-// 			end 
-// 			else begin
-// 				next_state = S_CALCULATE;
-// 			end
-// 		end
-// 		default: next_state = S_RESET;
-// 	endcase
-// end
+always @(*) begin
+	case (curr_state)
+		S_RESET: begin
+			if (in_valid_w1 || in_valid_d) begin
+				next_state = S_INPUT;
+			end 
+			else begin
+				next_state = S_RESET;
+			end
+		end
+		S_INPUT: begin
+			if (cnt == CNT_MAX) begin
+				next_state = S_CALCULATE;
+			end 
+			else begin
+				next_state = S_INPUT;
+			end
+		end
+		S_CALCULATE: begin
+			if (epoch == EPOCH_MAX) begin
+				next_state = S_INPUT;
+			end 
+			else begin
+				next_state = S_CALCULATE;
+			end
+		end
+		default: next_state = S_RESET;
+	endcase
+end
 
 endmodule
 
@@ -524,14 +513,13 @@ module CURRENT_LR #(
     parameter inst_exp_width = 8,  // Bit-width of the exponent
     parameter LR_SIZE        = 7   // Number of learning rates
 ) (
-	input clk,
-	input rst_n,
+	input  rst_n,
 	input  [$clog2(LR_SIZE)-1:0] LR_index,
 	output [inst_sig_width+inst_exp_width:0] LR
 );
 	always@(*) begin
 		if (!rst_n) begin
-			LR = 0;
+			LR = {inst_sig_width+inst_exp_width+1{1'b0}}; // Reset to 0
 		end 
 		else begin
 			case (LR_index)
@@ -542,7 +530,7 @@ module CURRENT_LR #(
 				4: LR = 32'h338637bd;
 				5: LR = 32'h330637bd;
 				6: LR = 32'h328637bd; // reset to 0 after 6th index
-				default: LR = 0;
+				default: LR = 32'h00000000;
 			endcase
 		end
 	end
