@@ -11,7 +11,7 @@
 
 ![ANN Structure](ANN.png)
 
-* Activation Function: $ReLU(x)=x,\ if (x>0),\ otherwise\ 0.$ 
+* Activation Function: $ReLU(x)=\ (x>0)\ ?\ x\ :\ 0$
   * Only applied in the hidden layer
 
 * Hidden layer weights $W^1$
@@ -220,3 +220,29 @@ $$  \delta^2_0 = y^2_0 - t_0 $$
   * $w^1_{11} - (LR * s_3) * \delta^1_2$: `MUL3` at $C^{next}_3$ then update at $C^{next}_4$ with `SUB3` 
 
 ## DesignWare
+
+#### DW_fp_mac 
+
+* `MAC1`, `MAC2`, `MAC3`: 
+  * Forward stage: $C^{curr}_1$ to $C^{curr}_4$ for the hidden layer neurons
+
+#### DW_fp_cmp 
+
+* `CMP1`, `CMP2`, `CMP3`: For forward and backward ReLU function
+
+#### DW_fp_mult 
+* `MUL1`, `MUL2`, `MUL3`: 
+  * Forward stage: $C^{curr}_5$ for output layer
+  * Backward stage: $C^{curr}_6$ to $C^{next}_4$
+* `MUL4`: Early calculation for update stage
+  * $C^{curr}_1$ to $C^{curr}_4$ and $C^{curr}_6$
+
+#### DW_fp_sum3
+
+* `SUM1`: Summation for the final output
+
+#### DW_fp_sub
+
+* `SUB1`, `SUB2`, `SUB3`
+  * Forward: Calculate error (loss) b/w the output $y_{pred}$ and the target $y_{gold}$ 
+  * Backward: Calculate the new weights from the loss and its gradients
