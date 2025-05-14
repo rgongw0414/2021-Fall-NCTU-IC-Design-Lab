@@ -58,7 +58,11 @@ input [inst_sig_width+inst_exp_width:0] out;
 //================================================================
 wire [inst_sig_width+inst_exp_width:0] out_abs_diff;
 reg  [inst_sig_width+inst_exp_width:0] out_gold;
-assign out_abs_diff = ((out_gold - out) / out_gold > 0) ? (out_gold - out) / out_gold : (out - out_gold) / out_gold;
+wire [inst_sig_width+inst_exp_width:0] out_real, out_gold_real;
+assign out_gold_real = $bitstoshortreal(out_gold);
+assign out_real      = $bitstoshortreal(out);
+assign out_abs_diff  = ((out_gold - out) / out_gold > 0.0) ? (out_gold - out) / out_gold : (out - out_gold) / out_gold;
+// assign out_abs_diff  = ((out_gold_real - out_real) / out_gold_real > 0.0) ? (out_gold_real - out_real) / out_gold_real : (out_real - out_gold_real) / out_gold_real;
 
 //=================================================================
 // Integers
@@ -207,7 +211,7 @@ task input_data; begin
 				$finish;
 			end
 		end
-		$display("data_point = %h, target = %h", data_point, target);
+		// $display("data_point = %h, target = %h", data_point, target);
 		@(negedge clk);
 	end
 	in_valid_d = 'b0;
@@ -240,16 +244,28 @@ task check_ans; begin
 			$display("Error: Failed to read maze output golden_step_num!");
 			$finish;
 		end
+		// $display("out = %f, out_gold = %f", out_real, out_gold_real);
+		// $display("out = %f, out_gold = %f", $bitstoshortreal(out), $bitstoshortreal(out_gold));
 		if (out_abs_diff >= 0.0001) begin // Fail, if abs(out_gold - out) / out_gold > 0.0001
 			$display("--------------------------------------------------------------------------------------------------------------------------------------------");
 			$display("                                                                   FAIL! WRONG OUTPUT!                                                      ");
 			$display("                                                                     Pattern NO.%03d                                                        ", patcount);
-			$display("	                                                               y_pred = %f, y_gold = %f                                                   ", out, out_gold);
+			$display("	                                                               y_pred = %f, y_gold = %f                                                   ", out_real, out_gold_real);
 			$display("	                                                                  out_abs_diff = %f                                                       ", out_abs_diff);
 			$display("--------------------------------------------------------------------------------------------------------------------------------------------");
 			@(negedge clk);
 			$finish;
 		end
+		// else begin
+		// 	$display("--------------------------------------------------------------------------------------------------------------------------------------------");
+		// 	$display("                                                                           PASS!                                                            ");
+		// 	$display("                                                                     Pattern NO.%03d                                                        ", patcount);
+		// 	$display("	                                                               y_pred = %f, y_gold = %f                                                   ", out_real, out_gold_real);
+		// 	$display("	                                                                  out_abs_diff = %f                                                       ", out_abs_diff);
+		// 	$display("--------------------------------------------------------------------------------------------------------------------------------------------");
+		// 	$finish();
+		// 	repeat(2)@(negedge clk);
+		// end
 		@(negedge clk);
     end
 end endtask

@@ -51,16 +51,17 @@ localparam S_RESET     = 0;
 localparam S_INPUT     = 1;
 localparam S_CALCULATE = 2; // forward, backward, update while epoch < 25; go to S_INPUT to get new weights when epoch >= 25
 
-// ANN parameters
-localparam EPOCH_MAX   = 24; // 25 epochs
-localparam EPOCH_WIDTH = $clog2(EPOCH_MAX); 
+// Training parameters
+localparam EPOCH_MAX     = 24; // 25 epochs
+localparam EPOCH_WIDTH   = $clog2(EPOCH_MAX); 
+localparam DATASET_MAX   = 99; // 100 data points for training
+localparam DATASET_WIDTH = $clog2(DATASET_MAX); // 100 data points for training
 
 // Pipeline parameters
 localparam CNT_MAX     = 7;  // Each forward/backward/update takes 7 cycles, cnt_max = 7
 localparam CNT_WIDTH   = $clog2(CNT_MAX); 
 localparam FP_ZERO     = {inst_exp_width+inst_sig_width+1{1'b0}}; // 0.0 in IEEE 754 format 
-localparam LR_SIZE      = 7; // 7 learning rates for every 4 epochs
-
+localparam LR_SIZE     = 7; // 7 learning rates for every 4 epochs (1e-6, 5e-7, 2.5e-7, 1.25e-7, 6.25e-8, 3.125e-8, 1.5625e-8)
 
 //---------------------------------------------------------------------
 //   INPUT AND OUTPUT DECLARATION
@@ -76,7 +77,8 @@ output reg [inst_sig_width+inst_exp_width:0] out;
 //---------------------------------------------------------------------
 wire [inst_sig_width+inst_exp_width:0] LR;
 reg  [$clog2(LR_SIZE)-1:0] LR_index; // index for learning rate
-reg update_en; // enable signal for update
+reg  update_en; // enable signal for update
+reg  [DATASET_WIDTH-1:0] dataset_index; // index for dataset: 0 ~ 99
 
 //------------------------
 // Registers for Pipeline
@@ -91,10 +93,14 @@ reg [inst_sig_width+inst_exp_width:0] delta2; // delta2 = y_pred - target
 reg [inst_sig_width+inst_exp_width:0] w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11; // stores the 12 weights for weight1
 reg [inst_sig_width+inst_exp_width:0] w20, w21, w22; // stores the 3 weights for weight2
 
-// reg [inst_sig_width+inst_exp_width:0] data_point_r [INPUT_WIDTH-1:0],     target_r  [TARGET_WIDTH-1:0];  // stores the 4 data for data_point and 1 data for target
-reg [inst_sig_width+inst_exp_width:0] s0, s1, s2, s3; // stores the 4 data for data_point
-reg [inst_sig_width+inst_exp_width:0] target_r; // stores the 1 data for target
-
+reg  [inst_sig_width+inst_exp_width:0] data_points [INPUT_DIM-1:0]; // stores the 4 data for data_point
+wire [inst_sig_width+inst_exp_width:0] s0, s1, s2, s3; // stores the 4 data for data_point
+reg  [inst_sig_width+inst_exp_width:0] target_r; // stores the 1 data for target
+reg  [$clog2(INPUT_DIM)-1:0] data_point_index; // index for data_point
+assign s0 = data_points[0]; // s^1_0
+assign s1 = data_points[1]; // s^1_1
+assign s2 = data_points[2]; // s^1_2
+assign s3 = data_points[3]; // s^1_3
 
 // DW_fp_mac parameters
 reg  [inst_sig_width+inst_exp_width:0] mac1_a, mac1_b, mac1_c, mac2_a, mac2_b, mac2_c, mac3_a, mac3_b, mac3_c;
@@ -107,12 +113,11 @@ wire [inst_sig_width+inst_exp_width:0] mult1_out, mult2_out, mult3_out, mult4_ou
 // DW_fp_sub parameters
 reg  [inst_sig_width+inst_exp_width:0] sub1_a, sub1_b, sub2_a, sub2_b, sub3_a, sub3_b;
 wire [inst_sig_width+inst_exp_width:0] sub1_out, sub2_out, sub3_out;
-reg  [inst_sig_width+inst_exp_width:0] sub1_out_r, sub2_out_r, sub3_out_r;
+// reg  [inst_sig_width+inst_exp_width:0] sub1_out_r, sub2_out_r, sub3_out_r;
 
 // DW_fp_sum3 parameters
 reg  [inst_sig_width+inst_exp_width:0] sum1_a, sum1_b, sum1_c;
 wire [inst_sig_width+inst_exp_width:0] sum1_out;
-reg  [inst_sig_width+inst_exp_width:0] sum1_out_r;
 
 // DW_fp_cmp parameters
 wire h0_is_pos, h1_is_pos, h2_is_pos; // flag for checking if h^1_i is positive or negative
@@ -169,8 +174,37 @@ always@(posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		update_en <= 0;
 	end
-	else if (curr_state == S_CALCULATE && cnt == 6) begin
+	else if (curr_state == S_CALCULATE && !update_en && cnt == 6) begin 
+		// pull up update_en after the first 6 cycles of S_CALCULATE
 		update_en <= 1;
+	end
+	else if (curr_state == S_CALCULATE && update_en && in_valid_w2) begin 
+		// update_en is all the way up, until in_valid_w2 is high (indicating the 25 epochs of current dataset are done)
+		update_en <= 0;
+	end
+end
+
+always@(posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		dataset_index <= 0;
+	end
+	else if (dataset_index == DATASET_MAX) begin
+		dataset_index <= 0;
+	end
+	else if (update_en && cnt == 4) begin
+		dataset_index <= dataset_index + 1;
+	end
+end
+
+always@(posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		epoch <= 0;
+	end
+	else if (epoch == EPOCH_MAX) begin
+		epoch <= 0; // increase epoch every 100 data points
+	end
+	else if (dataset_index == DATASET_MAX) begin
+		epoch <= epoch + 1; // increase epoch every 100 data points
 	end
 end
 
@@ -205,18 +239,47 @@ always@(posedge clk or negedge rst_n) begin
 		w11 <= 0;
 	end
 	else if (in_valid_w1) begin
-		w0 <= w1; // w^1_0
-		w1 <= w2; // w^1_1
-		w2 <= w3; // w^1_2
-		w3 <= w4; // w^1_3
-		w4 <= w5; // w^1_4
-		w5 <= w6; // w^1_5
-		w6 <= w7; // w^1_6
-		w7 <= w8; // w^1_7
-		w8 <= w9; // w^1_8
-		w9 <= w10; // w^1_9
+		w0  <= w1; // w^1_0
+		w1  <= w2; // w^1_1
+		w2  <= w3; // w^1_2
+		w3  <= w4; // w^1_3
+		w4  <= w5; // w^1_4
+		w5  <= w6; // w^1_5
+		w6  <= w7; // w^1_6
+		w7  <= w8; // w^1_7
+		w8  <= w9; // w^1_8
+		w9  <= w10; // w^1_9
 		w10 <= w11; // w^1_10
 		w11 <= weight1; // w^1_11
+	end
+	else if (update_en) begin
+		case (cnt):
+			1: begin
+				w1  <= sub1_out_r; 
+				w5  <= sub2_out_r; 
+				w9  <= sub3_out_r; 
+			end
+			2: begin
+				w2  <= sub1_out_r; 
+				w6  <= sub2_out_r; 
+				w10 <= sub3_out_r; 
+			end
+			3: begin
+				w3  <= sub1_out_r; 
+				w7  <= sub2_out_r; 
+				w11 <= sub3_out_r; 
+			end
+			4: begin
+				w20 <= sub1_out_r; // w^2_0 = w^2_0 - LR*delta^2_0*(y_pred - target)
+				w21 <= sub2_out_r; // w^2_1 = w^2_1 - LR*delta^2_1*(y_pred - target)
+				w22 <= sub3_out_r; // w^2_2 = w^2_2 - LR*delta^2_2*(y_pred - target)
+			end
+			7: begin
+				w0 <= sub1_out_r; // w^1_0 = w^1_0 - LR*s0*delta^2_0
+				w4 <= sub2_out_r; // w^1_4 = w^1_4 - LR*s1*delta^2_1
+				w8 <= sub3_out_r; // w^1_8 = w^1_8 - LR*s2*delta^2_2
+			end
+		endcase
 	end
 end
 
@@ -233,20 +296,46 @@ always@(posedge clk or negedge rst_n) begin
 	end
 end
 
+genvar i;
+generate
+	for (i = 0; i < INPUT_DIM; i = i + 1) begin: data_points_gen
+		always@(posedge clk or negedge rst_n) begin
+			if (!rst_n) begin
+				data_points[i] <= 0;
+			end
+			else if (in_valid_d && i == data_point_index) begin
+				data_points[i] <= data_point; // data_point is the input data for each neuron in the input layer
+			end
+		end
+	end
+endgenerate
+
 always@(posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		s0 <= 0;
-		s1 <= 0;
-		s2 <= 0;
-		s3 <= 0;
+		data_point_index <= 0;
 	end
 	else if (in_valid_d) begin
-		s0 <= s1; // s^1_0
-		s1 <= s2; // s^1_1
-		s2 <= s3; // s^1_2
-		s3 <= data_point; // s^1_3
+		data_point_index <= data_point_index + 1; // data_point_index is the index for data_point
+	end
+	else begin
+		data_point_index <= 0;
 	end
 end
+
+// always@(posedge clk or negedge rst_n) begin
+// 	if (!rst_n) begin
+// 		s0 <= 0;
+// 		s1 <= 0;
+// 		s2 <= 0;
+// 		s3 <= 0;
+// 	end
+// 	else if (in_valid_d) begin
+// 		s0 <= s1; // s^1_0
+// 		s1 <= s2; // s^1_1
+// 		s2 <= s3; // s^1_2
+// 		s3 <= data_point; // s^1_3
+// 	end
+// end
 
 always@(posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
@@ -274,13 +363,13 @@ always@(posedge clk or negedge rst_n) begin
 		case (curr_state) 
 			S_INPUT: begin
 				if (next_state == S_CALCULATE) begin
-					mac1_a <= s0; // s^1_0
+					mac1_a <= data_point; // s^1_0
 					mac1_b <= w0; // w^1_0
 					mac1_c <= 0; // MAC1 output register
-					mac2_a <= s0; 
+					mac2_a <= data_point; 
 					mac2_b <= w4; // w^1_4
 					mac2_c <= 0; // MAC2 output register
-					mac3_a <= s0; 
+					mac3_a <= data_point; 
 					mac3_b <= w8; // w^1_8
 					mac3_c <= 0; // MAC3 output register
 				end
@@ -288,35 +377,35 @@ always@(posedge clk or negedge rst_n) begin
 			S_CALCULATE: begin
 				case (cnt)
 					1: begin
-						mac1_a <= s1; // s^1_0
+						mac1_a <= data_point; // s^1_0
 						mac1_b <= w1; // w^1_0
 						mac1_c <= mac1_out;
-						mac2_a <= s1; // s^1_1
+						mac2_a <= data_point; // s^1_1
 						mac2_b <= w5; // w^1_5
 						mac2_c <= mac2_out;
-						mac3_a <= s1; // s^1_2
+						mac3_a <= data_point; // s^1_2
 						mac3_b <= w9; // w^1_9
 						mac3_c <= mac3_out;
 					end
 					2: begin
-						mac1_a <= s2; // s^1_1
+						mac1_a <= data_point; // s^1_1
 						mac1_b <= w2; // w^1_4
 						mac1_c <= mac1_out; 
-						mac2_a <= s2; // s^1_2
+						mac2_a <= data_point; // s^1_2
 						mac2_b <= w6; // w^1_5
 						mac2_c <= mac2_out; 
-						mac3_a <= s2; // s^1_2
+						mac3_a <= data_point; // s^1_2
 						mac3_b <= w10; // w^1_10
 						mac3_c <= mac3_out;
 					end
 					3: begin
-						mac1_a <= s3; // s^1_2
+						mac1_a <= data_point; // s^1_2
 						mac1_b <= w3; // w^1_8
 						mac1_c <= mac1_out;
-						mac2_a <= s3; // s^1_3
+						mac2_a <= data_point; // s^1_3
 						mac2_b <= w7; // w^1_9
 						mac2_c <= mac2_out; 
-						mac3_a <= s3; // s^1_3
+						mac3_a <= data_point; // s^1_3
 						mac3_b <= w11; // w^1_10
 						mac3_c <= mac3_out; 
 					end
@@ -348,11 +437,53 @@ always@(*) begin
 		mult2_b = 0;
 		mult3_a = 0;
 		mult3_b = 0;
+		mult4_a = 0;
+		mult4_b = 0;
 	end
 	else begin
 		case (curr_state) 
 			S_CALCULATE: begin
 				case (cnt)
+					1: begin
+						mult1_a = delta10; 
+						mult1_b = LRs1; 
+						mult2_a = delta11;
+						mult2_b = LRs1;
+						mult3_a = delta12;
+						mult3_b = LRs1;
+						mult4_a = LR; 
+						mult4_b = s0; 
+					end
+					2: begin
+						mult1_a = delta10; 
+						mult1_b = LRs2; 
+						mult2_a = delta11;
+						mult2_b = LRs2;
+						mult3_a = delta12;
+						mult3_b = LRs2;
+						mult4_a = LR;
+						mult4_b = s1;
+					end
+					3: begin
+						mult1_a = delta10; 
+						mult1_b = LRs3; 
+						mult2_a = delta11;
+						mult2_b = LRs3;
+						mult3_a = delta12;
+						mult3_b = LRs3;
+						mult4_a = LR;
+						mult4_b = s2;
+					end
+					4: begin
+						mult1_a = LRdelta2; // LR*delta2 = LR*(y_pred - target)
+						mult1_b = y0; 
+						mult2_a = LRdelta2;
+						mult2_b = y1;
+						mult3_a = LRdelta2;
+						mult3_b = y2;
+						mult4_a = LR;
+						mult4_b = s3;
+					end
 					5: begin
 						mult1_a = y0; 
 						mult1_b = w20; // w^2_0
@@ -360,6 +491,8 @@ always@(*) begin
 						mult2_b = w21; // w^2_1
 						mult3_a = y2;
 						mult3_b = w22; // w^2_2
+						mult4_a = 0;
+						mult4_b = 0;
 					end
 					6: begin
 						mult1_a = delta2; // delta2 = y_pred - target
@@ -368,14 +501,18 @@ always@(*) begin
 						mult2_b = w21; // w^2_1
 						mult3_a = delta2;
 						mult3_b = w22; // w^2_2
+						mult4_a = LR;
+						mult4_b = delta2; // delta2 = y_pred - target
 					end
 					7: begin
 						mult1_a = delta10; 
-						mult1_b = s0; 
+						mult1_b = LRs0; // LR*s0
 						mult2_a = delta11;
-						mult2_b = s1; 
+						mult2_b = LRs0; // LR*s1
 						mult3_a = delta12;
-						mult3_b = s2; 
+						mult3_b = LRs0; // LR*s2
+						mult4_a = 0;
+						mult4_b = 0;
 					end
 					default: begin
 						mult1_a = 0;
@@ -384,6 +521,8 @@ always@(*) begin
 						mult2_b = 0;
 						mult3_a = 0;
 						mult3_b = 0;
+						mult4_a = 0;
+						mult4_b = 0;
 					end
 				endcase
 			end
@@ -394,47 +533,6 @@ always@(*) begin
 				mult2_b = 0;
 				mult3_a = 0;
 				mult3_b = 0;
-			end
-		endcase
-	end
-end
-
-always@(*) begin
-	if (!rst_n) begin
-		mult4_a = 0;
-		mult4_b = 0;
-	end
-	else begin
-		case (curr_state) 
-			S_CALCULATE: begin
-				case (cnt)
-					1: begin
-						mult4_a = LR; 
-						mult4_b = s0; 
-					end
-					2: begin
-						mult4_a = LR;
-						mult4_b = s1;
-					end
-					3: begin
-						mult4_a = LR;
-						mult4_b = s2;
-					end
-					4: begin
-						mult4_a = LR;
-						mult4_b = s3;
-					end
-					6: begin
-						mult4_a = LR;
-						mult4_b = delta2; // delta2 = y_pred - target
-					end
-					default: begin
-						mult4_a = 0;
-						mult4_b = 0;
-					end
-				endcase
-			end
-			default: begin
 				mult4_a = 0;
 				mult4_b = 0;
 			end
@@ -535,35 +633,6 @@ always@(*) begin
 	if (!rst_n) begin
 		sub1_a = 0;
 		sub1_b = 0;
-	end
-	else begin
-		case (curr_state) 
-			S_CALCULATE: begin
-				case (cnt)
-					5: begin // delta2 = y_pred - target
-						sub1_a = sum1_out; // y_pred = w^2_0 * y^1_0 + w^2_1 * y^1_1 + w^2_2 * y^1_2
-						sub1_b = target_r; // target = y_gold
-					end
-					7: begin
-						sub1_a = w0; // w^1_0
-						sub1_b = mult1_out; // LR * grad = LR * (LR*s0*delta^1_0)
-					end
-					default: begin
-						sub1_a = 0;
-						sub1_b = 0;
-					end
-				endcase
-			end
-			default: begin
-				sub1_a = 0;
-				sub1_b = 0;
-			end
-		endcase
-	end
-end
-
-always@(*) begin
-	if (!rst_n) begin
 		sub2_a = 0;
 		sub2_b = 0;
 		sub3_a = 0;
@@ -573,13 +642,57 @@ always@(*) begin
 		case (curr_state) 
 			S_CALCULATE: begin
 				case (cnt)
+					1: begin
+						sub1_a = w1; 
+						sub1_b = mult1_out; 
+						sub2_a = w5; 
+						sub2_b = mult2_out; 
+						sub3_a = w9; 
+						sub3_b = mult3_out; 
+					end
+					2: begin
+						sub1_a = w2; 
+						sub1_b = mult1_out; 
+						sub2_a = w6; 
+						sub2_b = mult2_out; 
+						sub3_a = w10; 
+						sub3_b = mult3_out; 
+					end
+					3: begin
+						sub1_a = w3; 
+						sub1_b = mult1_out; 
+						sub2_a = w7; 
+						sub2_b = mult2_out; 
+						sub3_a = w11; 
+						sub3_b = mult3_out; 
+					end
+					4: begin
+						sub1_a = w20; 
+						sub1_b = mult1_out; 
+						sub2_a = w21; 
+						sub2_b = mult2_out; 
+						sub3_a = w22; 
+						sub3_b = mult3_out; 
+					end
+					5: begin // delta2 = y_pred - target
+						sub1_a = sum1_out; // y_pred = w^2_0 * y^1_0 + w^2_1 * y^1_1 + w^2_2 * y^1_2
+						sub1_b = target_r; // target = y_gold
+						sub2_a = 0;
+						sub2_b = 0;
+						sub3_a = 0;
+						sub3_b = 0;
+					end
 					7: begin
+						sub1_a = w0; // w^1_0
+						sub1_b = mult1_out; // LR * grad = LR * (LR*s0*delta^1_0)
 						sub2_a = w4; 
 						sub2_b = mult2_out; 
 						sub3_a = w8; 
 						sub3_b = mult3_out;
 					end
 					default: begin
+						sub1_a = 0;
+						sub1_b = 0;
 						sub2_a = 0;
 						sub2_b = 0;
 						sub3_a = 0;
@@ -588,6 +701,8 @@ always@(*) begin
 				endcase
 			end
 			default: begin
+				sub1_a = 0;
+				sub1_b = 0;
 				sub2_a = 0;
 				sub2_b = 0;
 				sub3_a = 0;
@@ -596,19 +711,6 @@ always@(*) begin
 		endcase
 	end
 end
-
-// always@(posedge clk or negedge rst_n) begin
-// 	if (!rst_n) begin
-// 		sub1_out_r <= 0;
-// 		sub2_out_r <= 0;
-// 		sub3_out_r <= 0;
-// 	end
-// 	else begin
-// 		sub1_out_r <= sub1_out;
-// 		sub2_out_r <= sub2_out;
-// 		sub3_out_r <= sub3_out;
-// 	end
-// end
 
 always@(posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
