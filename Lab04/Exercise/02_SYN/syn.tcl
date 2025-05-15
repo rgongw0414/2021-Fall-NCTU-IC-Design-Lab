@@ -10,7 +10,7 @@
 #======================================================
 # Give the list of your verilog files
 # If you have single file in your design, then
-set my_verilog_files [list NN.v ]
+set my_verilog_files [list NN.v CURRENT_LR.v]
 
 # Set the top module of your design
 set my_toplevel NN 
@@ -50,7 +50,9 @@ set CYCLE_TIME 20.0
 #======================================================
 #  Read RTL Code
 #======================================================
-# analyze -f sverilog $my_verilog_files
+# Same as analyze+elaborate
+# read_verilog $my_verilog_files 
+
 analyze -f verilog $my_verilog_files
 
 # Builds generic technology database

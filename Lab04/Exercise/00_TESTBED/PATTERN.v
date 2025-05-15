@@ -9,6 +9,11 @@
 	`define CYCLE_TIME 20.0
 `endif
 
+`include "DW_fp_mult.v"
+`include "DW_fp_sub.v"
+`include "DW_fp_div.v"
+`include "DW_fp_cmp.v"
+
 module PATTERN(
 	// Output signals
 	clk,
@@ -30,19 +35,19 @@ module PATTERN(
 //   PARAMETER
 //---------------------------------------------------------------------
 // IEEE 754 floating point parameters
-parameter inst_sig_width = 23;
-parameter inst_exp_width = 8;
+parameter inst_sig_width       = 23;
+parameter inst_exp_width       = 8;
 parameter inst_ieee_compliance = 0;
-parameter inst_arch = 2;
+parameter inst_arch            = 2;
 
 // Testbench parameters
 parameter PATTERN_NUM = 250;
 parameter INPUT_DIM   = 4;
 parameter HIDDEN_DIM  = 3;
-parameter INITIAL_LR  = 0.000001;
 parameter EPOCHS      = 25;
 parameter DATA_SIZE   = 100;
 parameter CYCLE_LIMIT = 300;
+parameter TOLERANCE   = 32'h38d1b717; // Error tolerance: |(y_pred - target) / target| < 0.0001
 
 //================================================================
 //   INPUT AND OUTPUT DECLARATION                         
@@ -56,13 +61,14 @@ input [inst_sig_width+inst_exp_width:0] out;
 //================================================================
 // wires & registers
 //================================================================
-wire [inst_sig_width+inst_exp_width:0] out_abs_diff;
 reg  [inst_sig_width+inst_exp_width:0] out_gold;
-wire [inst_sig_width+inst_exp_width:0] out_real, out_gold_real;
-assign out_gold_real = $bitstoshortreal(out_gold);
-assign out_real      = $bitstoshortreal(out);
-assign out_abs_diff  = ((out_gold - out) / out_gold > 0.0) ? (out_gold - out) / out_gold : (out - out_gold) / out_gold;
-// assign out_abs_diff  = ((out_gold_real - out_real) / out_gold_real > 0.0) ? (out_gold_real - out_real) / out_gold_real : (out_real - out_gold_real) / out_gold_real;
+wire [inst_sig_width+inst_exp_width:0] sub1_out, div1_out, mult1_out, div1_out_abs;
+wire under_tolerance;
+DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB1_P (.a(out_gold), .b(out), .rnd(3'b000), .z(sub1_out), .status());
+DW_fp_div  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) DIV1_P (.a(sub1_out), .b(out_gold), .rnd(3'b000), .z(div1_out), .status());
+DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL1_P (.a(div1_out), .b(32'hbf800000), .rnd(3'b000), .z(mult1_out), .status());
+assign div1_out_abs = (div1_out[31] == 0) ? div1_out : mult1_out;
+DW_fp_cmp  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) CMP1_P (.a(div1_out_abs), .b(32'h38d1b717), .altb(under_tolerance), .agtb(), .aeqb(), .unordered(), .z0(), .z1(), .status0(), .status1(), .zctr(1'b0));
 
 //=================================================================
 // Integers
@@ -128,15 +134,19 @@ initial begin
     @(negedge clk);
 
 	for (patcount = 1; patcount <= PATTERN_NUM; patcount = patcount + 1) begin
+		if (patcount == 1) repeat(2)@(negedge clk);
+		else                        @(negedge clk);
 		weights_task;
 		for (i = 0; i < EPOCHS; i = i + 1) begin // epoch_0 ~ epoch_24
 			for (j = 0; j < DATA_SIZE; j = j + 1) begin // data_0 ~ data_99
+				if (i == 0 && j == 0) repeat(2)@(negedge clk);
+				else                           @(negedge clk);
 				input_data; // read input data and target data
 				wait_out_valid;
 				check_ans;
+				$display("\033[0;34mPASS PATTERN NO.%3d, EPOCH_%1d, DATA_%1d\033[m \033[0;32m Cycles: %3d\033[m", patcount, i, j, cycles);
 			end
 		end
-		$display("\033[0;34mPASS PATTERN NO.%4d,\033[m \033[0;32m Cycles: %3d\033[m", patcount, cycles);
 	end
 	#(1000);
 	YOU_PASS_task;
@@ -159,28 +169,26 @@ task reset_task; begin
 end endtask
 
 task weights_task; begin
-	gap = 2;
-	repeat(gap)@(negedge clk);
 	in_valid_w1 = 'b1;
 	in_valid_w2 = 'b1;
-	for (i = 0; i < INPUT_DIM*HIDDEN_DIM; i = i + 1) begin
+	for (k = 0; k < INPUT_DIM*HIDDEN_DIM; k = k + 1) begin
 		weight1_desc = $fscanf(weight1_file, "%h", weight1);
 		if (weight1_desc == 0) begin
 			$display("Error: Failed to read weight1!");
 			$finish;
 		end
-		if (i < HIDDEN_DIM) begin
+		if (k < HIDDEN_DIM) begin
 			weight2_desc = $fscanf(weight2_file, "%h", weight2);
 			if (weight2_desc == 0) begin
 				$display("Error: Failed to read weight2!");
 				$finish;
 			end
 		end
-		else if (i == HIDDEN_DIM) begin
+		else if (k == HIDDEN_DIM) begin
 			in_valid_w2 = 'b0;
 			weight2     = 'bx;
 		end
-		$display("weight1 = %h, weight2 = %h", weight1, weight2);
+		// $display("weight1 = %h, weight2 = %h", weight1, weight2);
 		@(negedge clk);
 	end
 	in_valid_w1 = 'b0;
@@ -189,20 +197,18 @@ task weights_task; begin
 end endtask
 
 task input_data; begin
-	gap = 2;
-	repeat(gap)@(negedge clk);
 	in_valid_d = 'b1;
 	in_valid_t = 'b1;
-	for (i = 0; i < INPUT_DIM; i = i + 1) begin
+	for (l = 0; l < INPUT_DIM; l = l + 1) begin
 		in_desc = $fscanf(input_file, "%h", data_point);
 		if (in_desc == 0) begin
 			$display("Error: Failed to read input layer data!");
 			$finish;
 		end
 
-		if (i >= 1) begin
+		if (l >= 1) begin
 			in_valid_t = 'b0;
-			target = 'bx;
+			target     = 'bx;
 		end
 		else begin
 			target_desc  = $fscanf(target_file, "%h", target);
@@ -244,28 +250,20 @@ task check_ans; begin
 			$display("Error: Failed to read maze output golden_step_num!");
 			$finish;
 		end
-		// $display("out = %f, out_gold = %f", out_real, out_gold_real);
-		// $display("out = %f, out_gold = %f", $bitstoshortreal(out), $bitstoshortreal(out_gold));
-		if (out_abs_diff >= 0.0001) begin // Fail, if abs(out_gold - out) / out_gold > 0.0001
+		if (out !== out_gold && !under_tolerance) begin // Fail, if abs(out_gold - out) / out_gold > 0.0001
 			$display("--------------------------------------------------------------------------------------------------------------------------------------------");
 			$display("                                                                   FAIL! WRONG OUTPUT!                                                      ");
-			$display("                                                                     Pattern NO.%03d                                                        ", patcount);
-			$display("	                                                               y_pred = %f, y_gold = %f                                                   ", out_real, out_gold_real);
-			$display("	                                                                  out_abs_diff = %f                                                       ", out_abs_diff);
+			$display("                                                           Pattern NO.%1d Epoch NO.%1d Data NO.%1d                                          ", patcount, i, j);
+			$display("	                                                 y_pred = %.6f, y_gold = %.6f                                                             ", $bitstoshortreal(out), $bitstoshortreal(out_gold));
+			$display("	                                                 y_pred = %.6h, y_gold = %.6h                                                             ", out, out_gold);
+			$display("	                                             Error b/w golden = %.4f > tolerance = 0.0001                                                 ", $bitstoshortreal(div1_out_abs));
 			$display("--------------------------------------------------------------------------------------------------------------------------------------------");
 			@(negedge clk);
 			$finish;
 		end
-		// else begin
-		// 	$display("--------------------------------------------------------------------------------------------------------------------------------------------");
-		// 	$display("                                                                           PASS!                                                            ");
-		// 	$display("                                                                     Pattern NO.%03d                                                        ", patcount);
-		// 	$display("	                                                               y_pred = %f, y_gold = %f                                                   ", out_real, out_gold_real);
-		// 	$display("	                                                                  out_abs_diff = %f                                                       ", out_abs_diff);
-		// 	$display("--------------------------------------------------------------------------------------------------------------------------------------------");
-		// 	$finish();
-		// 	repeat(2)@(negedge clk);
-		// end
+		else begin
+			$display("out = %.6f, out_gold = %.6f", $bitstoshortreal(out), $bitstoshortreal(out_gold));
+		end
 		@(negedge clk);
     end
 end endtask

@@ -6,7 +6,7 @@
 `include "DW_fp_cmp.v"
 // synopsys translate_on
 
-// `define DW_SUPPRESS_WARN
+`include "CURRENT_LR.v"
 
 module NN(
 	// Input signals
@@ -113,7 +113,6 @@ wire [inst_sig_width+inst_exp_width:0] mult1_out, mult2_out, mult3_out, mult4_ou
 // DW_fp_sub parameters
 reg  [inst_sig_width+inst_exp_width:0] sub1_a, sub1_b, sub2_a, sub2_b, sub3_a, sub3_b;
 wire [inst_sig_width+inst_exp_width:0] sub1_out, sub2_out, sub3_out;
-// reg  [inst_sig_width+inst_exp_width:0] sub1_out_r, sub2_out_r, sub3_out_r;
 
 // DW_fp_sum3 parameters
 reg  [inst_sig_width+inst_exp_width:0] sum1_a, sum1_b, sum1_c;
@@ -217,7 +216,7 @@ always@(posedge clk or negedge rst_n) begin
 		if (epoch == EPOCH_MAX) begin
 			LR_index <= 0;
 		end 
-		else if (epoch % 4 == 0 && epoch > 0) begin
+		else if ((epoch & 3) == 0 && epoch > 0) begin
 			LR_index <= LR_index + 1;
 		end
 	end
@@ -225,16 +224,16 @@ end
 
 always@(posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		w0 <= 0;
-		w1 <= 0;
-		w2 <= 0;
-		w3 <= 0;
-		w4 <= 0;
-		w5 <= 0;
-		w6 <= 0;
-		w7 <= 0;
-		w8 <= 0;
-		w9 <= 0;
+		w0  <= 0;
+		w1  <= 0;
+		w2  <= 0;
+		w3  <= 0;
+		w4  <= 0;
+		w5  <= 0;
+		w6  <= 0;
+		w7  <= 0;
+		w8  <= 0;
+		w9  <= 0;
 		w10 <= 0;
 		w11 <= 0;
 	end
@@ -252,32 +251,29 @@ always@(posedge clk or negedge rst_n) begin
 		w10 <= w11; // w^1_10
 		w11 <= weight1; // w^1_11
 	end
-	else if (update_en) begin
-		case (cnt):
+	else if (update_en) begin 
+		case (cnt)
 			1: begin
-				w1  <= sub1_out_r; 
-				w5  <= sub2_out_r; 
-				w9  <= sub3_out_r; 
+				if (in_valid_d && !in_valid_t) begin // this is stupid, but it works, gotta fix this later
+					w1 <= sub1_out; 
+					w5 <= sub2_out; 
+					w9 <= sub3_out; 
+				end
 			end
 			2: begin
-				w2  <= sub1_out_r; 
-				w6  <= sub2_out_r; 
-				w10 <= sub3_out_r; 
+				w2  <= sub1_out; 
+				w6  <= sub2_out; 
+				w10 <= sub3_out; 
 			end
 			3: begin
-				w3  <= sub1_out_r; 
-				w7  <= sub2_out_r; 
-				w11 <= sub3_out_r; 
-			end
-			4: begin
-				w20 <= sub1_out_r; // w^2_0 = w^2_0 - LR*delta^2_0*(y_pred - target)
-				w21 <= sub2_out_r; // w^2_1 = w^2_1 - LR*delta^2_1*(y_pred - target)
-				w22 <= sub3_out_r; // w^2_2 = w^2_2 - LR*delta^2_2*(y_pred - target)
+				w3  <= sub1_out; 
+				w7  <= sub2_out; 
+				w11 <= sub3_out; 
 			end
 			7: begin
-				w0 <= sub1_out_r; // w^1_0 = w^1_0 - LR*s0*delta^2_0
-				w4 <= sub2_out_r; // w^1_4 = w^1_4 - LR*s1*delta^2_1
-				w8 <= sub3_out_r; // w^1_8 = w^1_8 - LR*s2*delta^2_2
+				w0 <= sub1_out; // w^1_0 = w^1_0 - LR*s0*delta^2_0
+				w4 <= sub2_out; // w^1_4 = w^1_4 - LR*s1*delta^2_1
+				w8 <= sub3_out; // w^1_8 = w^1_8 - LR*s2*delta^2_2
 			end
 		endcase
 	end
@@ -293,6 +289,11 @@ always@(posedge clk or negedge rst_n) begin
 		w20 <= w21; // w^2_0
 		w21 <= w22; // w^2_1
 		w22 <= weight2; // w^2_2
+	end
+	else if (update_en && cnt == 4) begin
+		w20 <= sub1_out; // w^2_0 = w^2_0 - LR*delta^2_0*(y_pred - target)
+		w21 <= sub2_out; // w^2_1 = w^2_1 - LR*delta^2_1*(y_pred - target)
+		w22 <= sub3_out; // w^2_2 = w^2_2 - LR*delta^2_2*(y_pred - target)
 	end
 end
 
@@ -377,15 +378,28 @@ always@(posedge clk or negedge rst_n) begin
 			S_CALCULATE: begin
 				case (cnt)
 					1: begin
-						mac1_a <= data_point; // s^1_0
-						mac1_b <= w1; // w^1_0
-						mac1_c <= mac1_out;
-						mac2_a <= data_point; // s^1_1
-						mac2_b <= w5; // w^1_5
-						mac2_c <= mac2_out;
-						mac3_a <= data_point; // s^1_2
-						mac3_b <= w9; // w^1_9
-						mac3_c <= mac3_out;
+						if (in_valid_t) begin
+							mac1_a <= data_point; // s^1_0
+							mac1_b <= w0; // w^1_0
+							mac1_c <= 0; // MAC1 output register
+							mac2_a <= data_point; 
+							mac2_b <= w4; // w^1_4
+							mac2_c <= 0; // MAC2 output register
+							mac3_a <= data_point; 
+							mac3_b <= w8; // w^1_8
+							mac3_c <= 0; // MAC3 output register
+						end
+						else begin
+							mac1_a <= data_point; // s^1_0
+							mac1_b <= w1; // w^1_0
+							mac1_c <= mac1_out;
+							mac2_a <= data_point; // s^1_1
+							mac2_b <= w5; // w^1_5
+							mac2_c <= mac2_out;
+							mac3_a <= data_point; // s^1_2
+							mac3_b <= w9; // w^1_9
+							mac3_c <= mac3_out;
+						end
 					end
 					2: begin
 						mac1_a <= data_point; // s^1_1
@@ -575,7 +589,9 @@ always@(posedge clk or negedge rst_n) begin
 			S_CALCULATE: begin
 				case (cnt)
 					1: begin
-						LRs0 <= mult4_out;
+						if (in_valid_d && !in_valid_t) begin
+							LRs0 <= mult4_out;
+						end
 					end
 					2: begin
 						LRs1 <= mult4_out;
@@ -720,11 +736,28 @@ always@(posedge clk or negedge rst_n) begin
 		if (cnt == CNT_MAX) begin
 			cnt <= 1;
 		end 
+		else if (update_en && in_valid_d && in_valid_t) begin
+			cnt <= 1;
+		end 
 		else begin
 			cnt <= cnt + 1;
 		end
 	end
 end
+
+// always@(posedge clk or negedge rst_n) begin
+// 	if (!rst_n) begin
+// 		cnt <= 1;
+// 	end
+// 	else if (curr_state == S_CALCULATE) begin
+// 		if (cnt == CNT_MAX) begin
+// 			cnt <= 1;
+// 		end 
+// 		else begin
+// 			cnt <= cnt + 1;
+// 		end
+// 	end
+// end
 
 always@(posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
@@ -750,7 +783,8 @@ end
 always @(posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		curr_state <= S_RESET;
-	end else begin
+	end 
+	else begin
 		curr_state <= next_state;
 	end
 end
@@ -785,32 +819,4 @@ always @(*) begin
 	endcase
 end
 
-endmodule
-
-module CURRENT_LR #(
-    parameter inst_sig_width = 23, // Bit-width of the significand
-    parameter inst_exp_width = 8,  // Bit-width of the exponent
-    parameter LR_SIZE        = 7   // Number of learning rates
-) (
-	input       rst_n,
-	input      [$clog2(LR_SIZE)-1:0] LR_index,
-	output reg [inst_sig_width+inst_exp_width:0] LR
-);
-	always@(*) begin
-		if (!rst_n) begin
-			LR = {inst_sig_width+inst_exp_width+1{1'b0}}; // Reset to 0
-		end 
-		else begin
-			case (LR_index)
-				0: LR = 32'h358637bd; // 0.000001
-				1: LR = 32'h350637bd;
-				2: LR = 32'h348637bd;
-				3: LR = 32'h340637bd;
-				4: LR = 32'h338637bd;
-				5: LR = 32'h330637bd;
-				6: LR = 32'h328637bd; // reset to 0 after 6th index
-				default: LR = 32'h00000000;
-			endcase
-		end
-	end
 endmodule

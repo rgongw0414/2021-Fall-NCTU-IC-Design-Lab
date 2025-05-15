@@ -1,0 +1,48 @@
+ 
+****************************************
+check_design summary:
+Version:     S-2021.06-SP2
+Date:        Thu May 15 22:37:57 2025
+****************************************
+
+                   Name                                            Total
+--------------------------------------------------------------------------------
+Inputs/Outputs                                                     25
+    Shorted outputs (LINT-31)                                      12
+    Constant outputs (LINT-52)                                     13
+
+Cells                                                               5
+    Cells do not drive (LINT-1)                                     5
+--------------------------------------------------------------------------------
+
+Warning: In design 'NN', cell 'C11401' does not drive any nets. (LINT-1)
+Warning: In design 'NN', cell 'C11412' does not drive any nets. (LINT-1)
+Warning: In design 'NN', cell 'C11428' does not drive any nets. (LINT-1)
+Warning: In design 'NN', cell 'C11480' does not drive any nets. (LINT-1)
+Warning: In design 'NN', cell 'C11653' does not drive any nets. (LINT-1)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[31]' is connected directly to output port 'LR[1]'. (LINT-31)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[31]' is connected directly to output port 'LR[6]'. (LINT-31)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[31]' is connected directly to output port 'LR[11]'. (LINT-31)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[31]' is connected directly to output port 'LR[14]'. (LINT-31)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[31]' is connected directly to output port 'LR[15]'. (LINT-31)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[31]' is connected directly to output port 'LR[16]'. (LINT-31)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[31]' is connected directly to output port 'LR[19]'. (LINT-31)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[31]' is connected directly to output port 'LR[20]'. (LINT-31)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[31]' is connected directly to output port 'LR[21]'. (LINT-31)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[31]' is connected directly to output port 'LR[22]'. (LINT-31)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[31]' is connected directly to output port 'LR[27]'. (LINT-31)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[31]' is connected directly to output port 'LR[30]'. (LINT-31)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[31]' is connected directly to 'logic 0'. (LINT-52)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[30]' is connected directly to 'logic 0'. (LINT-52)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[27]' is connected directly to 'logic 0'. (LINT-52)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[22]' is connected directly to 'logic 0'. (LINT-52)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[21]' is connected directly to 'logic 0'. (LINT-52)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[20]' is connected directly to 'logic 0'. (LINT-52)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[19]' is connected directly to 'logic 0'. (LINT-52)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[16]' is connected directly to 'logic 0'. (LINT-52)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[15]' is connected directly to 'logic 0'. (LINT-52)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[14]' is connected directly to 'logic 0'. (LINT-52)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[11]' is connected directly to 'logic 0'. (LINT-52)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[6]' is connected directly to 'logic 0'. (LINT-52)
+Warning: In design 'CURRENT_LR_inst_sig_width23_inst_exp_width8_LR_SIZE7', output port 'LR[1]' is connected directly to 'logic 0'. (LINT-52)
+1

@@ -13,7 +13,7 @@
 
 using namespace std;
 
-const int PATTERN_NUM = 250;
+const int PATTERN_NUM = 100;
 const int INPUT_DIM = 4;
 const int HIDDEN_DIM = 3;
 const float INITIAL_LR = 0.000001f;
@@ -90,7 +90,8 @@ std::string float_to_hex(float f) {
 }
 
 int main() {
-    srand(10531615); // Seed for reproducibility
+    // srand(10531615); // Seed for reproducibility
+    srand(10531616); // Seed for reproducibility
     // srand(time(0)); // Random seed for different runs
 
     for (int i = 0; i < PATTERN_NUM; i++) {
@@ -112,19 +113,19 @@ int main() {
         }
 
         // Training
-        for (int i = 0; i < DATA_SIZE; i++) {
-            Sample& s = data[i];
-            for (int epoch = 0; epoch < EPOCHS; epoch++) {
-                float lr = INITIAL_LR * pow(0.5f, epoch / 4); // decay every 4 epochs
-                cout << "LR: " << lr << "hex: " << float_to_hex(lr) << endl;
+        for (int epoch = 0; epoch < EPOCHS; epoch++) {
+            float lr = INITIAL_LR * pow(0.5f, epoch / 4); // decay every 4 epochs
+            cout << "LR: " << lr << ", hex: " << float_to_hex(lr) << endl;
+            for (int i = 0; i < DATA_SIZE; i++) {
+                Sample& s = data[i];
                 float z1[HIDDEN_DIM], a1[HIDDEN_DIM];
                 float pred = forward(s.x, w1, w2, z1, a1);
                 fout << float_to_hex(pred) << endl;
-                float error = pred - s.y;
+                float error = abs((pred - s.y) / s.y);
 
-                // cout << "Sample " << i << " Epoch " << epoch
-                //     << " | Pred: " << pred
-                //     << " | Error: " << error << endl;
+                cout << std::scientific << std::setprecision(4) << " Epoch " << epoch << " Sample " << i
+                    << " | Pred: " <<  pred
+                    << " | Error: " << error << endl;
 
                 backward(pred, s.y, s.x, z1, a1, w1, w2, lr);
             }
