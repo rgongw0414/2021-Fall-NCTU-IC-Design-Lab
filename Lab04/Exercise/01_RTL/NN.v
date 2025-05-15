@@ -379,48 +379,48 @@ always@(posedge clk or negedge rst_n) begin
 				case (cnt)
 					1: begin
 						if (in_valid_t) begin
-							mac1_a <= data_point; // s^1_0
-							mac1_b <= w0; // w^1_0
-							mac1_c <= 0; // MAC1 output register
+							mac1_a <= data_point; 
+							mac1_b <= w0; 
+							mac1_c <= 0;  // MAC1 output register
 							mac2_a <= data_point; 
-							mac2_b <= w4; // w^1_4
-							mac2_c <= 0; // MAC2 output register
+							mac2_b <= w4; 
+							mac2_c <= 0;  // MAC2 output register
 							mac3_a <= data_point; 
-							mac3_b <= w8; // w^1_8
-							mac3_c <= 0; // MAC3 output register
+							mac3_b <= w8; 
+							mac3_c <= 0;  // MAC3 output register
 						end
 						else begin
-							mac1_a <= data_point; // s^1_0
-							mac1_b <= w1; // w^1_0
+							mac1_a <= data_point; 
+							mac1_b <= sub1_out;  
 							mac1_c <= mac1_out;
-							mac2_a <= data_point; // s^1_1
-							mac2_b <= w5; // w^1_5
+							mac2_a <= data_point; 
+							mac2_b <= sub2_out;   
 							mac2_c <= mac2_out;
-							mac3_a <= data_point; // s^1_2
-							mac3_b <= w9; // w^1_9
+							mac3_a <= data_point; 
+							mac3_b <= sub3_out;   
 							mac3_c <= mac3_out;
 						end
 					end
 					2: begin
-						mac1_a <= data_point; // s^1_1
-						mac1_b <= w2; // w^1_4
+						mac1_a <= data_point; 
+						mac1_b <= sub1_out;   
 						mac1_c <= mac1_out; 
-						mac2_a <= data_point; // s^1_2
-						mac2_b <= w6; // w^1_5
+						mac2_a <= data_point; 
+						mac2_b <= sub2_out;   
 						mac2_c <= mac2_out; 
-						mac3_a <= data_point; // s^1_2
-						mac3_b <= w10; // w^1_10
+						mac3_a <= data_point; 
+						mac3_b <= sub3_out;   
 						mac3_c <= mac3_out;
 					end
 					3: begin
-						mac1_a <= data_point; // s^1_2
-						mac1_b <= w3; // w^1_8
+						mac1_a <= data_point; 
+						mac1_b <= sub1_out;   
 						mac1_c <= mac1_out;
-						mac2_a <= data_point; // s^1_3
-						mac2_b <= w7; // w^1_9
+						mac2_a <= data_point; 
+						mac2_b <= sub2_out;   
 						mac2_c <= mac2_out; 
-						mac3_a <= data_point; // s^1_3
-						mac3_b <= w11; // w^1_10
+						mac3_a <= data_point; 
+						mac3_b <= sub3_out;   
 						mac3_c <= mac3_out; 
 					end
 				endcase
