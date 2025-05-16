@@ -78,7 +78,6 @@ output reg [inst_sig_width+inst_exp_width:0] out;
 //   WIRE AND REG DECLARATION
 //---------------------------------------------------------------------
 wire [inst_sig_width+inst_exp_width:0] LR;
-reg  [$clog2(LR_SIZE)-1:0] LR_index; // index for learning rate
 reg  update_en; // enable signal for update
 reg  [DATASET_WIDTH-1:0] dataset_index; // index for dataset: 0 ~ 99
 
@@ -161,7 +160,7 @@ DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP3 (.a(mac3
 //----------------------------------------------------------------------
 // Module declaration 
 //---------------------------------------------------------------------
-CURRENT_LR #(.inst_sig_width(inst_sig_width), .inst_exp_width(inst_exp_width), .LR_SIZE(LR_SIZE)) CURR_LR (.rst_n(rst_n), .LR_index(LR_index), .LR(LR));
+CURRENT_LR #(.inst_sig_width(inst_sig_width), .inst_exp_width(inst_exp_width), .EPOCH_MAX(EPOCH_MAX)) CURR_LR (.epoch(epoch), .LR(LR));
 
 //---------------------------------------------------------------------
 // Assignments
@@ -206,21 +205,6 @@ always@(posedge clk or negedge rst_n) begin
 	end
 	else if (dataset_index == DATASET_MAX) begin
 		epoch <= epoch + 1; // increase epoch every 100 data points
-	end
-end
-
-// Increase LR_index every 4 epochs
-always@(posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
-		LR_index <= 0;
-	end
-	else if (curr_state == S_CALCULATE && cnt == 6) begin
-		if (epoch == EPOCH_MAX) begin
-			LR_index <= 0;
-		end 
-		else if ((epoch & 3) == 0 && epoch > 0) begin
-			LR_index <= LR_index + 1;
-		end
 	end
 end
 

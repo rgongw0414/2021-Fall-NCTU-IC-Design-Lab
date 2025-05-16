@@ -153,8 +153,26 @@ initial begin
 	end
 	#(1000);
 	YOU_PASS_task;
+	fclose_all(weight1_file, weight2_file, input_file, target_file, output_file);
 	$finish;
 end
+
+task fclose_all;
+    input integer weight1_file;
+    input integer weight2_file;
+    input integer input_file;
+    input integer target_file;
+    input integer output_file;
+
+    begin
+        if (weight1_file)  $fclose(weight1_file);
+        if (weight2_file)  $fclose(weight2_file);
+        if (input_file)    $fclose(input_file);
+        if (target_file)   $fclose(target_file);
+        if (output_file)   $fclose(output_file);
+    end
+endtask
+
 
 task reset_task; begin
 	#(10); rst_n = 0;
@@ -176,13 +194,13 @@ task weights_task; begin
 	in_valid_w2 = 'b1;
 	for (k = 0; k < INPUT_DIM*HIDDEN_DIM; k = k + 1) begin
 		weight1_desc = $fscanf(weight1_file, "%h", weight1);
-		if (weight1_desc == 0 || |(^weight1)) begin  //  `|(^signal)` checks if any unknown (X) or high-impedance (Z) bits in signal
+		if (weight1_desc == 0) begin
 			$display("Error: Failed to read weight1!");
 			$finish;
 		end
 		if (k < HIDDEN_DIM) begin
 			weight2_desc = $fscanf(weight2_file, "%h", weight2);
-			if (weight2_desc == 0 || |(^weight2)) begin
+			if (weight2_desc == 0) begin
 				$display("Error: Failed to read weight2!");
 				$finish;
 			end
@@ -204,7 +222,7 @@ task input_data; begin
 	in_valid_t = 'b1;
 	for (l = 0; l < INPUT_DIM; l = l + 1) begin
 		in_desc = $fscanf(input_file, "%h", data_point);
-		if (in_desc == 0 || |(^data_point)) begin
+		if (in_desc == 0) begin
 			$display("Error: Failed to read input layer data!");
 			$finish;
 		end
@@ -214,7 +232,7 @@ task input_data; begin
 			target     = 'bx;
 		end
 		else begin
-			target_desc  = $fscanf(target_file, "%h", target);
+			target_desc = $fscanf(target_file, "%h", target);
 			if (target_desc == 0) begin
 				$display("Error: Failed to read target input data!");
 				$finish;
@@ -224,7 +242,7 @@ task input_data; begin
 		@(negedge clk);
 	end
 	out_desc = $fscanf(output_file, "%h", out_gold); // Read ealry, so that check_ans don't have to wait for it (can read it right away)
-	if (out_desc == 0 || |(^out_gold)) begin
+	if (out_desc == 0) begin
 		$display("Error: Failed to read y_gold!");
 		$finish;
 	end
@@ -253,22 +271,13 @@ end endtask
 
 task check_ans; begin
     while (out_valid === 1) begin
-		// wait for div1_out_abs to be ready
-		// while (div1_out_abs == 32'hxxxxxxxx) begin
-		// 	@(negedge clk);
-		// end
-		// out_desc = $fscanf(output_file, "%h", out_gold);
-		// if (out_desc == 0) begin
-		// 	$display("Error: Failed to read maze output golden_step_num!");
-		// 	$finish;
-		// end
-		$display("out = %h, out_gold = %h, div1_out_abs = %h = %.6f", out, out_gold, div1_out_abs, $bitstoshortreal(div1_out_abs));
+		$strobe("out = %h, out_gold = %h, div1_out_abs = %h = %.6f", out, out_gold, div1_out_abs, $bitstoshortreal(div1_out_abs));
 		if (out !== out_gold && !under_tolerance) begin // Fail, if abs(out_gold - out) / out_gold > 0.0001
 			$display("--------------------------------------------------------------------------------------------------------------------------------------------");
 			$display("                                                                   FAIL! WRONG OUTPUT!                                                      ");
 			$display("                                                           Pattern NO.%1d Epoch NO.%1d Data NO.%1d                                          ", patcount, i, j);
 			$display("	                                                 y_pred = %.6f, y_gold = %.6f                                                             ", $bitstoshortreal(out), $bitstoshortreal(out_gold));
-			$display("	                                                 y_pred = %.6h, y_gold = %.6h                                                             ", out, out_gold);
+			$display("	                                                 y_pred = %h, y_gold = %h                                                                 ", out, out_gold);
 			$display("	                                             Error b/w golden = %.4f > tolerance = %.4f                                                   ", $bitstoshortreal(div1_out_abs), TOLERANCE);
 			$display("--------------------------------------------------------------------------------------------------------------------------------------------");
 			@(negedge clk);
