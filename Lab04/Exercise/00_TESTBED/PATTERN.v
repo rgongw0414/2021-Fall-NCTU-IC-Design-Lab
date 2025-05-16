@@ -1,18 +1,28 @@
 `ifdef RTL
 	`timescale 1ns/10ps
 	`include "NN.v"  
-	`define CYCLE_TIME 20.0
+	`define CYCLE_TIME 0.5
 `endif
 `ifdef GATE
 	`timescale 1ns/10ps
 	`include "../02_SYN/Netlist/NN_SYN.v"
-	`define CYCLE_TIME 20.0
+	`define CYCLE_TIME 17.5
 `endif
 
+//synopsys translate_off
+`include "DW_fp_mac.v"
 `include "DW_fp_mult.v"
 `include "DW_fp_sub.v"
-`include "DW_fp_div.v"
+`include "DW_fp_sum3.v"
 `include "DW_fp_cmp.v"
+
+`include "DW_fp_div.v"
+`include "DW_fp_dp2.v"
+`include "DW_fp_ifp_conv.v"
+`include "DW_fp_addsub.v"
+`include "DW_ifp_addsub.v"
+`include "DW_ifp_fp_conv.v"
+// synopsys translate_on
 
 module PATTERN(
 	// Output signals
@@ -67,11 +77,16 @@ input [inst_sig_width+inst_exp_width:0] out;
 reg  [inst_sig_width+inst_exp_width:0] out_gold;
 wire [inst_sig_width+inst_exp_width:0] sub1_out, div1_out, mult1_out, div1_out_abs;
 wire under_tolerance;
-DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB1_P (.a(out_gold), .b(out), .rnd(3'b000), .z(sub1_out), .status());
-DW_fp_div  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) DIV1_P (.a(sub1_out), .b(out_gold), .rnd(3'b000), .z(div1_out), .status());
-DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL1_P (.a(div1_out), .b(NEG_ONE), .rnd(3'b000), .z(mult1_out), .status());
+
+// dummy signals
+wire [7:0] dummy1, dummy2, dummy3, dummy9, dummy10;
+wire dummy4, dummy5, dummy6;
+wire [inst_sig_width+inst_exp_width:0] dummy7, dummy8;
+DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB1_P (.a(out_gold), .b(out), .rnd(3'b000), .z(sub1_out), .status(dummy1));
+DW_fp_div  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) DIV1_P (.a(sub1_out), .b(out_gold), .rnd(3'b000), .z(div1_out), .status(dummy2));
+DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL1_P (.a(div1_out), .b(NEG_ONE), .rnd(3'b000), .z(mult1_out), .status(dummy3));
 assign div1_out_abs = (div1_out[31] == 0) ? div1_out : mult1_out;
-DW_fp_cmp  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) CMP1_P (.a(div1_out_abs), .b(TOLERANCE), .altb(under_tolerance), .agtb(), .aeqb(), .unordered(), .z0(), .z1(), .status0(), .status1(), .zctr(1'b0));
+DW_fp_cmp  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) CMP1_P (.a(div1_out_abs), .b(TOLERANCE), .altb(under_tolerance), .agtb(dummy4), .aeqb(dummy5), .unordered(dummy6), .z0(dummy7), .z1(dummy8), .status0(dummy9), .status1(dummy10), .zctr(1'b0));
 
 //=================================================================
 // Integers
@@ -116,23 +131,23 @@ initial begin
   	output_file  = $fopen("../00_TESTBED/output_ignore.txt", "r");
 	if (weight1_file == 0) begin
 		$display("Error: Cannot open weight1 file!");
-		$finish;
+		fclose_all(weight1_file, weight2_file, input_file, target_file, output_file); $finish;
 	end
 	if (weight2_file == 0) begin
 		$display("Error: Cannot open weight2 file!");
-		$finish;
+		fclose_all(weight1_file, weight2_file, input_file, target_file, output_file); $finish;
 	end
 	if (input_file == 0) begin
 		$display("Error: Cannot open input file!");
-		$finish;
+		fclose_all(weight1_file, weight2_file, input_file, target_file, output_file); $finish;
 	end
 	if (target_file == 0) begin
 		$display("Error: Cannot open target file!");
-		$finish;
+		fclose_all(weight1_file, weight2_file, input_file, target_file, output_file); $finish;
 	end
 	if (output_file == 0) begin
 		$display("Error: Cannot open output file!");
-		$finish;
+		fclose_all(weight1_file, weight2_file, input_file, target_file, output_file); $finish;
 	end
     @(negedge clk);
 
@@ -152,9 +167,8 @@ initial begin
 		end
 	end
 	#(1000);
-	YOU_PASS_task;
 	fclose_all(weight1_file, weight2_file, input_file, target_file, output_file);
-	$finish;
+	YOU_PASS_task;
 end
 
 task fclose_all;
@@ -183,7 +197,7 @@ task reset_task; begin
 		$display("                                                  Output signal should be 0 after initial RESET at %8t                                      ", $time);
 		$display("--------------------------------------------------------------------------------------------------------------------------------------------");
 		#(100);
-	    $finish;
+	    fclose_all(weight1_file, weight2_file, input_file, target_file, output_file); $finish;
 	end
 	#(10);  rst_n = 1;
 	#(3.0); release clk;
@@ -196,13 +210,13 @@ task weights_task; begin
 		weight1_desc = $fscanf(weight1_file, "%h", weight1);
 		if (weight1_desc == 0) begin
 			$display("Error: Failed to read weight1!");
-			$finish;
+			fclose_all(weight1_file, weight2_file, input_file, target_file, output_file); $finish;
 		end
 		if (k < HIDDEN_DIM) begin
 			weight2_desc = $fscanf(weight2_file, "%h", weight2);
 			if (weight2_desc == 0) begin
 				$display("Error: Failed to read weight2!");
-				$finish;
+				fclose_all(weight1_file, weight2_file, input_file, target_file, output_file); $finish;
 			end
 		end
 		else if (k == HIDDEN_DIM) begin
@@ -224,7 +238,7 @@ task input_data; begin
 		in_desc = $fscanf(input_file, "%h", data_point);
 		if (in_desc == 0) begin
 			$display("Error: Failed to read input layer data!");
-			$finish;
+			fclose_all(weight1_file, weight2_file, input_file, target_file, output_file); $finish;
 		end
 
 		if (l >= 1) begin
@@ -235,7 +249,7 @@ task input_data; begin
 			target_desc = $fscanf(target_file, "%h", target);
 			if (target_desc == 0) begin
 				$display("Error: Failed to read target input data!");
-				$finish;
+				fclose_all(weight1_file, weight2_file, input_file, target_file, output_file); $finish;
 			end
 		end
 		// $display("data_point = %h, target = %h", data_point, target);
@@ -244,7 +258,7 @@ task input_data; begin
 	out_desc = $fscanf(output_file, "%h", out_gold); // Read ealry, so that check_ans don't have to wait for it (can read it right away)
 	if (out_desc == 0) begin
 		$display("Error: Failed to read y_gold!");
-		$finish;
+		fclose_all(weight1_file, weight2_file, input_file, target_file, output_file); $finish;
 	end
 	in_valid_d = 'b0;
 	in_valid_t = 'b0;
@@ -262,7 +276,7 @@ task wait_out_valid; begin
 			$display("                                                                                                                                            ");
 			$display("--------------------------------------------------------------------------------------------------------------------------------------------");
 			repeat(2)@(negedge clk);
-			$finish;
+			fclose_all(weight1_file, weight2_file, input_file, target_file, output_file); $finish;
 		end
 		@(negedge clk);
 	end
@@ -271,7 +285,7 @@ end endtask
 
 task check_ans; begin
     while (out_valid === 1) begin
-		$strobe("out = %h, out_gold = %h, div1_out_abs = %h = %.6f", out, out_gold, div1_out_abs, $bitstoshortreal(div1_out_abs));
+		// $strobe("out = %h, out_gold = %h, div1_out_abs = %h = %.6f", out, out_gold, div1_out_abs, $bitstoshortreal(div1_out_abs));
 		if (out !== out_gold && !under_tolerance) begin // Fail, if abs(out_gold - out) / out_gold > 0.0001
 			$display("--------------------------------------------------------------------------------------------------------------------------------------------");
 			$display("                                                                   FAIL! WRONG OUTPUT!                                                      ");
@@ -281,7 +295,7 @@ task check_ans; begin
 			$display("	                                             Error b/w golden = %.4f > tolerance = %.4f                                                   ", $bitstoshortreal(div1_out_abs), TOLERANCE);
 			$display("--------------------------------------------------------------------------------------------------------------------------------------------");
 			@(negedge clk);
-			$finish;
+			fclose_all(weight1_file, weight2_file, input_file, target_file, output_file); $finish;
 		end
 		@(negedge clk);
     end

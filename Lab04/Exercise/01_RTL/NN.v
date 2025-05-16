@@ -1,11 +1,3 @@
-//synopsys translate_off
-`include "DW_fp_mac.v"
-`include "DW_fp_mult.v"
-`include "DW_fp_sub.v"
-`include "DW_fp_sum3.v"
-`include "DW_fp_cmp.v"
-// synopsys translate_on
-
 `include "CURRENT_LR.v"
 
 module NN(
@@ -130,30 +122,42 @@ reg [CNT_WIDTH-1:0]   cnt; // cnt for pipeline stage
 //---------------------------------------------------------------------
 //   DesignWare
 //---------------------------------------------------------------------
-DW_fp_mac  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MAC1 (.a(mac1_a), .b(mac1_b), .c(mac1_c), .rnd(rnd), .z(mac1_out), .status());
-DW_fp_mac  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MAC2 (.a(mac2_a), .b(mac2_b), .c(mac2_c), .rnd(rnd), .z(mac2_out), .status());
-DW_fp_mac  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MAC3 (.a(mac3_a), .b(mac3_b), .c(mac3_c), .rnd(rnd), .z(mac3_out), .status());
-DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL1 (.a(mult1_a), .b(mult1_b), .rnd(rnd), .z(mult1_out), .status());
-DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL2 (.a(mult2_a), .b(mult2_b), .rnd(rnd), .z(mult2_out), .status());
-DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL3 (.a(mult3_a), .b(mult3_b), .rnd(rnd), .z(mult3_out), .status());
-DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL4 (.a(mult4_a), .b(mult4_b), .rnd(rnd), .z(mult4_out), .status());
-DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB1 (.a(sub1_a), .b(sub1_b), .rnd(rnd), .z(sub1_out), .status());
-DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB2 (.a(sub2_a), .b(sub2_b), .rnd(rnd), .z(sub2_out), .status());
-DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB3 (.a(sub3_a), .b(sub3_b), .rnd(rnd), .z(sub3_out), .status());
-DW_fp_sum3 #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUM1 (.a(sum1_a), .b(sum1_b), .c(sum1_c), .rnd(rnd), .z(sum1_out), .status());
+wire [7:0] dummy_status1, dummy_status2, dummy_status3, dummy_status4, dummy_status5, dummy_status6, dummy_status7, dummy_status8, dummy_status9, dummy_status10, dummy_status11, dummy_status12, dummy_status13, dummy_status14, dummy_status15, dummy_status16, dummy_status17;
+wire dummy_flag1, dummy_flag2, dummy_flag3, dummy_flag4, dummy_flag5, dummy_flag6, dummy_flag7, dummy_flag8, dummy_flag9;
+wire [inst_sig_width+inst_exp_width:0] dummy_z1, dummy_z2, dummy_z3, dummy_z4, dummy_z5, dummy_z6;
+DW_fp_mac  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MAC1 (.a(mac1_a), .b(mac1_b), .c(mac1_c), .rnd(rnd), .z(mac1_out), .status(dummy_status1));
+DW_fp_mac  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MAC2 (.a(mac2_a), .b(mac2_b), .c(mac2_c), .rnd(rnd), .z(mac2_out), .status(dummy_status2));
+DW_fp_mac  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MAC3 (.a(mac3_a), .b(mac3_b), .c(mac3_c), .rnd(rnd), .z(mac3_out), .status(dummy_status3));
+DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL1 (.a(mult1_a), .b(mult1_b), .rnd(rnd), .z(mult1_out), .status(dummy_status4));
+DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL2 (.a(mult2_a), .b(mult2_b), .rnd(rnd), .z(mult2_out), .status(dummy_status5));
+DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL3 (.a(mult3_a), .b(mult3_b), .rnd(rnd), .z(mult3_out), .status(dummy_status6));
+DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL4 (.a(mult4_a), .b(mult4_b), .rnd(rnd), .z(mult4_out), .status(dummy_status7));
+DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB1 (.a(sub1_a), .b(sub1_b), .rnd(rnd), .z(sub1_out), .status(dummy_status8));
+DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB2 (.a(sub2_a), .b(sub2_b), .rnd(rnd), .z(sub2_out), .status(dummy_status9));
+DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB3 (.a(sub3_a), .b(sub3_b), .rnd(rnd), .z(sub3_out), .status(dummy_status10));
+DW_fp_sum3 #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUM1 (.a(sum1_a), .b(sum1_b), .c(sum1_c), .rnd(rnd), .z(sum1_out), .status(dummy_status11));
 
 // compare mac1_out, mac2_out, mac3_out with 0.0 to check if they are positive or negative
-DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP1 (.a(mac1_out), .b(FP_ZERO), .altb(), .agtb(h0_is_pos), .aeqb(), .unordered(), .z0(), .z1(), .status0(), .status1(), .zctr(1'b0));
-DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP2 (.a(mac2_out), .b(FP_ZERO), .altb(), .agtb(h1_is_pos), .aeqb(), .unordered(), .z0(), .z1(), .status0(), .status1(), .zctr(1'b0));
-DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP3 (.a(mac3_out), .b(FP_ZERO), .altb(), .agtb(h2_is_pos), .aeqb(), .unordered(), .z0(), .z1(), .status0(), .status1(), .zctr(1'b0));
+DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP1 (.a(mac1_out), .b(FP_ZERO), .altb(dummy_flag1), .agtb(h0_is_pos), .aeqb(dummy_flag2), .unordered(dummy_flag3), .z0(dummy_z1), .z1(dummy_z2), .status0(dummy_status12), .status1(dummy_status13), .zctr(1'b0));
+DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP2 (.a(mac2_out), .b(FP_ZERO), .altb(dummy_flag4), .agtb(h1_is_pos), .aeqb(dummy_flag5), .unordered(dummy_flag6), .z0(dummy_z3), .z1(dummy_z4), .status0(dummy_status14), .status1(dummy_status15), .zctr(1'b0));
+DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP3 (.a(mac3_out), .b(FP_ZERO), .altb(dummy_flag7), .agtb(h2_is_pos), .aeqb(dummy_flag8), .unordered(dummy_flag9), .z0(dummy_z5), .z1(dummy_z6), .status0(dummy_status16), .status1(dummy_status17), .zctr(1'b0));
 
 // synopsys dc_script_begin
 //
-// set_implementation rtl DW_fp_mac
-// set_implementation rtl DW_fp_mult
-// set_implementation rtl DW_fp_sub
-// set_implementation rtl DW_fp_sum3
-// set_implementation rtl DW_fp_cmp
+// set_implementation rtl MAC1
+// set_implementation rtl MAC2
+// set_implementation rtl MAC3
+// set_implementation rtl MUL1
+// set_implementation rtl MUL2
+// set_implementation rtl MUL3
+// set_implementation rtl MUL4
+// set_implementation rtl SUB1
+// set_implementation rtl SUB2
+// set_implementation rtl SUB3
+// set_implementation rtl SUM1
+// set_implementation rtl CMP1
+// set_implementation rtl CMP2
+// set_implementation rtl CMP3
 //
 // synopsys dc_script_end
 
@@ -165,7 +169,6 @@ CURRENT_LR #(.inst_sig_width(inst_sig_width), .inst_exp_width(inst_exp_width), .
 //---------------------------------------------------------------------
 // Assignments
 //---------------------------------------------------------------------
-// assign mult4_a = LR;
 
 //---------------------------------------------------------------------
 // Always block
@@ -309,21 +312,6 @@ always@(posedge clk or negedge rst_n) begin
 	end
 end
 
-// always@(posedge clk or negedge rst_n) begin
-// 	if (!rst_n) begin
-// 		s0 <= 0;
-// 		s1 <= 0;
-// 		s2 <= 0;
-// 		s3 <= 0;
-// 	end
-// 	else if (in_valid_d) begin
-// 		s0 <= s1; // s^1_0
-// 		s1 <= s2; // s^1_1
-// 		s2 <= s3; // s^1_2
-// 		s3 <= data_point; // s^1_3
-// 	end
-// end
-
 always@(posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		target_r <= 0;
@@ -430,17 +418,6 @@ end
 
 // MULs
 always@(*) begin
-	// if (!rst_n) begin
-	// 	mult1_a = 0;
-	// 	mult1_b = 0;
-	// 	mult2_a = 0;
-	// 	mult2_b = 0;
-	// 	mult3_a = 0;
-	// 	mult3_b = 0;
-	// 	mult4_a = LR;
-	// 	mult4_b = 0;
-	// end
-	// else begin
 	case (curr_state) 
 		S_CALCULATE: begin
 			case (cnt)
@@ -537,7 +514,6 @@ always@(*) begin
 			mult4_b = 0;
 		end
 	endcase
-	// end
 end
 
 always@(posedge clk or negedge rst_n) begin
@@ -597,121 +573,101 @@ always@(posedge clk or negedge rst_n) begin
 	end
 end
 
-// assign sum1_a = mult1_out;
-// assign sum1_b = mult2_out;
-// assign sum1_c = mult3_out;
 always@(*) begin
-	if (!rst_n) begin
-		sum1_a = 0;
-		sum1_b = 0;
-		sum1_c = 0;
-	end
-	else begin
-		case (curr_state) 
-			S_CALCULATE: begin
-				case (cnt)
-					5: begin // y_pred = w^2_0 * y^1_0 + w^2_1 * y^1_1 + w^2_2 * y^1_2
-						sum1_a = mult1_out; // w^2_0 * y^1_0
-						sum1_b = mult2_out; // w^2_1 * y^1_1
-						sum1_c = mult3_out; // w^2_2 * y^1_2
-					end
-					default: begin
-						sum1_a = 0;
-						sum1_b = 0;
-						sum1_c = 0;
-					end
-				endcase
-			end
-			default: begin
-				sum1_a = 0;
-				sum1_b = 0;
-				sum1_c = 0;
-			end
-		endcase
-	end
+	case (curr_state) 
+		S_CALCULATE: begin
+			case (cnt)
+				5: begin // y_pred = w^2_0 * y^1_0 + w^2_1 * y^1_1 + w^2_2 * y^1_2
+					sum1_a = mult1_out; // w^2_0 * y^1_0
+					sum1_b = mult2_out; // w^2_1 * y^1_1
+					sum1_c = mult3_out; // w^2_2 * y^1_2
+				end
+				default: begin
+					sum1_a = 0;
+					sum1_b = 0;
+					sum1_c = 0;
+				end
+			endcase
+		end
+		default: begin
+			sum1_a = 0;
+			sum1_b = 0;
+			sum1_c = 0;
+		end
+	endcase
 end
 
 always@(*) begin
-	if (!rst_n) begin
-		sub1_a = 0;
-		sub1_b = 0;
-		sub2_a = 0;
-		sub2_b = 0;
-		sub3_a = 0;
-		sub3_b = 0;
-	end
-	else begin
-		case (curr_state) 
-			S_CALCULATE: begin
-				case (cnt)
-					1: begin
-						sub1_a = w1; 
-						sub1_b = mult1_out; 
-						sub2_a = w5; 
-						sub2_b = mult2_out; 
-						sub3_a = w9; 
-						sub3_b = mult3_out; 
-					end
-					2: begin
-						sub1_a = w2; 
-						sub1_b = mult1_out; 
-						sub2_a = w6; 
-						sub2_b = mult2_out; 
-						sub3_a = w10; 
-						sub3_b = mult3_out; 
-					end
-					3: begin
-						sub1_a = w3; 
-						sub1_b = mult1_out; 
-						sub2_a = w7; 
-						sub2_b = mult2_out; 
-						sub3_a = w11; 
-						sub3_b = mult3_out; 
-					end
-					4: begin
-						sub1_a = w20; 
-						sub1_b = mult1_out; 
-						sub2_a = w21; 
-						sub2_b = mult2_out; 
-						sub3_a = w22; 
-						sub3_b = mult3_out; 
-					end
-					5: begin // delta2 = y_pred - target
-						sub1_a = sum1_out; // y_pred = w^2_0 * y^1_0 + w^2_1 * y^1_1 + w^2_2 * y^1_2
-						sub1_b = target_r; // target = y_gold
-						sub2_a = 0;
-						sub2_b = 0;
-						sub3_a = 0;
-						sub3_b = 0;
-					end
-					7: begin
-						sub1_a = w0; // w^1_0
-						sub1_b = mult1_out; // LR * grad = LR * (LR*s0*delta^1_0)
-						sub2_a = w4; 
-						sub2_b = mult2_out; 
-						sub3_a = w8; 
-						sub3_b = mult3_out;
-					end
-					default: begin
-						sub1_a = 0;
-						sub1_b = 0;
-						sub2_a = 0;
-						sub2_b = 0;
-						sub3_a = 0;
-						sub3_b = 0;
-					end
-				endcase
-			end
-			default: begin
-				sub1_a = 0;
-				sub1_b = 0;
-				sub2_a = 0;
-				sub2_b = 0;
-				sub3_a = 0;
-				sub3_b = 0;
-			end
-		endcase
-	end
+	case (curr_state) 
+		S_CALCULATE: begin
+			case (cnt)
+				1: begin
+					sub1_a = w1; 
+					sub1_b = mult1_out; 
+					sub2_a = w5; 
+					sub2_b = mult2_out; 
+					sub3_a = w9; 
+					sub3_b = mult3_out; 
+				end
+				2: begin
+					sub1_a = w2; 
+					sub1_b = mult1_out; 
+					sub2_a = w6; 
+					sub2_b = mult2_out; 
+					sub3_a = w10; 
+					sub3_b = mult3_out; 
+				end
+				3: begin
+					sub1_a = w3; 
+					sub1_b = mult1_out; 
+					sub2_a = w7; 
+					sub2_b = mult2_out; 
+					sub3_a = w11; 
+					sub3_b = mult3_out; 
+				end
+				4: begin
+					sub1_a = w20; 
+					sub1_b = mult1_out; 
+					sub2_a = w21; 
+					sub2_b = mult2_out; 
+					sub3_a = w22; 
+					sub3_b = mult3_out; 
+				end
+				5: begin // delta2 = y_pred - target
+					sub1_a = sum1_out; // y_pred = w^2_0 * y^1_0 + w^2_1 * y^1_1 + w^2_2 * y^1_2
+					sub1_b = target_r; // target = y_gold
+					sub2_a = 0;
+					sub2_b = 0;
+					sub3_a = 0;
+					sub3_b = 0;
+				end
+				7: begin
+					sub1_a = w0; // w^1_0
+					sub1_b = mult1_out; // LR * grad = LR * (LR*s0*delta^1_0)
+					sub2_a = w4; 
+					sub2_b = mult2_out; 
+					sub3_a = w8; 
+					sub3_b = mult3_out;
+				end
+				default: begin
+					sub1_a = 0;
+					sub1_b = 0;
+					sub2_a = 0;
+					sub2_b = 0;
+					sub3_a = 0;
+					sub3_b = 0;
+				end
+			endcase
+		end
+		default: begin
+			sub1_a = 0;
+			sub1_b = 0;
+			sub2_a = 0;
+			sub2_b = 0;
+			sub3_a = 0;
+			sub3_b = 0;
+		end
+	endcase
 end
 
 always@(posedge clk or negedge rst_n) begin
@@ -731,20 +687,6 @@ always@(posedge clk or negedge rst_n) begin
 	end
 end
 
-// always@(posedge clk or negedge rst_n) begin
-// 	if (!rst_n) begin
-// 		cnt <= 1;
-// 	end
-// 	else if (curr_state == S_CALCULATE) begin
-// 		if (cnt == CNT_MAX) begin
-// 			cnt <= 1;
-// 		end 
-// 		else begin
-// 			cnt <= cnt + 1;
-// 		end
-// 	end
-// end
-
 always@(posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		out <= 0;
@@ -758,9 +700,6 @@ always@(posedge clk or negedge rst_n) begin
 		out <= 0;
 		out_valid <= 0;
 	end
-	// else if (curr_state == S_INPUT) begin
-	// 	out_valid <= 0;
-	// end
 end
 
 //------------------------------------------
