@@ -191,11 +191,9 @@ always@(posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		dataset_index <= 0;
 	end
-	else if (dataset_index == DATASET_MAX) begin
-		dataset_index <= 0;
-	end
-	else if (update_en && cnt == 4) begin
-		dataset_index <= dataset_index + 1;
+	else if (cnt == 7) begin
+		if (dataset_index == DATASET_MAX) dataset_index <= 0;
+		else                              dataset_index <= dataset_index + 1;
 	end
 end
 
@@ -203,11 +201,11 @@ always@(posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		epoch <= 0;
 	end
-	else if (epoch == EPOCH_MAX && dataset_index == DATASET_MAX) begin
-		epoch <= 0; // increase epoch every 100 data points
-	end
 	else if (dataset_index == DATASET_MAX) begin
-		epoch <= epoch + 1; // increase epoch every 100 data points
+		if (epoch == EPOCH_MAX && cnt == 5) epoch <= 0;         // reached the end of current dataset
+
+		// once cnt stop incrementing, epoch will stop incrementing, or chose another way to keep the current epoch value
+		if (cnt == 6)                       epoch <= epoch + 1; // increase epoch every 100 data points
 	end
 end
 
@@ -635,7 +633,7 @@ always@(posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		cnt <= 1;
 	end
-	else if (curr_state == S_CALCULATE) begin
+	else if (curr_state == S_CALCULATE) begin // TODO: reset to 1 when finish current dataset
 		if (cnt == CNT_MAX) begin
 			cnt <= 1;
 		end 
@@ -694,7 +692,7 @@ always @(*) begin
 			end
 		end
 		S_CALCULATE: begin
-			if (epoch == EPOCH_MAX && dataset_index == DATASET_MAX) begin
+			if (epoch == EPOCH_MAX && dataset_index == DATASET_MAX && cnt == 5) begin
 				next_state = S_INPUT;
 			end 
 			else begin

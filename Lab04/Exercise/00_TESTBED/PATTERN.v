@@ -173,6 +173,8 @@ initial begin
 				$display("\033[0;34mPASS PATTERN NO.%3d, EPOCH_%1d, DATA_%1d\033[m \033[0;32m Cycles: %3d\033[m", patcount, i+1, j+1, cycles);
 			end
 		end
+		i = 0;
+		j = 0;
 	end
 	#(1000);
 	fclose_all(weight1_file, weight2_file, input_file, target_file, output_file);
