@@ -418,102 +418,88 @@ end
 
 // MULs
 always@(*) begin
-	case (curr_state) 
-		S_CALCULATE: begin
-			case (cnt)
-				1: begin
-					mult1_a = delta10; 
-					mult1_b = LRs1; 
-					mult2_a = delta11;
-					mult2_b = LRs1;
-					mult3_a = delta12;
-					mult3_b = LRs1;
-					mult4_a = LR; 
-					mult4_b = s0; 
-				end
-				2: begin
-					mult1_a = delta10; 
-					mult1_b = LRs2; 
-					mult2_a = delta11;
-					mult2_b = LRs2;
-					mult3_a = delta12;
-					mult3_b = LRs2;
-					mult4_a = LR;
-					mult4_b = s1;
-				end
-				3: begin
-					mult1_a = delta10; 
-					mult1_b = LRs3; 
-					mult2_a = delta11;
-					mult2_b = LRs3;
-					mult3_a = delta12;
-					mult3_b = LRs3;
-					mult4_a = LR;
-					mult4_b = s2;
-				end
-				4: begin
-					mult1_a = LRdelta2; // LR*delta2 = LR*(y_pred - target)
-					mult1_b = y0; 
-					mult2_a = LRdelta2;
-					mult2_b = y1;
-					mult3_a = LRdelta2;
-					mult3_b = y2;
-					mult4_a = LR;
-					mult4_b = s3;
-				end
-				5: begin
-					mult1_a = y0; 
-					mult1_b = w20; // w^2_0
-					mult2_a = y1;
-					mult2_b = w21; // w^2_1
-					mult3_a = y2;
-					mult3_b = w22; // w^2_2
-					mult4_a = LR;
-					mult4_b = 0;
-				end
-				6: begin
-					mult1_a = delta2; // delta2 = y_pred - target
-					mult1_b = w20; // w^2_0
-					mult2_a = delta2;
-					mult2_b = w21; // w^2_1
-					mult3_a = delta2;
-					mult3_b = w22; // w^2_2
-					mult4_a = LR;
-					mult4_b = delta2; // delta2 = y_pred - target
-				end
-				7: begin
-					mult1_a = delta10; 
-					mult1_b = LRs0; // LR*s0
-					mult2_a = delta11;
-					mult2_b = LRs0; // LR*s1
-					mult3_a = delta12;
-					mult3_b = LRs0; // LR*s2
-					mult4_a = LR;
-					mult4_b = 0;
-				end
-				default: begin
-					mult1_a = 0;
-					mult1_b = 0;
-					mult2_a = 0;
-					mult2_b = 0;
-					mult3_a = 0;
-					mult3_b = 0;
-					mult4_a = LR;
-					mult4_b = 0;
-				end
-			endcase
-		end
-		default: begin
-			mult1_a = 0;
-			mult1_b = 0;
-			mult2_a = 0;
-			mult2_b = 0;
-			mult3_a = 0;
-			mult3_b = 0;
-			mult4_a = LR;
-			mult4_b = 0;
-		end
-	endcase
+	mult1_a = 0;
+	mult1_b = 0;
+	mult2_a = 0;
+	mult2_b = 0;
+	mult3_a = 0;
+	mult3_b = 0;
+	mult4_a = LR;
+	mult4_b = 0;
+	if (curr_state == S_CALCULATE) begin
+		case (cnt)
+			1: begin
+				mult1_a = delta10; 
+				mult1_b = LRs1; 
+				mult2_a = delta11;
+				mult2_b = LRs1;
+				mult3_a = delta12;
+				mult3_b = LRs1;
+				mult4_a = LR; 
+				mult4_b = s0; 
+			end
+			2: begin
+				mult1_a = delta10; 
+				mult1_b = LRs2; 
+				mult2_a = delta11;
+				mult2_b = LRs2;
+				mult3_a = delta12;
+				mult3_b = LRs2;
+				mult4_a = LR;
+				mult4_b = s1;
+			end
+			3: begin
+				mult1_a = delta10; 
+				mult1_b = LRs3; 
+				mult2_a = delta11;
+				mult2_b = LRs3;
+				mult3_a = delta12;
+				mult3_b = LRs3;
+				mult4_a = LR;
+				mult4_b = s2;
+			end
+			4: begin
+				mult1_a = LRdelta2; // LR*delta2 = LR*(y_pred - target)
+				mult1_b = y0; 
+				mult2_a = LRdelta2;
+				mult2_b = y1;
+				mult3_a = LRdelta2;
+				mult3_b = y2;
+				mult4_a = LR;
+				mult4_b = s3;
+			end
+			5: begin
+				mult1_a = y0; 
+				mult1_b = w20; // w^2_0
+				mult2_a = y1;
+				mult2_b = w21; // w^2_1
+				mult3_a = y2;
+				mult3_b = w22; // w^2_2
+				mult4_a = LR;
+				mult4_b = 0;
+			end
+			6: begin
+				mult1_a = delta2; // delta2 = y_pred - target
+				mult1_b = w20; // w^2_0
+				mult2_a = delta2;
+				mult2_b = w21; // w^2_1
+				mult3_a = delta2;
+				mult3_b = w22; // w^2_2
+				mult4_a = LR;
+				mult4_b = delta2; // delta2 = y_pred - target
+			end
+			7: begin
+				mult1_a = delta10; 
+				mult1_b = LRs0; // LR*s0
+				mult2_a = delta11;
+				mult2_b = LRs0; // LR*s1
+				mult3_a = delta12;
+				mult3_b = LRs0; // LR*s2
+				mult4_a = LR;
+				mult4_b = 0;
+			end
+		endcase
+	end
 end
 
 always@(posedge clk or negedge rst_n) begin
@@ -574,100 +560,75 @@ always@(posedge clk or negedge rst_n) begin
 end
 
 always@(*) begin
-	case (curr_state) 
-		S_CALCULATE: begin
-			case (cnt)
-				5: begin // y_pred = w^2_0 * y^1_0 + w^2_1 * y^1_1 + w^2_2 * y^1_2
-					sum1_a = mult1_out; // w^2_0 * y^1_0
-					sum1_b = mult2_out; // w^2_1 * y^1_1
-					sum1_c = mult3_out; // w^2_2 * y^1_2
-				end
-				default: begin
-					sum1_a = 0;
-					sum1_b = 0;
-					sum1_c = 0;
-				end
-			endcase
-		end
-		default: begin
-			sum1_a = 0;
-			sum1_b = 0;
-			sum1_c = 0;
-		end
-	endcase
+	sum1_a = 0;
+	sum1_b = 0;
+	sum1_c = 0;
+	if (curr_state == S_CALCULATE && cnt == 5) begin
+		sum1_a = mult1_out;
+		sum1_b = mult2_out;
+		sum1_c = mult3_out;
+	end
 end
 
 always@(*) begin
-	case (curr_state) 
-		S_CALCULATE: begin
-			case (cnt)
-				1: begin
-					sub1_a = w1; 
-					sub1_b = mult1_out; 
-					sub2_a = w5; 
-					sub2_b = mult2_out; 
-					sub3_a = w9; 
-					sub3_b = mult3_out; 
-				end
-				2: begin
-					sub1_a = w2; 
-					sub1_b = mult1_out; 
-					sub2_a = w6; 
-					sub2_b = mult2_out; 
-					sub3_a = w10; 
-					sub3_b = mult3_out; 
-				end
-				3: begin
-					sub1_a = w3; 
-					sub1_b = mult1_out; 
-					sub2_a = w7; 
-					sub2_b = mult2_out; 
-					sub3_a = w11; 
-					sub3_b = mult3_out; 
-				end
-				4: begin
-					sub1_a = w20; 
-					sub1_b = mult1_out; 
-					sub2_a = w21; 
-					sub2_b = mult2_out; 
-					sub3_a = w22; 
-					sub3_b = mult3_out; 
-				end
-				5: begin // delta2 = y_pred - target
-					sub1_a = sum1_out; // y_pred = w^2_0 * y^1_0 + w^2_1 * y^1_1 + w^2_2 * y^1_2
-					sub1_b = target_r; // target = y_gold
-					sub2_a = 0;
-					sub2_b = 0;
-					sub3_a = 0;
-					sub3_b = 0;
-				end
-				7: begin
-					sub1_a = w0; // w^1_0
-					sub1_b = mult1_out; // LR * grad = LR * (LR*s0*delta^1_0)
-					sub2_a = w4; 
-					sub2_b = mult2_out; 
-					sub3_a = w8; 
-					sub3_b = mult3_out;
-				end
-				default: begin
-					sub1_a = 0;
-					sub1_b = 0;
-					sub2_a = 0;
-					sub2_b = 0;
-					sub3_a = 0;
-					sub3_b = 0;
-				end
-			endcase
-		end
-		default: begin
-			sub1_a = 0;
-			sub1_b = 0;
-			sub2_a = 0;
-			sub2_b = 0;
-			sub3_a = 0;
-			sub3_b = 0;
-		end
-	endcase
+	sub1_a = 0;
+	sub1_b = 0;
+	sub2_a = 0;
+	sub2_b = 0;
+	sub3_a = 0;
+	sub3_b = 0;
+	if (curr_state == S_CALCULATE) begin
+		case (cnt)
+			1: begin
+				sub1_a = w1; 
+				sub1_b = mult1_out; 
+				sub2_a = w5; 
+				sub2_b = mult2_out; 
+				sub3_a = w9; 
+				sub3_b = mult3_out; 
+			end
+			2: begin
+				sub1_a = w2; 
+				sub1_b = mult1_out; 
+				sub2_a = w6; 
+				sub2_b = mult2_out; 
+				sub3_a = w10; 
+				sub3_b = mult3_out; 
+			end
+			3: begin
+				sub1_a = w3; 
+				sub1_b = mult1_out; 
+				sub2_a = w7; 
+				sub2_b = mult2_out; 
+				sub3_a = w11; 
+				sub3_b = mult3_out; 
+			end
+			4: begin
+				sub1_a = w20; 
+				sub1_b = mult1_out; 
+				sub2_a = w21; 
+				sub2_b = mult2_out; 
+				sub3_a = w22; 
+				sub3_b = mult3_out; 
+			end
+			5: begin // delta2 = y_pred - target
+				sub1_a = sum1_out; // y_pred = w^2_0 * y^1_0 + w^2_1 * y^1_1 + w^2_2 * y^1_2
+				sub1_b = target_r; // target = y_gold
+				sub2_a = 0;
+				sub2_b = 0;
+				sub3_a = 0;
+				sub3_b = 0;
+			end
+			7: begin
+				sub1_a = w0; // w^1_0
+				sub1_b = mult1_out; // LR * grad = LR * (LR*s0*delta^1_0)
+				sub2_a = w4; 
+				sub2_b = mult2_out; 
+				sub3_a = w8; 
+				sub3_b = mult3_out;
+			end
+		endcase
+	end
 end
 
 always@(posedge clk or negedge rst_n) begin

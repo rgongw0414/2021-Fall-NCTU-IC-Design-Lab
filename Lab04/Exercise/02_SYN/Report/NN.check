@@ -2,7 +2,7 @@
 ****************************************
 check_design summary:
 Version:     S-2021.06-SP2
-Date:        Fri May 16 17:49:36 2025
+Date:        Fri May 16 20:00:57 2025
 ****************************************
 
                    Name                                            Total
@@ -18,10 +18,10 @@ Nets                                                              337
     Unloaded nets (LINT-2)                                        337
 --------------------------------------------------------------------------------
 
-Warning: In design 'NN', cell 'C10694' does not drive any nets. (LINT-1)
-Warning: In design 'NN', cell 'C10703' does not drive any nets. (LINT-1)
-Warning: In design 'NN', cell 'C10755' does not drive any nets. (LINT-1)
-Warning: In design 'NN', cell 'C10916' does not drive any nets. (LINT-1)
+Warning: In design 'NN', cell 'C10587' does not drive any nets. (LINT-1)
+Warning: In design 'NN', cell 'C10596' does not drive any nets. (LINT-1)
+Warning: In design 'NN', cell 'C10648' does not drive any nets. (LINT-1)
+Warning: In design 'NN', cell 'C10800' does not drive any nets. (LINT-1)
 Warning: In design 'NN', net 'dummy_status17[0]' driven by pin 'CMP3/status1_0' has no loads. (LINT-2)
 Warning: In design 'NN', net 'dummy_status17[1]' driven by pin 'CMP3/status1_1' has no loads. (LINT-2)
 Warning: In design 'NN', net 'dummy_status17[2]' driven by pin 'CMP3/status1_2' has no loads. (LINT-2)

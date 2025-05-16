@@ -1,12 +1,12 @@
 `ifdef RTL
 	`timescale 1ns/10ps
 	`include "NN.v"  
-	`define CYCLE_TIME 0.5
+	`define CYCLE_TIME 19.5
 `endif
 `ifdef GATE
 	`timescale 1ns/10ps
 	`include "../02_SYN/Netlist/NN_SYN.v"
-	`define CYCLE_TIME 17.5
+	`define CYCLE_TIME 19.5
 `endif
 
 //synopsys translate_off
