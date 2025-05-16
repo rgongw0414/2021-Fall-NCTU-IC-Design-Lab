@@ -13,13 +13,13 @@ module CURRENT_LR #(
 		end 
 		else begin
 			case (LR_index)
-				0: LR = 32'h358637bd; // 0.000001
-				1: LR = 32'h350637bd;
-				2: LR = 32'h348637bd;
-				3: LR = 32'h340637bd;
-				4: LR = 32'h338637bd;
-				5: LR = 32'h330637bd;
-				6: LR = 32'h328637bd; // reset to 0 after 6th index
+				0: LR = 32'h358637bd; // epoch 0 ~ 3:   LR = 1e-6
+				1: LR = 32'h350637bd; // epoch 4 ~ 7:   LR = 5e-7
+				2: LR = 32'h348637bd; // epoch 8 ~ 11:  LR = 2.5e-7
+				3: LR = 32'h340637bd; // epoch 12 ~ 15: LR = 1.25e-7
+				4: LR = 32'h338637bd; // epoch 16 ~ 19: LR = 6.25e-8
+				5: LR = 32'h330637bd; // epoch 20 ~ 23: LR = 3.125e-8
+				6: LR = 32'h328637bd; // epoch 24     : LR = 1.5625e-8
 				default: LR = 32'h00000000;
 			endcase
 		end

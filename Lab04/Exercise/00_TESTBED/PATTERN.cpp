@@ -99,8 +99,16 @@ int main() {
         vector<Sample> data(DATA_SIZE);
         for (int i = 0; i < DATA_SIZE; i++) {
             for (int j = 0; j < INPUT_DIM; j++) 
-                fin << float_to_hex(data[i].x[j] = ((float)rand() / RAND_MAX) * 2 - 1) << endl;  // [-1, 1]
-            ft << float_to_hex(data[i].y = ((float)rand() / RAND_MAX) * 2 - 1) << endl;  // [-1, 1]
+                data[i].x[j] = ((float)rand() / RAND_MAX) * 2 - 1;  // [-1, 1]
+            data[i].y = ((float)rand() / RAND_MAX) * 2 - 1;         // [-1, 1]
+        }
+
+        for (int epoch = 0; epoch < EPOCHS; epoch++) {
+            for (int i = 0; i < DATA_SIZE; i++) {
+                for (int j = 0; j < INPUT_DIM; j++) 
+                    fin << float_to_hex(data[i].x[j]) << endl;  // [-1, 1]
+                ft << float_to_hex(data[i].y) << endl;  // [-1, 1]
+            }
         }
 
         // Initialize weights
