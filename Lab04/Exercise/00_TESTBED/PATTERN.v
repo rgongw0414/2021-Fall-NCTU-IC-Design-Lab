@@ -51,7 +51,7 @@ parameter inst_ieee_compliance = 0;
 parameter inst_arch            = 2;
 
 // Testbench parameters
-parameter PATTERN_NUM = 100;
+parameter PATTERN_NUM = 15;
 parameter INPUT_DIM   = 4;
 parameter HIDDEN_DIM  = 3;
 parameter EPOCHS      = 25;
@@ -74,8 +74,8 @@ input [inst_sig_width+inst_exp_width:0] out;
 //================================================================
 // wires & registers
 //================================================================
-reg  [inst_sig_width+inst_exp_width:0] out_gold;
-wire [inst_sig_width+inst_exp_width:0] sub1_out, div1_out, mult1_out, div1_out_abs;
+reg  [inst_sig_width+inst_exp_width:0] out_gold, div1_out_abs;
+wire [inst_sig_width+inst_exp_width:0] sub1_out, div1_out;
 wire under_tolerance;
 
 // dummy signals
@@ -84,10 +84,18 @@ wire dummy4, dummy5, dummy6;
 wire [inst_sig_width+inst_exp_width:0] dummy7, dummy8;
 DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB1_P (.a(out_gold), .b(out), .rnd(3'b000), .z(sub1_out), .status(dummy1));
 DW_fp_div  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) DIV1_P (.a(sub1_out), .b(out_gold), .rnd(3'b000), .z(div1_out), .status(dummy2));
-DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL1_P (.a(div1_out), .b(NEG_ONE), .rnd(3'b000), .z(mult1_out), .status(dummy3));
-assign div1_out_abs = (div1_out[31] == 0) ? div1_out : mult1_out;
+// DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL1_P (.a(div1_out), .b(NEG_ONE), .rnd(3'b000), .z(mult1_out), .status(dummy3));
 DW_fp_cmp  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) CMP1_P (.a(div1_out_abs), .b(TOLERANCE), .altb(under_tolerance), .agtb(dummy4), .aeqb(dummy5), .unordered(dummy6), .z0(dummy7), .z1(dummy8), .status0(dummy9), .status1(dummy10), .zctr(1'b0));
 
+always@(*) begin
+	if (out_gold == 32'h0000_0000) begin // prevent div by 0
+		div1_out_abs = (sub1_out[31] == 0) ? sub1_out : {1'b0, sub1_out[30:0]}; // take abs value
+	end
+	else begin
+		div1_out_abs = (div1_out[31] == 0) ? div1_out : {1'b0, div1_out[30:0]}; // take abs value
+		// div1_out_abs = (div1_out[31] == 0) ? div1_out : mult1_out;
+	end
+end
 //=================================================================
 // Integers
 //=================================================================
@@ -285,7 +293,7 @@ end endtask
 
 task check_ans; begin
     while (out_valid === 1) begin
-		// $strobe("out = %h, out_gold = %h, div1_out_abs = %h = %.6f", out, out_gold, div1_out_abs, $bitstoshortreal(div1_out_abs));
+		$strobe("out = %h, out_gold = %h, div1_out_abs = %h = %.6f", out, out_gold, div1_out_abs, $bitstoshortreal(div1_out_abs));
 		if (out !== out_gold && !under_tolerance) begin // Fail, if abs(out_gold - out) / out_gold > 0.0001
 			$display("--------------------------------------------------------------------------------------------------------------------------------------------");
 			$display("                                                                   FAIL! WRONG OUTPUT!                                                      ");

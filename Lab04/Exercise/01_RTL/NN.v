@@ -203,7 +203,7 @@ always@(posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		epoch <= 0;
 	end
-	else if (epoch == EPOCH_MAX) begin
+	else if (epoch == EPOCH_MAX && dataset_index == DATASET_MAX) begin
 		epoch <= 0; // increase epoch every 100 data points
 	end
 	else if (dataset_index == DATASET_MAX) begin
@@ -694,7 +694,7 @@ always @(*) begin
 			end
 		end
 		S_CALCULATE: begin
-			if (epoch == EPOCH_MAX) begin
+			if (epoch == EPOCH_MAX && dataset_index == DATASET_MAX) begin
 				next_state = S_INPUT;
 			end 
 			else begin
