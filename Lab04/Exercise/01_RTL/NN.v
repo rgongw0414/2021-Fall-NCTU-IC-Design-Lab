@@ -615,6 +615,7 @@ always@(posedge clk or negedge rst_n) begin
 		cnt <= 1;
 	end
 	else if (curr_state == S_CALCULATE) begin // TODO: reset to 1 when finish current dataset
+	// else begin
 		if (cnt == CNT_MAX) begin
 			cnt <= 1;
 		end 
@@ -624,6 +625,9 @@ always@(posedge clk or negedge rst_n) begin
 		else begin
 			cnt <= cnt + 1;
 		end
+	end
+	else if (curr_state == S_INPUT) begin
+		cnt <= 1;
 	end
 end
 
