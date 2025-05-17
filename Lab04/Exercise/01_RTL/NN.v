@@ -4,6 +4,8 @@ module NN(
 	// Input signals
 	clk,
 	rst_n,
+	epoch,
+	dataset_index,
 	in_valid_d,
 	in_valid_t,
 	in_valid_w1,
@@ -60,7 +62,9 @@ localparam LR_SIZE     = 7; // 7 learning rates for every 4 epochs (1e-6, 5e-7, 
 //---------------------------------------------------------------------
 //   INPUT AND OUTPUT DECLARATION
 //---------------------------------------------------------------------
-input  clk, rst_n, in_valid_d, in_valid_t, in_valid_w1, in_valid_w2;
+input clk, rst_n, in_valid_d, in_valid_t, in_valid_w1, in_valid_w2;
+input [EPOCH_WIDTH-1:0]   epoch;
+input [DATASET_WIDTH-1:0] dataset_index; // index for dataset: 0 ~ 99
 input [inst_sig_width+inst_exp_width:0] data_point, target;
 input [inst_sig_width+inst_exp_width:0] weight1, weight2;
 output reg	out_valid;
@@ -71,7 +75,6 @@ output reg [inst_sig_width+inst_exp_width:0] out;
 //---------------------------------------------------------------------
 wire [inst_sig_width+inst_exp_width:0] LR;
 reg  update_en; // enable signal for update
-reg  [DATASET_WIDTH-1:0] dataset_index; // index for dataset: 0 ~ 99
 
 //------------------------
 // Registers for Pipeline
@@ -116,7 +119,7 @@ wire h0_is_pos, h1_is_pos, h2_is_pos; // flag for checking if h^1_i is positive 
 
 // FSM
 reg [FSM_WIDTH-1:0]   curr_state, next_state;
-reg [EPOCH_WIDTH-1:0] epoch;
+wire [EPOCH_WIDTH-1:0] epoch; // epoch is the current epoch number
 reg [CNT_WIDTH-1:0]   cnt; // cnt for pipeline stage
 
 //---------------------------------------------------------------------
@@ -184,28 +187,6 @@ always@(posedge clk or negedge rst_n) begin
 	else if (curr_state == S_CALCULATE && update_en && in_valid_w2) begin 
 		// update_en is all the way up, until in_valid_w2 is high (indicating the 25 epochs of current dataset are done)
 		update_en <= 0;
-	end
-end
-
-always@(posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
-		dataset_index <= 0;
-	end
-	else if (cnt == 7) begin
-		if (dataset_index == DATASET_MAX) dataset_index <= 0;
-		else                              dataset_index <= dataset_index + 1;
-	end
-end
-
-always@(posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
-		epoch <= 0;
-	end
-	else if (dataset_index == DATASET_MAX) begin
-		if (epoch == EPOCH_MAX && cnt == 5) epoch <= 0;         // reached the end of current dataset
-
-		// once cnt stop incrementing, epoch will stop incrementing, or chose another way to keep the current epoch value
-		if (cnt == 6)                       epoch <= epoch + 1; // increase epoch every 100 data points
 	end
 end
 

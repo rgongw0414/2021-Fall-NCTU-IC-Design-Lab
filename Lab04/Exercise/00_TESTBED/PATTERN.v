@@ -28,6 +28,8 @@ module PATTERN(
 	// Output signals
 	clk,
 	rst_n,
+	epoch, 
+	dataset_index,
 	in_valid_d,
 	in_valid_t,
 	in_valid_w1,
@@ -51,6 +53,11 @@ parameter inst_ieee_compliance = 0;
 parameter inst_arch            = 2;
 
 // Testbench parameters
+parameter EPOCH_MAX     = 24; // 25 epochs
+parameter EPOCH_WIDTH   = $clog2(EPOCH_MAX); 
+parameter DATASET_MAX   = 99; // 100 data points for training
+parameter DATASET_WIDTH = $clog2(DATASET_MAX); // 100 data points for training
+
 parameter PATTERN_NUM = 15;
 parameter INPUT_DIM   = 4;
 parameter HIDDEN_DIM  = 3;
@@ -59,14 +66,19 @@ parameter DATA_SIZE   = 100;
 parameter CYCLE_LIMIT = 300;
 parameter gap         = 2; // gap between weight and data input
 
-wire [inst_sig_width+inst_exp_width:0] NEG_ONE, TOLERANCE; // Error tolerance: |(y_pred - target) / target| < 0.0001
+wire [inst_sig_width+inst_exp_width:0] NEG_ONE, TOLERANCE;
 assign NEG_ONE   = 32'hbf800000; // -1.0 in hex
-assign TOLERANCE = 32'h38d1b717; // 0.0001 in hex
+assign TOLERANCE = 32'h38d1b717; // Error tolerance: |(y_pred - target) / target| < 0.0001 in hex
 
 //================================================================
 //   INPUT AND OUTPUT DECLARATION                         
 //================================================================
 output reg clk, rst_n, in_valid_d, in_valid_t, in_valid_w1, in_valid_w2;
+
+// Loop variables
+output reg [EPOCH_WIDTH-1:0]   epoch;
+output reg [DATASET_WIDTH-1:0] dataset_index; 
+
 output reg [inst_sig_width+inst_exp_width:0] data_point, target;
 output reg [inst_sig_width+inst_exp_width:0] weight1, weight2;
 input out_valid;
@@ -75,6 +87,7 @@ input [inst_sig_width+inst_exp_width:0] out;
 //================================================================
 // wires & registers
 //================================================================
+reg  [inst_sig_width+inst_exp_width:0] k, l; // Loop variables
 reg  [inst_sig_width+inst_exp_width:0] out_gold, div1_out_abs;
 wire [inst_sig_width+inst_exp_width:0] sub1_out, div1_out; // mult1_out
 wire under_tolerance;
@@ -105,7 +118,6 @@ integer patcount;
 integer cycles;
 integer input_file, output_file, target_file, weight1_file, weight2_file;
 integer in_desc, out_desc, target_desc, weight1_desc, weight2_desc;
-integer i, j, k, l, m, n; // Loop variables
 
 //================================================================
 // clock
@@ -162,12 +174,12 @@ initial begin
 	for (patcount = 1; patcount <= PATTERN_NUM; patcount = patcount + 1) begin
 		weights_task;
 		repeat(gap)@(negedge clk);
-		for (i = 0; i < EPOCHS; i = i + 1) begin // epoch_0 ~ epoch_24
-			for (j = 0; j < DATA_SIZE; j = j + 1) begin // data_0 ~ data_99
+		for (epoch = 0; epoch < EPOCHS; epoch = epoch + 1) begin // epoch_0 ~ epoch_24
+			for (dataset_index = 0; dataset_index < DATA_SIZE; dataset_index = dataset_index + 1) begin // data_0 ~ data_99
 				input_data; // read input data and target data
 				wait_out_valid;
 				check_ans;
-				$display("\033[0;34mPASS PATTERN NO.%3d, EPOCH_%1d, DATA_%1d\033[m \033[0;32m Cycles: %3d\033[m", patcount, i+1, j+1, cycles);
+				$display("\033[0;34mPASS PATTERN NO.%3d, EPOCH_%1d, DATA_%1d\033[m \033[0;32m Cycles: %3d\033[m", patcount, epoch+1, dataset_index+1, cycles);
 			end
 		end
 	end
@@ -293,7 +305,7 @@ task check_ans; begin
 		if (out !== out_gold && !under_tolerance) begin // Fail, if abs(out_gold - out) / out_gold > 0.0001
 			$display("--------------------------------------------------------------------------------------------------------------------------------------------");
 			$display("                                                                   FAIL! WRONG OUTPUT!                                                      ");
-			$display("                                                           Pattern NO.%1d Epoch NO.%1d Data NO.%1d                                          ", patcount, i, j);
+			$display("                                                           Pattern NO.%1d Epoch NO.%1d Data NO.%1d                                          ", patcount, epoch, dataset_index);
 			$display("	                                                 y_pred = %.6f, y_gold = %.6f                                                             ", $bitstoshortreal(out), $bitstoshortreal(out_gold));
 			$display("	                                                 y_pred = %h, y_gold = %h                                                                 ", out, out_gold);
 			$display("	                                             Error b/w golden = %.4f > tolerance = %.4f                                                   ", $bitstoshortreal(div1_out_abs), TOLERANCE);
