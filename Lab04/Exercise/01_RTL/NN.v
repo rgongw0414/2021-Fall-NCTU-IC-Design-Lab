@@ -284,15 +284,15 @@ always@(posedge clk or negedge rst_n) begin
 	end
 end
 
-genvar i;
+genvar gen_idx;
 generate
-	for (i = 0; i < INPUT_DIM; i = i + 1) begin: data_points_gen
+	for (gen_idx = 0; gen_idx < INPUT_DIM; gen_idx = gen_idx + 1) begin: data_points_gen
 		always@(posedge clk or negedge rst_n) begin
 			if (!rst_n) begin
-				data_points[i] <= 0;
+				data_points[gen_idx] <= 0;
 			end
-			else if (in_valid_d && i == data_point_index) begin
-				data_points[i] <= data_point; // data_point is the input data for each neuron in the input layer
+			else if (in_valid_d && gen_idx == data_point_index) begin
+				data_points[gen_idx] <= data_point; // data_point is the input data for each neuron in the input layer
 			end
 		end
 	end

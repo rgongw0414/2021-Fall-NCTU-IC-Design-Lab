@@ -57,6 +57,7 @@ parameter HIDDEN_DIM  = 3;
 parameter EPOCHS      = 25;
 parameter DATA_SIZE   = 100;
 parameter CYCLE_LIMIT = 300;
+parameter gap         = 2; // gap between weight and data input
 
 wire [inst_sig_width+inst_exp_width:0] NEG_ONE, TOLERANCE; // Error tolerance: |(y_pred - target) / target| < 0.0001
 assign NEG_ONE   = 32'hbf800000; // -1.0 in hex
@@ -75,7 +76,7 @@ input [inst_sig_width+inst_exp_width:0] out;
 // wires & registers
 //================================================================
 reg  [inst_sig_width+inst_exp_width:0] out_gold, div1_out_abs;
-wire [inst_sig_width+inst_exp_width:0] sub1_out, div1_out;
+wire [inst_sig_width+inst_exp_width:0] sub1_out, div1_out; // mult1_out
 wire under_tolerance;
 
 // dummy signals
@@ -104,7 +105,6 @@ integer patcount;
 integer cycles;
 integer input_file, output_file, target_file, weight1_file, weight2_file;
 integer in_desc, out_desc, target_desc, weight1_desc, weight2_desc;
-integer gap;
 integer i, j, k, l, m, n; // Loop variables
 
 //================================================================
@@ -160,21 +160,16 @@ initial begin
     @(negedge clk);
 
 	for (patcount = 1; patcount <= PATTERN_NUM; patcount = patcount + 1) begin
-		if (patcount == 1) repeat(2)@(negedge clk);
-		else                        @(negedge clk);
 		weights_task;
+		repeat(gap)@(negedge clk);
 		for (i = 0; i < EPOCHS; i = i + 1) begin // epoch_0 ~ epoch_24
 			for (j = 0; j < DATA_SIZE; j = j + 1) begin // data_0 ~ data_99
-				if (i == 0 && j == 0) repeat(gap)@(negedge clk);
-				else                             @(negedge clk);
 				input_data; // read input data and target data
 				wait_out_valid;
 				check_ans;
 				$display("\033[0;34mPASS PATTERN NO.%3d, EPOCH_%1d, DATA_%1d\033[m \033[0;32m Cycles: %3d\033[m", patcount, i+1, j+1, cycles);
 			end
 		end
-		i = 0;
-		j = 0;
 	end
 	#(1000);
 	fclose_all(weight1_file, weight2_file, input_file, target_file, output_file);
@@ -196,7 +191,6 @@ task fclose_all;
         if (output_file)   $fclose(output_file);
     end
 endtask
-
 
 task reset_task; begin
 	#(10); rst_n = 0;
@@ -309,6 +303,7 @@ task check_ans; begin
 		end
 		@(negedge clk);
     end
+	@(negedge clk);
 end endtask
 
 task YOU_PASS_task; begin
