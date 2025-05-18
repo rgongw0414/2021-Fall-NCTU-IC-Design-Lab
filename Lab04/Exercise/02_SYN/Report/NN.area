@@ -3,29 +3,29 @@
 Report : area
 Design : NN
 Version: S-2021.06-SP2
-Date   : Fri May 16 22:27:39 2025
+Date   : Sun May 18 02:55:19 2025
 ****************************************
 
 Library(s) Used:
 
     slow (File: /home/eric/CBDK018_TSMC_Artisan/CIC/SynopsysDC/slow.db)
 
-Number of ports:                          167
-Number of nets:                         43412
-Number of cells:                        40788
-Number of combinational cells:          39426
-Number of sequential cells:              1362
+Number of ports:                          179
+Number of nets:                         42968
+Number of cells:                        40387
+Number of combinational cells:          39037
+Number of sequential cells:              1350
 Number of macros/black boxes:               0
-Number of buf/inv:                       7206
-Number of references:                     159
+Number of buf/inv:                       7191
+Number of references:                     158
 
-Combinational area:             744338.557619
-Buf/Inv area:                    67352.948078
-Noncombinational area:           86513.010048
+Combinational area:             736212.162228
+Buf/Inv area:                    65470.205680
+Noncombinational area:           85694.715660
 Macro/Black Box area:                0.000000
 Net Interconnect area:      undefined  (No wire load specified)
 
-Total cell area:                830851.567667
+Total cell area:                821906.877888
 Total area:                 undefined
 
 Area of detected synthetic parts
@@ -37,15 +37,15 @@ Estimated area of ungrouped synthetic parts
                                Estimated  Perc. of
   Module     Implem.  Count         Area cell area
   ---------- -------  ----- ------------ ---------
-  DW01_inc   apparch      4     366.5693      0.0%
+  DW01_inc   apparch      2      20.6237      0.0%
   DW_fp_cmp      rtl      3     967.9825      0.1%
-  DW_fp_mac      rtl      3  186432.0586     22.4%
-  DW_fp_mult     rtl      4  115971.3027     14.0%
-  DW_fp_sub      rtl      3   42461.2090      5.1%
+  DW_fp_mac      rtl      3  186432.0586     22.7%
+  DW_fp_mult     rtl      4  115971.3027     14.1%
+  DW_fp_sub      rtl      3   42461.2090      5.2%
   DW_fp_sum3     rtl      1   47085.3555      5.7%
   ---------- -------  ----- ------------ ---------
-  Total:                 18  393284.4775     47.3%
+  Total:                 16  392938.5319     47.8%
 
-Total synthetic cell area:              393284.4775  47.3%  (estimated)
+Total synthetic cell area:              392938.5319  47.8%  (estimated)
 
 1

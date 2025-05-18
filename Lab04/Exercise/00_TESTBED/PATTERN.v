@@ -58,7 +58,7 @@ parameter EPOCH_WIDTH   = $clog2(EPOCH_MAX);
 parameter DATASET_MAX   = 99; // 100 data points for training
 parameter DATASET_WIDTH = $clog2(DATASET_MAX); // 100 data points for training
 
-parameter PATTERN_NUM = 15;
+parameter PATTERN_NUM = 100;
 parameter INPUT_DIM   = 4;
 parameter HIDDEN_DIM  = 3;
 parameter EPOCHS      = 25;
@@ -118,6 +118,7 @@ integer patcount;
 integer cycles;
 integer input_file, output_file, target_file, weight1_file, weight2_file;
 integer in_desc, out_desc, target_desc, weight1_desc, weight2_desc;
+integer pat_no;
 
 //================================================================
 // clock
@@ -171,16 +172,48 @@ initial begin
 	end
     @(negedge clk);
 
-	for (patcount = 1; patcount <= PATTERN_NUM; patcount = patcount + 1) begin
-		weights_task;
-		repeat(gap)@(negedge clk);
-		for (epoch = 0; epoch < EPOCHS; epoch = epoch + 1) begin // epoch_0 ~ epoch_24
-			for (dataset_index = 0; dataset_index < DATA_SIZE; dataset_index = dataset_index + 1) begin // data_0 ~ data_99
-				input_data; // read input data and target data
-				wait_out_valid;
-				check_ans;
-				$display("\033[0;34mPASS PATTERN NO.%3d, EPOCH_%1d, DATA_%1d\033[m \033[0;32m Cycles: %3d\033[m", patcount, epoch+1, dataset_index+1, cycles);
-			end
+	// for (patcount = 1; patcount <= PATTERN_NUM; patcount = patcount + 1) begin
+	// 	weights_task;
+	// 	repeat(gap)@(negedge clk);
+	// 	for (epoch = 0; epoch < EPOCHS; epoch = epoch + 1) begin // epoch_0 ~ epoch_24
+	// 		for (dataset_index = 0; dataset_index < DATA_SIZE; dataset_index = dataset_index + 1) begin // data_0 ~ data_99
+	// 			input_data; // read input data and target data
+	// 			wait_out_valid;
+	// 			check_ans;
+	// 			$display("\033[0;34mPASS PATTERN NO.%3d, EPOCH_%1d, DATA_%1d\033[m \033[0;32m Cycles: %3d\033[m", patcount, epoch+1, dataset_index+1, cycles);
+	// 		end
+	// 	end
+	// end
+	epoch = 0;
+	dataset_index = 0;
+	pat_no        = 0;
+
+	for (patcount = 0; patcount < (PATTERN_NUM * EPOCHS * DATA_SIZE); patcount = patcount + 1) begin
+		// 1. weights_task every (EPOCHS * DATA_SIZE)
+		if (patcount % (EPOCHS * DATA_SIZE) == 0) begin
+			weights_task;
+			repeat(gap) @(negedge clk);
+		end
+
+		// 2. input/check every iteration
+		input_data;
+		wait_out_valid;
+		check_ans;
+
+		$display("\033[0;34mPASS PATTERN NO.%3d, EPOCH_%1d, DATA_%1d\033[m \033[0;32m Cycles: %3d\033[m",
+				pat_no, epoch + 1, dataset_index + 1, cycles);
+
+		// 3. Update epoch/dataset_index
+		dataset_index = dataset_index + 1;
+
+		if (dataset_index == DATA_SIZE) begin
+			dataset_index = 0;
+			epoch = epoch + 1;
+		end
+
+		if (epoch == EPOCHS) begin
+			pat_no = pat_no + 1;
+			epoch = 0;
 		end
 	end
 	#(1000);
@@ -305,10 +338,10 @@ task check_ans; begin
 		if (out !== out_gold && !under_tolerance) begin // Fail, if abs(out_gold - out) / out_gold > 0.0001
 			$display("--------------------------------------------------------------------------------------------------------------------------------------------");
 			$display("                                                                   FAIL! WRONG OUTPUT!                                                      ");
-			$display("                                                           Pattern NO.%1d Epoch NO.%1d Data NO.%1d                                          ", patcount, epoch, dataset_index);
+			$display("                                                           Pattern NO.%1d Epoch NO.%1d Data NO.%1d                                          ", pat_no, epoch, dataset_index);
 			$display("	                                                 y_pred = %.6f, y_gold = %.6f                                                             ", $bitstoshortreal(out), $bitstoshortreal(out_gold));
 			$display("	                                                 y_pred = %h, y_gold = %h                                                                 ", out, out_gold);
-			$display("	                                             Error b/w golden = %.4f > tolerance = %.4f                                                   ", $bitstoshortreal(div1_out_abs), TOLERANCE);
+			$display("	                                             Error b/w golden = %.4f > tolerance = %.4f                                                   ", $bitstoshortreal(div1_out_abs), $bitstoshortreal(TOLERANCE));
 			$display("--------------------------------------------------------------------------------------------------------------------------------------------");
 			@(negedge clk);
 			fclose_all(weight1_file, weight2_file, input_file, target_file, output_file); $finish;

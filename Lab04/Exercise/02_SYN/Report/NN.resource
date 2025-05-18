@@ -3,7 +3,7 @@
 Report : resources
 Design : NN
 Version: S-2021.06-SP2
-Date   : Fri May 16 22:27:40 2025
+Date   : Sun May 18 02:55:19 2025
 ****************************************
 
 
@@ -11,51 +11,49 @@ Resource Report for this hierarchy in file ./../01_RTL/NN.v
 =============================================================================
 | Cell           | Module         | Parameters | Contained Operations       |
 =============================================================================
-| add_x_2        | DW01_inc       | width=7    | add_198 (NN.v:198)         |
-| add_x_5        | DW01_inc       | width=5    | add_210 (NN.v:210)         |
-| add_x_32       | DW01_inc       | width=2    | add_308 (NN.v:308)         |
-| add_x_105      | DW01_inc       | width=3    | add_646 (NN.v:646)         |
-| MAC1           | DW_fp_mac      | sig_width=23 | MAC1 (NN.v:128)          |
+| add_x_26       | DW01_inc       | width=2    | add_287 (NN.v:287)         |
+| add_x_107      | DW01_inc       | width=3    | add_628 (NN.v:628)         |
+| MAC1           | DW_fp_mac      | sig_width=23 | MAC1 (NN.v:131)          |
 |                |                | exp_width=8 |                           |
 |                |                | ieee_compliance=0 |                     |
-| MAC2           | DW_fp_mac      | sig_width=23 | MAC2 (NN.v:129)          |
+| MAC2           | DW_fp_mac      | sig_width=23 | MAC2 (NN.v:132)          |
 |                |                | exp_width=8 |                           |
 |                |                | ieee_compliance=0 |                     |
-| MAC3           | DW_fp_mac      | sig_width=23 | MAC3 (NN.v:130)          |
+| MAC3           | DW_fp_mac      | sig_width=23 | MAC3 (NN.v:133)          |
 |                |                | exp_width=8 |                           |
 |                |                | ieee_compliance=0 |                     |
-| MUL1           | DW_fp_mult     | sig_width=23 | MUL1 (NN.v:131)          |
+| MUL1           | DW_fp_mult     | sig_width=23 | MUL1 (NN.v:134)          |
 |                |                | exp_width=8 |                           |
 |                |                | ieee_compliance=0 |                     |
-| MUL2           | DW_fp_mult     | sig_width=23 | MUL2 (NN.v:132)          |
+| MUL2           | DW_fp_mult     | sig_width=23 | MUL2 (NN.v:135)          |
 |                |                | exp_width=8 |                           |
 |                |                | ieee_compliance=0 |                     |
-| MUL3           | DW_fp_mult     | sig_width=23 | MUL3 (NN.v:133)          |
+| MUL3           | DW_fp_mult     | sig_width=23 | MUL3 (NN.v:136)          |
 |                |                | exp_width=8 |                           |
 |                |                | ieee_compliance=0 |                     |
-| MUL4           | DW_fp_mult     | sig_width=23 | MUL4 (NN.v:134)          |
+| MUL4           | DW_fp_mult     | sig_width=23 | MUL4 (NN.v:137)          |
 |                |                | exp_width=8 |                           |
 |                |                | ieee_compliance=0 |                     |
-| SUB1           | DW_fp_sub      | sig_width=23 | SUB1 (NN.v:135)          |
+| SUB1           | DW_fp_sub      | sig_width=23 | SUB1 (NN.v:138)          |
 |                |                | exp_width=8 |                           |
 |                |                | ieee_compliance=0 |                     |
-| SUB2           | DW_fp_sub      | sig_width=23 | SUB2 (NN.v:136)          |
+| SUB2           | DW_fp_sub      | sig_width=23 | SUB2 (NN.v:139)          |
 |                |                | exp_width=8 |                           |
 |                |                | ieee_compliance=0 |                     |
-| SUB3           | DW_fp_sub      | sig_width=23 | SUB3 (NN.v:137)          |
+| SUB3           | DW_fp_sub      | sig_width=23 | SUB3 (NN.v:140)          |
 |                |                | exp_width=8 |                           |
 |                |                | ieee_compliance=0 |                     |
-| SUM1           | DW_fp_sum3     | sig_width=23 | SUM1 (NN.v:138)          |
+| SUM1           | DW_fp_sum3     | sig_width=23 | SUM1 (NN.v:141)          |
 |                |                | exp_width=8 |                           |
 |                |                | ieee_compliance=0 |                     |
 |                |                | arch_type=0 |                           |
-| CMP1           | DW_fp_cmp      | sig_width=23 | CMP1 (NN.v:141)          |
+| CMP1           | DW_fp_cmp      | sig_width=23 | CMP1 (NN.v:144)          |
 |                |                | exp_width=8 |                           |
 |                |                | ieee_compliance=0 |                     |
-| CMP2           | DW_fp_cmp      | sig_width=23 | CMP2 (NN.v:142)          |
+| CMP2           | DW_fp_cmp      | sig_width=23 | CMP2 (NN.v:145)          |
 |                |                | exp_width=8 |                           |
 |                |                | ieee_compliance=0 |                     |
-| CMP3           | DW_fp_cmp      | sig_width=23 | CMP3 (NN.v:143)          |
+| CMP3           | DW_fp_cmp      | sig_width=23 | CMP3 (NN.v:146)          |
 |                |                | exp_width=8 |                           |
 |                |                | ieee_compliance=0 |                     |
 | DP_OP_27_166_7074               |            |                            |
@@ -810,7 +808,7 @@ Datapath Report for DP_OP_104J1_140_9309
 ==============================================================================
 
 
-Resource Report for Ungrouped Hierarchy *cell*J2*44190/U1 in file
+Resource Report for Ungrouped Hierarchy *cell*J2*44088/U1 in file
         ./DW_norm_rtl.vhd.e
 =============================================================================
 | Cell           | Module         | Parameters | Contained Operations       |
@@ -1040,13 +1038,6 @@ Resource Report for Ungrouped Hierarchy MAC3/U9
 =============================================================================
 
 
-Resource Report for Ungrouped Hierarchy MAC1/U9
-=============================================================================
-| Cell           | Module         | Parameters | Contained Operations       |
-=============================================================================
-=============================================================================
-
-
 Resource Report for Ungrouped Hierarchy MAC2/U9
 =============================================================================
 | Cell           | Module         | Parameters | Contained Operations       |
@@ -1054,7 +1045,7 @@ Resource Report for Ungrouped Hierarchy MAC2/U9
 =============================================================================
 
 
-Resource Report for Ungrouped Hierarchy MUL3/U4
+Resource Report for Ungrouped Hierarchy MAC1/U9
 =============================================================================
 | Cell           | Module         | Parameters | Contained Operations       |
 =============================================================================
@@ -1068,7 +1059,14 @@ Resource Report for Ungrouped Hierarchy MUL3/U3
 =============================================================================
 
 
-Resource Report for Ungrouped Hierarchy MUL1/U4
+Resource Report for Ungrouped Hierarchy MUL3/U4
+=============================================================================
+| Cell           | Module         | Parameters | Contained Operations       |
+=============================================================================
+=============================================================================
+
+
+Resource Report for Ungrouped Hierarchy MUL2/U3
 =============================================================================
 | Cell           | Module         | Parameters | Contained Operations       |
 =============================================================================
@@ -1089,7 +1087,7 @@ Resource Report for Ungrouped Hierarchy MUL1/U3
 =============================================================================
 
 
-Resource Report for Ungrouped Hierarchy MUL2/U3
+Resource Report for Ungrouped Hierarchy MUL1/U4
 =============================================================================
 | Cell           | Module         | Parameters | Contained Operations       |
 =============================================================================
@@ -1115,10 +1113,8 @@ Implementation Report
 |                    |                  | Current            | Set            |
 | Cell               | Module           | Implementation     | Implementation |
 ===============================================================================
-| add_x_2            | DW01_inc         | apparch (area)     |                |
-| add_x_5            | DW01_inc         | apparch (area)     |                |
-| add_x_32           | DW01_inc         | apparch (area)     |                |
-| add_x_105          | DW01_inc         | apparch (area)     |                |
+| add_x_26           | DW01_inc         | apparch (area)     |                |
+| add_x_107          | DW01_inc         | apparch (area)     |                |
 | MAC1               | DW_fp_mac        | rtl                |                |
 | MAC2               | DW_fp_mac        | rtl                |                |
 | MAC3               | DW_fp_mac        | rtl                |                |
@@ -1167,12 +1163,13 @@ Implementation Report
 | U1                 | DW_fp_addsub     | rtl                |                |
 | U1                 | DW_fp_addsub     | rtl                |                |
 | U1                 | DW_fp_addsub     | str                |                |
+| add_x_2            | DW01_inc         | apparch (area)     |                |
 | lte_x_3            | DW_cmp           | apparch (area)     |                |
 | gte_x_5            | DW_cmp           | apparch (area)     |                |
 | gte_x_7            | DW_cmp           | apparch (area)     |                |
 | add_x_12           | DW01_add         | apparch (area)     |                |
 | mult_x_13          | DW_mult_uns      | pparch (area,speed)                 |
-|                    |                  | mult_arch: benc_radix4              |
+|                    |                  | mult_arch: and     |                |
 | eq_x_14            | DW_cmp           | apparch (area)     |                |
 | lt_x_17            | DW_cmp           | apparch (area)     |                |
 | lt_x_19            | DW_cmp           | apparch (area)     |                |
@@ -1181,6 +1178,7 @@ Implementation Report
 | U4                 | DW_lzd           | rtl                |                |
 | sub_x_33           | DW01_sub         | apparch (area)     |                |
 | add_x_34           | DW01_add         | apparch (area)     |                |
+| add_x_2            | DW01_inc         | apparch (area)     |                |
 | lte_x_3            | DW_cmp           | apparch (area)     |                |
 | gte_x_5            | DW_cmp           | apparch (area)     |                |
 | gte_x_7            | DW_cmp           | apparch (area)     |                |
@@ -1195,6 +1193,7 @@ Implementation Report
 | U4                 | DW_lzd           | cla                |                |
 | sub_x_33           | DW01_sub         | apparch (area)     |                |
 | add_x_34           | DW01_add         | pparch (area,speed)                 |
+| add_x_2            | DW01_inc         | apparch (area)     |                |
 | lte_x_3            | DW_cmp           | apparch (area)     |                |
 | gte_x_5            | DW_cmp           | apparch (area)     |                |
 | gte_x_7            | DW_cmp           | apparch (area)     |                |
@@ -1209,6 +1208,7 @@ Implementation Report
 | U4                 | DW_lzd           | cla                |                |
 | sub_x_33           | DW01_sub         | apparch (area)     |                |
 | add_x_34           | DW01_add         | pparch (area,speed)                 |
+| add_x_2            | DW01_inc         | apparch (area)     |                |
 | lte_x_3            | DW_cmp           | apparch (area)     |                |
 | gte_x_5            | DW_cmp           | apparch (area)     |                |
 | gte_x_7            | DW_cmp           | apparch (area)     |                |

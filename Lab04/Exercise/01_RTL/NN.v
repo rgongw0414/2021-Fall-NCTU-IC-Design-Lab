@@ -614,20 +614,23 @@ always@(posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		cnt <= 1;
 	end
-	else if (curr_state == S_CALCULATE) begin // TODO: reset to 1 when finish current dataset
-	// else begin
-		if (cnt == CNT_MAX) begin
-			cnt <= 1;
-		end 
-		else if (update_en && in_valid_d && in_valid_t) begin
-			cnt <= 1;
-		end 
-		else begin
-			cnt <= cnt + 1;
-		end
-	end
-	else if (curr_state == S_INPUT) begin
-		cnt <= 1;
+	else begin
+		case (curr_state) 
+			S_CALCULATE: begin
+				if (cnt == CNT_MAX) begin
+					cnt <= 1;
+				end 
+				else if (update_en && in_valid_d && in_valid_t) begin
+					cnt <= 1;
+				end 
+				else begin
+					cnt <= cnt + 1;
+				end
+			end
+			S_INPUT: begin
+				cnt <= 1;
+			end
+		endcase
 	end
 end
 
