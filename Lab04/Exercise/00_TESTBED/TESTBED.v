@@ -6,6 +6,17 @@
 	`include "../02_SYN/Netlist/NN_SYN.v"
 `endif
 
+//synopsys translate_off
+`include "DW_fp_mac.v"
+`include "DW_fp_mult.v"
+`include "DW_fp_sub.v"
+`include "DW_fp_sum3.v"
+`include "DW_fp_cmp.v"
+
+`include "DW_fp_div.v"
+
+// synopsys translate_on
+
 module TESTBED();
 	parameter inst_sig_width = 23;
 	parameter inst_exp_width = 8;

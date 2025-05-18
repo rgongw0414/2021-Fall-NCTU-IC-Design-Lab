@@ -125,25 +125,25 @@ reg [CNT_WIDTH-1:0]   cnt; // cnt for pipeline stage
 //---------------------------------------------------------------------
 //   DesignWare
 //---------------------------------------------------------------------
-wire [7:0] dummy_status1, dummy_status2, dummy_status3, dummy_status4, dummy_status5, dummy_status6, dummy_status7, dummy_status8, dummy_status9, dummy_status10, dummy_status11, dummy_status12, dummy_status13, dummy_status14, dummy_status15, dummy_status16, dummy_status17;
-wire dummy_flag1, dummy_flag2, dummy_flag3, dummy_flag4, dummy_flag5, dummy_flag6, dummy_flag7, dummy_flag8, dummy_flag9;
-wire [inst_sig_width+inst_exp_width:0] dummy_z1, dummy_z2, dummy_z3, dummy_z4, dummy_z5, dummy_z6;
-DW_fp_mac  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MAC1 (.a(mac1_a), .b(mac1_b), .c(mac1_c), .rnd(rnd), .z(mac1_out), .status(dummy_status1));
-DW_fp_mac  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MAC2 (.a(mac2_a), .b(mac2_b), .c(mac2_c), .rnd(rnd), .z(mac2_out), .status(dummy_status2));
-DW_fp_mac  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MAC3 (.a(mac3_a), .b(mac3_b), .c(mac3_c), .rnd(rnd), .z(mac3_out), .status(dummy_status3));
-DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL1 (.a(mult1_a), .b(mult1_b), .rnd(rnd), .z(mult1_out), .status(dummy_status4));
-DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL2 (.a(mult2_a), .b(mult2_b), .rnd(rnd), .z(mult2_out), .status(dummy_status5));
-DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL3 (.a(mult3_a), .b(mult3_b), .rnd(rnd), .z(mult3_out), .status(dummy_status6));
-DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL4 (.a(mult4_a), .b(mult4_b), .rnd(rnd), .z(mult4_out), .status(dummy_status7));
-DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB1 (.a(sub1_a), .b(sub1_b), .rnd(rnd), .z(sub1_out), .status(dummy_status8));
-DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB2 (.a(sub2_a), .b(sub2_b), .rnd(rnd), .z(sub2_out), .status(dummy_status9));
-DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB3 (.a(sub3_a), .b(sub3_b), .rnd(rnd), .z(sub3_out), .status(dummy_status10));
-DW_fp_sum3 #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUM1 (.a(sum1_a), .b(sum1_b), .c(sum1_c), .rnd(rnd), .z(sum1_out), .status(dummy_status11));
+// wire [7:0] dummy_status1, dummy_status2, dummy_status3, dummy_status4, dummy_status5, dummy_status6, dummy_status7, dummy_status8, dummy_status9, dummy_status10, dummy_status11, dummy_status12, dummy_status13, dummy_status14, dummy_status15, dummy_status16, dummy_status17;
+// wire dummy_flag1, dummy_flag2, dummy_flag3, dummy_flag4, dummy_flag5, dummy_flag6, dummy_flag7, dummy_flag8, dummy_flag9;
+// wire [inst_sig_width+inst_exp_width:0] dummy_z1, dummy_z2, dummy_z3, dummy_z4, dummy_z5, dummy_z6;
+DW_fp_mac  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MAC1 (.a(mac1_a), .b(mac1_b), .c(mac1_c), .rnd(rnd), .z(mac1_out), .status());
+DW_fp_mac  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MAC2 (.a(mac2_a), .b(mac2_b), .c(mac2_c), .rnd(rnd), .z(mac2_out), .status());
+DW_fp_mac  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MAC3 (.a(mac3_a), .b(mac3_b), .c(mac3_c), .rnd(rnd), .z(mac3_out), .status());
+DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL1 (.a(mult1_a), .b(mult1_b), .rnd(rnd), .z(mult1_out), .status());
+DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL2 (.a(mult2_a), .b(mult2_b), .rnd(rnd), .z(mult2_out), .status());
+DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL3 (.a(mult3_a), .b(mult3_b), .rnd(rnd), .z(mult3_out), .status());
+DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL4 (.a(mult4_a), .b(mult4_b), .rnd(rnd), .z(mult4_out), .status());
+DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB1 (.a(sub1_a), .b(sub1_b), .rnd(rnd), .z(sub1_out), .status());
+DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB2 (.a(sub2_a), .b(sub2_b), .rnd(rnd), .z(sub2_out), .status());
+DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB3 (.a(sub3_a), .b(sub3_b), .rnd(rnd), .z(sub3_out), .status());
+DW_fp_sum3 #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUM1 (.a(sum1_a), .b(sum1_b), .c(sum1_c), .rnd(rnd), .z(sum1_out), .status());
 
 // compare mac1_out, mac2_out, mac3_out with 0.0 to check if they are positive or negative
-DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP1 (.a(mac1_out), .b(FP_ZERO), .altb(dummy_flag1), .agtb(h0_is_pos), .aeqb(dummy_flag2), .unordered(dummy_flag3), .z0(dummy_z1), .z1(dummy_z2), .status0(dummy_status12), .status1(dummy_status13), .zctr(1'b0));
-DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP2 (.a(mac2_out), .b(FP_ZERO), .altb(dummy_flag4), .agtb(h1_is_pos), .aeqb(dummy_flag5), .unordered(dummy_flag6), .z0(dummy_z3), .z1(dummy_z4), .status0(dummy_status14), .status1(dummy_status15), .zctr(1'b0));
-DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP3 (.a(mac3_out), .b(FP_ZERO), .altb(dummy_flag7), .agtb(h2_is_pos), .aeqb(dummy_flag8), .unordered(dummy_flag9), .z0(dummy_z5), .z1(dummy_z6), .status0(dummy_status16), .status1(dummy_status17), .zctr(1'b0));
+DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP1 (.a(mac1_out), .b(FP_ZERO), .altb(), .agtb(h0_is_pos), .aeqb(), .unordered(), .z0(), .z1(), .status0(), .status1(), .zctr(1'b0));
+DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP2 (.a(mac2_out), .b(FP_ZERO), .altb(), .agtb(h1_is_pos), .aeqb(), .unordered(), .z0(), .z1(), .status0(), .status1(), .zctr(1'b0));
+DW_fp_cmp #(inst_sig_width, inst_exp_width, inst_ieee_compliance)  CMP3 (.a(mac3_out), .b(FP_ZERO), .altb(), .agtb(h2_is_pos), .aeqb(), .unordered(), .z0(), .z1(), .status0(), .status1(), .zctr(1'b0));
 
 // synopsys dc_script_begin
 //
@@ -180,14 +180,10 @@ always@(posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		update_en <= 0;
 	end
-	else if (curr_state == S_CALCULATE && !update_en && cnt == 6) begin 
-		// pull up update_en after the first 6 cycles of S_CALCULATE
-		update_en <= 1;
-	end
-	else if (curr_state == S_CALCULATE && update_en && in_valid_w2) begin 
-		// update_en is all the way up, until in_valid_w2 is high (indicating the 25 epochs of current dataset are done)
+	else if (!update_en && cnt == 6)        // pull up update_en after the first 6 cycles of S_CALCULATE
+		update_en <= 1;     
+	else if (in_valid_w2) // update_en is all the way up, until in_valid_w2 is high (indicating the 25 epochs of current dataset are done)
 		update_en <= 0;
-	end
 end
 
 always@(posedge clk or negedge rst_n) begin

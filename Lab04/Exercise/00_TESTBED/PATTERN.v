@@ -1,28 +1,13 @@
 `ifdef RTL
 	`timescale 1ns/10ps
 	`include "NN.v"  
-	`define CYCLE_TIME 19.5
+	`define CYCLE_TIME 19.7
 `endif
 `ifdef GATE
 	`timescale 1ns/10ps
 	`include "../02_SYN/Netlist/NN_SYN.v"
-	`define CYCLE_TIME 19.5
+	`define CYCLE_TIME 19.7
 `endif
-
-//synopsys translate_off
-`include "DW_fp_mac.v"
-`include "DW_fp_mult.v"
-`include "DW_fp_sub.v"
-`include "DW_fp_sum3.v"
-`include "DW_fp_cmp.v"
-
-`include "DW_fp_div.v"
-`include "DW_fp_dp2.v"
-`include "DW_fp_ifp_conv.v"
-`include "DW_fp_addsub.v"
-`include "DW_ifp_addsub.v"
-`include "DW_ifp_fp_conv.v"
-// synopsys translate_on
 
 module PATTERN(
 	// Output signals
@@ -66,10 +51,11 @@ parameter DATA_SIZE   = 100;
 parameter CYCLE_LIMIT = 300;
 parameter gap         = 2; // gap between weight and data input
 
-wire [inst_sig_width+inst_exp_width:0] NEG_ONE, TOLERANCE;
-assign NEG_ONE   = 32'hbf800000; // -1.0 in hex
-assign TOLERANCE = 32'h38d1b717; // Error tolerance: |(y_pred - target) / target| < 0.0001 in hex
-
+wire [inst_sig_width+inst_exp_width:0] TOLERANCE;
+// assign TOLERANCE = 32'h38d1b717; // Error tolerance: |(y_pred - target) / target| < 0.0001 in hex
+assign TOLERANCE = 32'h3a03126f;
+// 32'h38d1b717: 0.0001
+// 32'h3a03126f: 0.0005
 //================================================================
 //   INPUT AND OUTPUT DECLARATION                         
 //================================================================
@@ -93,13 +79,12 @@ wire [inst_sig_width+inst_exp_width:0] sub1_out, div1_out; // mult1_out
 wire under_tolerance;
 
 // dummy signals
-wire [7:0] dummy1, dummy2, dummy3, dummy9, dummy10;
-wire dummy4, dummy5, dummy6;
-wire [inst_sig_width+inst_exp_width:0] dummy7, dummy8;
-DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB1_P (.a(out_gold), .b(out), .rnd(3'b000), .z(sub1_out), .status(dummy1));
-DW_fp_div  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) DIV1_P (.a(sub1_out), .b(out_gold), .rnd(3'b000), .z(div1_out), .status(dummy2));
-// DW_fp_mult #(inst_sig_width, inst_exp_width, inst_ieee_compliance) MUL1_P (.a(div1_out), .b(NEG_ONE), .rnd(3'b000), .z(mult1_out), .status(dummy3));
-DW_fp_cmp  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) CMP1_P (.a(div1_out_abs), .b(TOLERANCE), .altb(under_tolerance), .agtb(dummy4), .aeqb(dummy5), .unordered(dummy6), .z0(dummy7), .z1(dummy8), .status0(dummy9), .status1(dummy10), .zctr(1'b0));
+// wire [7:0] dummy1, dummy2, dummy3, dummy9, dummy10;
+// wire dummy4, dummy5, dummy6;
+// wire [inst_sig_width+inst_exp_width:0] dummy7, dummy8;
+DW_fp_sub  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) SUB1_P (.a(out_gold), .b(out), .rnd(3'b000), .z(sub1_out), .status());
+DW_fp_div  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) DIV1_P (.a(sub1_out), .b(out_gold), .rnd(3'b000), .z(div1_out), .status());
+DW_fp_cmp  #(inst_sig_width, inst_exp_width, inst_ieee_compliance) CMP1_P (.a(div1_out_abs), .b(TOLERANCE), .altb(under_tolerance), .agtb(), .aeqb(), .unordered(), .z0(), .z1(), .status0(), .status1(), .zctr(1'b0));
 
 always@(*) begin
 	if (out_gold == 32'h0000_0000) begin // prevent div by 0
@@ -107,9 +92,9 @@ always@(*) begin
 	end
 	else begin
 		div1_out_abs = (div1_out[31] == 0) ? div1_out : {1'b0, div1_out[30:0]}; // take abs value
-		// div1_out_abs = (div1_out[31] == 0) ? div1_out : mult1_out;
 	end
 end
+
 //=================================================================
 // Integers
 //=================================================================
@@ -172,26 +157,14 @@ initial begin
 	end
     @(negedge clk);
 
-	// for (patcount = 1; patcount <= PATTERN_NUM; patcount = patcount + 1) begin
-	// 	weights_task;
-	// 	repeat(gap)@(negedge clk);
-	// 	for (epoch = 0; epoch < EPOCHS; epoch = epoch + 1) begin // epoch_0 ~ epoch_24
-	// 		for (dataset_index = 0; dataset_index < DATA_SIZE; dataset_index = dataset_index + 1) begin // data_0 ~ data_99
-	// 			input_data; // read input data and target data
-	// 			wait_out_valid;
-	// 			check_ans;
-	// 			$display("\033[0;34mPASS PATTERN NO.%3d, EPOCH_%1d, DATA_%1d\033[m \033[0;32m Cycles: %3d\033[m", patcount, epoch+1, dataset_index+1, cycles);
-	// 		end
-	// 	end
-	// end
 	epoch = 0;
 	dataset_index = 0;
-	pat_no        = 0;
+	pat_no = 0;
 
 	for (patcount = 0; patcount < (PATTERN_NUM * EPOCHS * DATA_SIZE); patcount = patcount + 1) begin
 		// 1. weights_task every (EPOCHS * DATA_SIZE)
 		if (patcount % (EPOCHS * DATA_SIZE) == 0) begin
-			weights_task;
+			weights_task; // pull in_valid_w1 and in_valid_w2 high
 			repeat(gap) @(negedge clk);
 		end
 
@@ -199,9 +172,6 @@ initial begin
 		input_data;
 		wait_out_valid;
 		check_ans;
-
-		$display("\033[0;34mPASS PATTERN NO.%3d, EPOCH_%1d, DATA_%1d\033[m \033[0;32m Cycles: %3d\033[m",
-				pat_no, epoch + 1, dataset_index + 1, cycles);
 
 		// 3. Update epoch/dataset_index
 		dataset_index = dataset_index + 1;
@@ -229,11 +199,11 @@ task fclose_all;
     input integer output_file;
 
     begin
-        if (weight1_file)  $fclose(weight1_file);
-        if (weight2_file)  $fclose(weight2_file);
-        if (input_file)    $fclose(input_file);
-        if (target_file)   $fclose(target_file);
-        if (output_file)   $fclose(output_file);
+        if (weight1_file) $fclose(weight1_file);
+        if (weight2_file) $fclose(weight2_file);
+        if (input_file)   $fclose(input_file);
+        if (target_file)  $fclose(target_file);
+        if (output_file)  $fclose(output_file);
     end
 endtask
 
@@ -334,17 +304,21 @@ end endtask
 
 task check_ans; begin
     while (out_valid === 1) begin
-		$strobe("out = %h, out_gold = %h, div1_out_abs = %h = %.6f", out, out_gold, div1_out_abs, $bitstoshortreal(div1_out_abs));
+		$display("out = %h, out_gold = %h, div1_out_abs = %h = %.6f", out, out_gold, div1_out_abs, $bitstoshortreal(div1_out_abs));
 		if (out !== out_gold && !under_tolerance) begin // Fail, if abs(out_gold - out) / out_gold > 0.0001
 			$display("--------------------------------------------------------------------------------------------------------------------------------------------");
-			$display("                                                                   FAIL! WRONG OUTPUT!                                                      ");
-			$display("                                                           Pattern NO.%1d Epoch NO.%1d Data NO.%1d                                          ", pat_no, epoch, dataset_index);
-			$display("	                                                 y_pred = %.6f, y_gold = %.6f                                                             ", $bitstoshortreal(out), $bitstoshortreal(out_gold));
+			$display("                                                                 FAIL! WRONG OUTPUT!                                                        ");
+			$display("                                                         Pattern NO.%1d Epoch NO.%1d Data NO.%1d                                            ", pat_no, epoch, dataset_index);
 			$display("	                                                 y_pred = %h, y_gold = %h                                                                 ", out, out_gold);
-			$display("	                                             Error b/w golden = %.4f > tolerance = %.4f                                                   ", $bitstoshortreal(div1_out_abs), $bitstoshortreal(TOLERANCE));
+			$display("	                                                 y_pred = %.2e, y_gold = %.2e                                                             ", $bitstoshortreal(out), $bitstoshortreal(out_gold));
+			$display("	                                 Error = |(y_gold-y_pred)/y_gold| = %.2e > Tolerance = %.2e                                               ", $bitstoshortreal(div1_out_abs), $bitstoshortreal(TOLERANCE));
 			$display("--------------------------------------------------------------------------------------------------------------------------------------------");
 			@(negedge clk);
 			fclose_all(weight1_file, weight2_file, input_file, target_file, output_file); $finish;
+		end
+		else begin
+			$display("\033[0;34mPASS PATTERN NO.%03d, EPOCH_%02d, DATA_%03d\033[m \033[0;32m Cycles:%2d\033[m",
+				pat_no, epoch, dataset_index, cycles);
 		end
 		@(negedge clk);
     end
